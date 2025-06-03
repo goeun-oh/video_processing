@@ -16,7 +16,7 @@ module SCCB_Controller (
         DATA,
         STAY,
         STOP
-    } name;
+    } state_e;
 
 
     state_e state;
@@ -38,6 +38,15 @@ module SCCB_Controller (
         end else if (tick_400kHz) begin
             start <= 1'b0;
         end
+    end
+    always_comb begin
+        scl = 1'b1;
+        case(tick_cnt)
+        2'b00 : scl = 1'b0; 
+        2'b01 : scl = 1'b1;
+        2'b10 : scl = 1'b1;
+        2'b11 : scl = 1'b0;
+        endcase
     end
 
 
