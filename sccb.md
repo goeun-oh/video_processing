@@ -6,7 +6,7 @@ SCCB의 역할: OV7670의 동작모드를 설정하는 역할을 한다.
 
 이제 독립시켜야 함
 
-카메라를 설정하기 위해 OV7670의 00~C9 까지의 레지스터를 설정해 주어야함. 
+카메라를 설정하기 위해 OV7670의 00~C9 까지의 레지스터를 설정해 주어야함.  
 [설정 값이 있는 rom code](./OV7670_config_rom.sv)
 
 ---  
@@ -19,8 +19,8 @@ OV7670 document에 다음과 같이 SCCB Timing 관련 표가 있다.
 ![](image.png)  
 
 ### 1. SIO_C(SCL) 만들기
-**1) 400kHz tick 만들기**
-[](./tick_400kHz.sv)  
+**1) 400kHz tick 만들기**  
+[tick 400kHz code](./tick_400kHz.sv)  
 SCL (SIO_C) 의 clk frequency는 400KHZ로 맞춰주어야 한다.
 
 100MHZ CLK 을 400KHZ로 만드려면 : 250 count 세면 됨
