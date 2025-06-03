@@ -37,13 +37,15 @@ I2C에서 해봤듯이 start, stop, data 등 상태에서 정의되는 SCL 값�
 OV7670 레지스터는 카메라를 설정하기 위해 00~C9 까지의 레지스터를 설정해 주어야함.  
 이를 위해 아래와 같은 상태머신을 구축할 것.
 
-    IDLE -> START1 -> START2 -> DATA -> STOP1 -> STOP2
+    IDLE -> START-> DATA -> STAY -> STOP
 
 (1) IDLE  
-START 신호 감지되면 -> START1로 이동
+START 신호 감지되면 -> START로 이동
 
 > START 신호는 어떻게 줄건지?
     보통 버튼으로 주거나 아니면 reset이 인가되면 ov7670 register랑 뭔가 연계해서 하는 것 같음. 이건 나중에 생각할 것
+    -> reset이 인가되면 자동으로 주는걸로 결정
+    
 
 
 **SCCB device ID**

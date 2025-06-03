@@ -11,6 +11,8 @@ module OV7670_VGA_Display (
     input  logic       ov7670_href,
     input  logic       ov7670_v_sync,
     input  logic [7:0] ov7670_data,
+    output logic scl,
+    output logic sda,
 
     // export signals
     output logic       h_sync,
@@ -31,6 +33,9 @@ module OV7670_VGA_Display (
     logic DE;
     logic w_rclk, rclk;
 
+
+    SCCB U_SCCB (.*);
+    
     pix_clk_gen U_OV7670_clk_gen(
         .clk(clk),
         .reset(reset),
