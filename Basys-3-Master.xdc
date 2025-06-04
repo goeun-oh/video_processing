@@ -25,7 +25,8 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk
 # set_property -dict { PACKAGE_PIN R3   IOSTANDARD LVCMOS33 } [get_ports { sw_red[3] }]; #IO_L2P_T0_34               ,Sch=SW11
 # # #set_property -dict { PACKAGE_PIN W2   IOSTANDARD LVCMOS33 } [get_ports { sw[12] }]; #IO_L5N_T0_34               ,Sch=SW12
 # # #set_property -dict { PACKAGE_PIN U1   IOSTANDARD LVCMOS33 } [get_ports { sw[13] }]; #IO_L3N_T0_DQS_34           ,Sch=SW13
-# # #set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports { sw[14] }]; #IO_L3P_T0_DQS_34           ,Sch=SW14
+set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports { upscale }]; #IO_L3P_T0_DQS_34           ,Sch=SW14
+
 # set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports { sel }]; #IO_L1P_T0_34               ,Sch=SW15
 
 
@@ -90,7 +91,7 @@ set_property -dict { PACKAGE_PIN U18  IOSTANDARD LVCMOS33 } [get_ports { reset }
 ##Pmod Header JB
 
 # set_property -dict { PACKAGE_PIN A14  IOSTANDARD LVCMOS33 } [get_ports { JB[0] }]; #IO_L6P_T0_16       ,Sch=JB1
-set_property -dict { PACKAGE_PIN A16  IOSTANDARD LVCMOS33 } [get_ports { ov7670_pclk }]; #IO_L12P_T1_MRCC_16 ,Sch=JB2
+set_property -dict { PACKAGE_PIN A16  IOSTANDARD LVCMOS33 } [get_ports { ov7670_pclk }]; #IO_L12P_T1_MRCC_16 ,Sch=JB2   
 set_property -dict { PACKAGE_PIN B15  IOSTANDARD LVCMOS33 } [get_ports { ov7670_v_sync }]; #IO_L11N_T1_SRCC_16 ,Sch=JB3
 # set_property -dict { PACKAGE_PIN B16  IOSTANDARD LVCMOS33 } [get_ports { ov7670_pclk }]; #IO_L13N_T2_MRCC_16 ,Sch=JB4
 set_property -dict { PACKAGE_PIN A15  IOSTANDARD LVCMOS33 } [get_ports { scl }]; #IO_L6N_T0_VREF_16  ,Sch=JB7

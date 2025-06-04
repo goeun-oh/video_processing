@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module ball_rom(
-    input logic [9:0] x_offset,
-    input logic [9:0] y_offset,
+    input logic [4:0] x_offset,
+    input logic [4:0] y_offset,
     output logic [15:0] pixel_data
 );
     logic [15:0] rom_data [0:1023];  // 32x32 = 1024 픽셀 필요
