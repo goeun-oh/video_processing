@@ -52,8 +52,7 @@
 
 ---
 
-## 🧑‍💻 실행 방법
+## 🧑‍💻 실행 전 필요한 라이브러리 다운운
 
 ```bash
 pip install pygame opencv-python numpy
-python main.py
