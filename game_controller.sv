@@ -26,7 +26,7 @@ module game_controller(
 
     logic [1:0] x_counter, x_counter_next;
 
-    logic [19:0] ball_speed = 20'd500000;
+    logic [19:0] ball_speed = 20'd125000;
 
     logic [9:0] y_min = 0;
     logic [9:0] y_max;
@@ -75,12 +75,12 @@ module game_controller(
                 end else begin
                     if (ball_counter >= ball_speed) begin
                         // x축 이동 조절
-                        if (x_counter == 2'd2) begin
-                            ball_x_next = ball_x_out + 1;
-                            x_counter_next = 0;
-                        end else begin
-                            x_counter_next = x_counter + 1;
-                        end
+                        //if (x_counter == 2'd2) begin
+                            ball_x_next = ball_x_out + 4;
+                        //    x_counter_next = 0;
+                        //end else begin
+                        //    x_counter_next = x_counter + 1;
+                        //end
 
                         ball_counter_next = 0;
 
@@ -114,12 +114,12 @@ module game_controller(
                     x_counter_next = 0;
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        if (x_counter == 2'd2) begin
-                            ball_x_next = ball_x_out - 1;
-                            x_counter_next = 0;
-                        end else begin
-                            x_counter_next = x_counter + 1;
-                        end
+                        //if (x_counter == 2'd2) begin
+                            ball_x_next = ball_x_out - 4;
+                        //    x_counter_next = 0;
+                        //end else begin
+                        //    x_counter_next = x_counter + 1;
+                        //end
 
                         ball_counter_next = 0;
 
