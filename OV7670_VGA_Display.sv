@@ -19,7 +19,9 @@ module OV7670_VGA_Display (
     output logic       v_sync,
     output logic [3:0] red_port,
     output logic [3:0] green_port,
-    output logic [3:0] blue_port
+    output logic [3:0] blue_port,
+    input logic upscale
+
 );
 
     logic we;
