@@ -4,7 +4,10 @@ module game_controller(
     input logic clk_25MHZ,
     input logic reset,
     output logic [9:0] ball_x_out,    // 공의 X 좌표
-    output logic [9:0] ball_y_out     // 공의 Y 좌표 (고정)
+    output logic [9:0] ball_y_out,     // 공의 Y 좌표 (고정)
+
+    input logic upscale,
+    input logic collision_detected
     );
 
 
@@ -51,21 +54,45 @@ module game_controller(
             end
 
             RUNNING_RIGHT: begin
-                if (ball_x_out >= 320 - 32)
-                    next = RUNNING_LEFT;
-                else begin
-                    if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out + 1;
+                if (upscale) begin
+                    if ((ball_x_out >= 640 - 20) || collision_detected) begin
+                        next = RUNNING_LEFT;
                         ball_counter_next = 0;
                     end
                     else begin
-                        ball_counter_next = ball_counter + 1;
+                        if (ball_counter >= ball_speed) begin
+                            ball_x_next = ball_x_out + 1;
+                            ball_counter_next = 0;
+                        end
+                        else begin
+                            ball_counter_next = ball_counter + 1;
+                        end
+                    end
+                end
+
+                else begin
+                    if ((ball_x_out >= 320 - 20) || collision_detected) begin
+                        next = RUNNING_LEFT;
+                        ball_counter_next = 0;
+                    end
+                    else begin
+                        if (ball_counter >= ball_speed) begin
+                            ball_x_next = ball_x_out + 1;
+                            ball_counter_next = 0;
+                        end
+                        else begin
+                            ball_counter_next = ball_counter + 1;
+                        end
                     end
                 end
             end
+
             RUNNING_LEFT: begin
-                if (ball_x_out == 0)
+                if (ball_x_out == 0) begin
                     next = RUNNING_RIGHT;
+                    ball_x_next = ball_x_out + 1; // 반사 직후 이동
+                    ball_counter_next = 0;
+                end
                 else begin
                     if (ball_counter >= ball_speed) begin
                         ball_x_next = ball_x_out - 1;
