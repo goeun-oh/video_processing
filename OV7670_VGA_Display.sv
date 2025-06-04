@@ -11,15 +11,15 @@ module OV7670_VGA_Display (
     input  logic       ov7670_href,
     input  logic       ov7670_v_sync,
     input  logic [7:0] ov7670_data,
+    output logic scl,
+    output logic sda,
 
     // export signals
     output logic       h_sync,
     output logic       v_sync,
     output logic [3:0] red_port,
     output logic [3:0] green_port,
-    output logic [3:0] blue_port,
-
-    input logic upscale
+    output logic [3:0] blue_port
 );
 
     logic we;
@@ -32,14 +32,14 @@ module OV7670_VGA_Display (
     logic [9:0] y_pixel;
     logic DE;
     logic w_rclk, rclk;
-
     logic [15:0] camera_pixel;
     logic [15:0] rom_pixel;
 
     logic [4:0] x_offset;
     logic [4:0] y_offset;
 
-
+    SCCB U_SCCB (.*);
+    
     pix_clk_gen U_OV7670_clk_gen(
         .clk(clk),
         .reset(reset),
@@ -97,15 +97,14 @@ module OV7670_VGA_Display (
         .rData(rData),
 
         // export
-        // .red_port(red_port),
-        // .green_port(green_port),
-        // .blue_port(blue_port),
+        //.red_port(red_port),
+        //.green_port(green_port),
+        //.blue_port(blue_port)
         .camera_pixel(camera_pixel),
         .upscale(upscale)
     );
 
-
-    ball_rom U_BALL_ROM(
+   ball_rom U_BALL_ROM(
         .x_offset(x_offset),
         .y_offset(y_offset),
         .pixel_data(rom_pixel)
@@ -160,5 +159,3 @@ module OV7670_VGA_Display (
     );
 
 endmodule
-
-

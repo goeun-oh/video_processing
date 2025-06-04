@@ -124,7 +124,7 @@ module vga_decoder (
     assign h_sync = !((h_counter >= (H_Visible_area + H_Front_porch)) 
     && (h_counter < (H_Visible_area + H_Front_porch + H_Sync_pulse)));
 
-    assign v_sync = !((v_counter >= (V_Visible_area + V_Front_porch)) // 490 <= v counter < 492 이면 0
+    assign v_sync = !((v_counter >= (V_Visible_area + V_Front_porch)) 
     && (v_counter < (V_Visible_area + V_Front_porch + V_Sync_pulse)));
 
     assign DE = (h_counter < H_Visible_area) && (v_counter < V_Visible_area);
