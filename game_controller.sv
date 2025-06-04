@@ -7,7 +7,9 @@ module game_controller(
     output logic [9:0] ball_y_out,     // 공의 Y 좌표 (고정)
 
     input logic upscale,
-    input logic collision_detected
+    input logic collision_detected,
+
+    input logic [9:0] estimated_speed
     );
 
 
@@ -24,7 +26,7 @@ module game_controller(
     logic [9:0] ball_x_next, ball_y_next;
 
     logic [19:0] ball_counter, ball_counter_next;
-    logic [19:0] ball_speed = 20'd500000;
+    logic [19:0] ball_speed = (estimated_speed > 20) ? 20'd125000 : 20'd270000;
 
     // 상태 레지스터 및 위치 업데이트
     always_ff @(posedge clk_25MHZ or posedge reset) begin

@@ -116,6 +116,7 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
+    logic [9:0] estimated_speed;
 
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
@@ -123,7 +124,8 @@ module OV7670_VGA_Display (
         .ball_x_out(ball_x),    // 공의 X 좌표
         .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
         .upscale(upscale),
-        .collision_detected(collision_detected)
+        .collision_detected(collision_detected),
+        .estimated_speed(estimated_speed)
     );
 
 
@@ -157,7 +159,8 @@ module OV7670_VGA_Display (
         .is_hit_area(is_hit_area),       // 화면 상 물체와 공이 겹치는 위치
         .is_target_color(is_target_color),    // 해당 픽셀이 빨간색인지 여부
 
-        .collision_detected(collision_detected)
+        .collision_detected(collision_detected),
+        .estimated_speed(estimated_speed)
     );
 
 endmodule
