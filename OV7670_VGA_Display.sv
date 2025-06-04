@@ -32,7 +32,11 @@ module OV7670_VGA_Display (
     logic [9:0] y_pixel;
     logic DE;
     logic w_rclk, rclk;
+    logic [15:0] camera_pixel;
+    logic [15:0] rom_pixel;
 
+    logic [4:0] x_offset;
+    logic [4:0] y_offset;
 
     SCCB U_SCCB (.*);
     
@@ -93,10 +97,65 @@ module OV7670_VGA_Display (
         .rData(rData),
 
         // export
-        .red_port(red_port),
-        .green_port(green_port),
-        .blue_port(blue_port)
+        //.red_port(red_port),
+        //.green_port(green_port),
+        //.blue_port(blue_port)
+        .camera_pixel(camera_pixel),
+        .upscale(upscale)
     );
 
+   ball_rom U_BALL_ROM(
+        .x_offset(x_offset),
+        .y_offset(y_offset),
+        .pixel_data(rom_pixel)
+    );
+
+    logic [9:0] ball_x, ball_y;
+    logic is_hit_area;
+    logic collision_detected;
+    logic is_target_color;
+
+    game_controller U_GAME_CONTROLLER(
+        .clk_25MHZ(ov7670_xclk),
+        .reset(reset),
+        .ball_x_out(ball_x),    // 공의 X 좌표
+        .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
+        .upscale(upscale),
+        .collision_detected(collision_detected)
+    );
+
+
+
+    Video_Ball_Display U_VIDEO_BALL_DISPLAY(
+        .x_pixel(x_pixel),
+        .y_pixel(y_pixel),
+        .camera_pixel(camera_pixel),
+        .rom_pixel(rom_pixel),
+
+        .red_port(red_port),
+        .green_port(green_port),
+        .blue_port(blue_port),
+        .x_offset(x_offset),
+        .y_offset(y_offset),
+        .ball_x(ball_x),
+        .ball_y(ball_y),
+        .is_hit_area(is_hit_area)
+        );
+
+    color_detector U_COLOR_DETECT(
+        .camera_pixel(camera_pixel),
+        .is_target_color(is_target_color)
+    );
+
+    Collision_Detector U_COLLISION_DETECTOR(
+        .clk_25MHz(ov7670_xclk),
+        .reset(reset),
+        .x_pixel(x_pixel),
+        .y_pixel(y_pixel),
+        .is_hit_area(is_hit_area),       // 화면 상 물체와 공이 겹치는 위치
+        .is_target_color(is_target_color),    // 해당 픽셀이 빨간색인지 여부
+
+        .collision_detected(collision_detected)
+    );
 
 endmodule
