@@ -16,7 +16,9 @@ module OV7670_MemController (
     logic [15:0] pixel_data;
 
     // h counter는 실제 320인데 640으로 계산했으므로 주소계산에서 shift로 나누기 2
-    assign wAddr = v_counter * 320 + h_counter[9:1];
+    assign wAddr = (v_counter == 0 && h_counter[9:1] < 2) 
+               ? 1'bz 
+               : v_counter * 320 + h_counter[9:1] - 2;        
     assign wData = pixel_data;
 
     always_ff @(posedge pclk, posedge reset) begin : h_sequence
