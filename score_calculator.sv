@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module score_calculator (
-    input  logic       clk_25MHz,
+    input  logic       clk,
     input  logic       reset,
     input  logic       collision_detected,
     input logic        is_ball_moving_left,
@@ -17,7 +17,7 @@ module score_calculator (
     
     assign score = score_reg;
 
-    always_ff @(posedge clk_25MHz or posedge reset ) begin
+    always_ff @(posedge clk or posedge reset ) begin
         if(reset || game_start) begin
             state <= IDLE;
             score_reg <=0;
