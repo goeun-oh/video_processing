@@ -20,7 +20,7 @@ module Video_Display(
     );
     // 글자 위치 상수
     localparam int TEXT_X = 500;
-    localparam int TEXT_Y = 400;
+    localparam int TEXT_Y = 20;
     // 폰트 관련 파라미터
     localparam int FONT_WIDTH = 8; // 글자 폭
     localparam int FONT_HEIGHT = 8; // 글자 높이
@@ -29,7 +29,7 @@ module Video_Display(
     parameter OVERLAY_Y = 80;
 
     logic in_ball_overlay_area;
-    logic [11:0] score_text;
+    logic [15:0] score_text;
 
     // overlay offset
     assign x_offset = x_pixel - ball_x;
@@ -40,8 +40,8 @@ module Video_Display(
     assign in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 20) &&
                              (y_pixel >= ball_y && y_pixel < ball_y + 20);
 
-    assign in_score_overlay_area = (x_pixel >= TEXT_X && x_pixel < TEXT_X + 2*FONT_WIDTH &&
-            y_pixel >= TEXT_Y && y_pixel < TEXT_Y + FONT_HEIGHT);
+    assign in_score_overlay_area = (x_pixel >= TEXT_X && x_pixel < TEXT_X + 2*FONT_WIDTH) &&
+            (y_pixel >= TEXT_Y && y_pixel < TEXT_Y + FONT_HEIGHT);
 
     // 최종 출력 픽셀 결정
     logic [15:0] display_pixel;
@@ -80,7 +80,7 @@ module Video_Display(
         digit1 = (score / 10) % 10; // 10의 자리
         digit2 = score % 10; // 1의 자리
         
-        score_text = 12'h000; // 검정색
+        score_text = 16'h0000; // 검정색
 
         // 점수 출력 위치 내에 있을 때만 계산
         if (in_score_overlay_area) begin
@@ -97,7 +97,7 @@ module Video_Display(
             bit_on = font_data[7 - font_column];
 
             if (bit_on)
-                score_text = 12'hFFF; // 흰색
+                score_text = 16'hFFFF; // 흰색
         end
     end
 

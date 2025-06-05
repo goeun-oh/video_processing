@@ -23,7 +23,10 @@ module OV7670_VGA_Display (
 
     input logic upscale,
     output logic [9:0] estimated_speed,
-    input logic game_start
+    input logic game_start,
+
+    output [7:0] seg,
+    output [3:0] seg_comm
     );
     logic w_game_start;
 
@@ -187,5 +190,8 @@ module OV7670_VGA_Display (
         .game_start(w_game_start),
         .score(score)
     );
-    
+    fnd_controller U_FND(
+        .*,
+        .Digit({1'b0,score})
+        );
 endmodule
