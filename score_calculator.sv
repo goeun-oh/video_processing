@@ -38,7 +38,7 @@ module score_calculator (
                end 
             end
             START: begin
-                if(x_pixel <= 0 && is_ball_moving_left) begin
+                if(x_pixel <= 0) begin
                     score_next = score_reg +1;
                     state_next = IDLE;
                 end
