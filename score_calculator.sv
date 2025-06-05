@@ -5,8 +5,8 @@ module score_calculator (
     input  logic       reset,
     input  logic       collision_detected,
     input logic        is_ball_moving_left,
-    input  logic x_pixel,
-    input  logic       game_start,
+    input  logic [9:0] x_pixel,
+//    input  logic       game_start,
     output logic [7:0] score
 );
 
@@ -18,7 +18,7 @@ module score_calculator (
     assign score = score_reg;
 
     always_ff @(posedge clk or posedge reset ) begin
-        if(reset || game_start) begin
+        if(reset && x_pixel == 640 - 20) begin
             state <= IDLE;
             score_reg <=0;
         end else begin
@@ -38,7 +38,7 @@ module score_calculator (
                end 
             end
             START: begin
-                if(x_pixel == 0) begin
+                if(x_pixel == 10'b0) begin
                     score_next = score_reg +1;
                     state_next = STAY;
                 end

@@ -181,8 +181,7 @@ module OV7670_VGA_Display (
         .reset(reset),
         .collision_detected(collision_detected),
         .is_ball_moving_left(is_ball_moving_left),
-        .x_pixel(x_pixel[0]),
-        .game_start(game_start),
+        .x_pixel(x_pixel),
         .score(score)
     );
 
