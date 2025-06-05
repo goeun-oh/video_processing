@@ -11,8 +11,13 @@ module color_detector (
     assign B = camera_pixel[4:1];
 
     // 빨간색: R 크고, G/B 작을 때
-    assign is_target_color = ((R >= 4'd12) && (G >= 4'd12) && (B >= 4'd12));
-
+    // 빨간색: R 크고, G/B 작을 때
+    assign is_target_color = (
+        // 어두운 빨강
+        ((R >= 4'd10 && R <= 4'd12) && (G <= 4'd3) && (B <= 4'd3)) ||
+        // 밝은 빨강
+        ((R >= 4'd13) && (G <= 4'd5) && (B <= 4'd5))
+    );
 
 endmodule
 
