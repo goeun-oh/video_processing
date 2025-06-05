@@ -72,7 +72,7 @@ module game_controller(
             end
 
             RUNNING_RIGHT: begin
-                if ((ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) || collision_detected) begin
+                if ((ball_x_out >= ( 640 - 20)) || collision_detected) begin
                     next = RUNNING_LEFT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
@@ -107,7 +107,7 @@ module game_controller(
                 is_ball_moving_left = 1'b1;
 
                 if (collision_detected) begin
-                    safe_speed = (estimated_speed < 2) ? 2 : estimated_speed;
+                    safe_speed = (estimated_speed < 2) ? 1 : estimated_speed;
                     ball_speed_next = 32'd270000 / safe_speed;
                 end
 

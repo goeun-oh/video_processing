@@ -52,9 +52,9 @@ module Collision_Detector (
     logic collision_detected_next;
     logic [9:0] estimated_speed_next;
 
-
+    logic signed [10:0] delta_x, delta_x_next;
     parameter COLLISION_THRESHOLD = 19;
-    parameter TRACK_DURATION = 15;
+    parameter TRACK_DURATION = 5;
 
 
 
@@ -69,6 +69,7 @@ module Collision_Detector (
             curr_center_x <= 0;
             collision_detected <= 0;
             estimated_speed <= 0;
+            delta_x <=0;
         end
         else begin
             state <= next;
@@ -80,6 +81,7 @@ module Collision_Detector (
             curr_center_x <= curr_center_x_next;
             collision_detected <= collision_detected_next;
             estimated_speed <= estimated_speed_next;
+            delta_x <= delta_x_next;
         end
     end
 
@@ -94,6 +96,7 @@ module Collision_Detector (
         curr_center_x_next = curr_center_x;
         collision_detected_next = 0;
         estimated_speed_next = estimated_speed;
+        delta_x_next = delta_x;
 
         case (state)
             IDLE: begin
@@ -110,7 +113,7 @@ module Collision_Detector (
                     if (detect_pixel_count >= COLLISION_THRESHOLD) begin
                         prev_center_x_next = detect_x_sum / detect_pixel_count;
                         next = TRACK;
-                        track_x_sum_next = 0;
+                        track_x_sum_next = prev_center_x;
                         track_pixel_count_next = 0;
                     end
                 end else begin
@@ -118,6 +121,7 @@ module Collision_Detector (
                 end
             end
             TRACK: begin
+                    collision_detected_next = 1;
                     if (is_hit_area && is_target_color) begin
                         track_x_sum_next = track_x_sum + x_pixel;
                         track_pixel_count_next = track_pixel_count + 1;
@@ -131,10 +135,10 @@ module Collision_Detector (
                 end
 
            CALC: begin
-                logic signed [10:0] delta_x;
-                delta_x = curr_center_x - prev_center_x;
+                delta_x_next = curr_center_x - prev_center_x;
+                collision_detected_next = 1;
                 if ((is_ball_moving_left && delta_x > 0) || (!is_ball_moving_left && delta_x < 0)) begin
-                    collision_detected_next = 1;
+//                    collision_detected_next = 1;
                     estimated_speed_next = (delta_x > 0) ? delta_x : -delta_x;
                 end
                 next = WAIT_RELEASE;
