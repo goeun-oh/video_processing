@@ -23,8 +23,9 @@ module OV7670_VGA_Display (
 
     input logic upscale,
     output logic [9:0] estimated_speed,
-    output logic [1:0] coll_det_state
-);
+
+    input logic game_start
+    );
 
     logic we;
     logic [16:0] wAddr;
@@ -118,7 +119,15 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
+    logic w_game_start;
     //logic [9:0] estimated_speed;
+
+    btn_debounce U_BTN_DEBOUNCE(
+        .clk(clk),
+        .reset(reset),
+        .i_btn(game_start),
+        .o_btn(w_game_start)
+    );
 
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
@@ -127,7 +136,9 @@ module OV7670_VGA_Display (
         .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
         .upscale(upscale),
         .collision_detected(collision_detected),
-        .estimated_speed(estimated_speed)
+        .estimated_speed(estimated_speed),
+        .is_ball_moving_left(is_ball_moving_left),
+        .game_start(w_game_start)
     );
 
 
@@ -154,6 +165,7 @@ module OV7670_VGA_Display (
     );
 
     Collision_Detector U_COLLISION_DETECTOR(
+        .is_ball_moving_left(is_ball_moving_left),
         .clk_25MHz(ov7670_xclk),
         .reset(reset),
         .x_pixel(x_pixel),
@@ -162,8 +174,7 @@ module OV7670_VGA_Display (
         .is_target_color(is_target_color),    // 해당 픽셀이 빨간색인지 여부
 
         .collision_detected(collision_detected),
-        .estimated_speed(estimated_speed),
-        .coll_det_state(coll_det_state)
+        .estimated_speed(estimated_speed)
     );
 
 endmodule

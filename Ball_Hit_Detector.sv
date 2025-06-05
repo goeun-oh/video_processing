@@ -28,123 +28,139 @@ module Collision_Detector (
     input logic [9:0] y_pixel,
     input logic is_hit_area,       // 화면 상 물체와 공이 겹치는 위치
     input logic is_target_color,    // 해당 픽셀이 빨간색인지 여부
-
+    input logic is_ball_moving_left,
     output logic collision_detected,
-    output logic [9:0] estimated_speed,
-    output logic [1:0] coll_det_state
-);
+    output logic [9:0] estimated_speed
+    );
 
-    typedef enum logic [1:0] {
+    typedef enum  {
         IDLE = 0,
-        START = 1,
-        CALC_SPEED = 2
+        DETECT = 1,
+        TRACK = 2,
+        CALC = 3,
+        WAIT_RELEASE=4
     } state_t;
 
     state_t state, next;
 
-    logic [15:0] x_sum, x_sum_next;
-    logic [9:0] collision_pixel_count, collision_pixel_count_next;
-    logic collision_detected_next;
-
-    logic [9:0] curr_center_x, curr_center_x_next;
+    //충돌 탐지용
+    logic [15:0] detect_x_sum, detect_x_sum_next;
+    logic [9:0] detect_pixel_count, detect_pixel_count_next;
     logic [9:0] prev_center_x, prev_center_x_next;
+    
+    // 추적용
+    logic [15:0] track_x_sum, track_x_sum_next;
+    logic [9:0]  track_pixel_count, track_pixel_count_next;
+    logic [9:0] curr_center_x, curr_center_x_next;
+
+    //결과  
+    logic collision_detected_next;
     logic [9:0] estimated_speed_next;
 
-    logic [19:0] tick_counter, tick_counter_next;
+    logic signed [10:0] delta_x, delta_x_next;
     parameter COLLISION_THRESHOLD = 19;
+    parameter TRACK_DURATION = 5;
 
-    assign coll_det_state = state;
 
 
     always_ff @(posedge clk_25MHz or posedge reset) begin
         if (reset) begin
             state <= IDLE;
-            collision_pixel_count <= 0;
-            collision_detected <= 0;
-            curr_center_x <= 0;
+            detect_x_sum <= 0;
+            detect_pixel_count <= 0;
             prev_center_x <= 0;
+            track_x_sum <=0;
+            track_pixel_count <=0;
+            curr_center_x <= 0;
+            collision_detected <= 0;
             estimated_speed <= 0;
-            x_sum <= 0;
-            tick_counter <= 0;
+            delta_x <=0;
         end
         else begin
             state <= next;
-            collision_pixel_count <= collision_pixel_count_next;
-            collision_detected <= collision_detected_next;
-            curr_center_x <= curr_center_x_next;
+            detect_x_sum <= detect_x_sum_next;
+            detect_pixel_count <= detect_pixel_count_next;
             prev_center_x <= prev_center_x_next;
+            track_x_sum <= track_x_sum_next;
+            track_pixel_count <= track_pixel_count_next;
+            curr_center_x <= curr_center_x_next;
+            collision_detected <= collision_detected_next;
             estimated_speed <= estimated_speed_next;
-            x_sum <= x_sum_next;
-            tick_counter <= tick_counter_next;
+            delta_x <= delta_x_next;
         end
     end
 
     // collusion
     always_comb begin
         next = state;
-
-        //collusion
-        collision_pixel_count_next = collision_pixel_count;
-        collision_detected_next = collision_detected;    
-
-        // speed
-        x_sum_next = x_sum;
-        curr_center_x_next = curr_center_x;
+        detect_x_sum_next = detect_x_sum;
+        detect_pixel_count_next = detect_pixel_count;
         prev_center_x_next = prev_center_x;
+        track_x_sum_next = track_x_sum;
+        track_pixel_count_next = track_pixel_count;
+        curr_center_x_next = curr_center_x;
+        collision_detected_next = 0;
         estimated_speed_next = estimated_speed;
-        tick_counter_next = tick_counter;
+        delta_x_next = delta_x;
+
         case (state)
             IDLE: begin
                 if (is_hit_area && is_target_color) begin
-                    next = START;
-                    //prev_center_x_next = x_pixel;
-                    x_sum_next = x_pixel;
-                    collision_pixel_count_next = collision_pixel_count + 1;
-                    tick_counter_next = tick_counter + 1;
-                    //curr_center_x_next = x_pixel; // hit 한 순간 x pixel
-                end
-
-                else begin
-                    x_sum_next       = 0;
-                    collision_detected_next = 0;
-                    collision_pixel_count_next = 0;
-                    tick_counter_next = 0;
-                end
-            end 
-
-            START: begin
-                if (is_hit_area && is_target_color) begin
-                    if (collision_pixel_count >= COLLISION_THRESHOLD) begin
-                        next = CALC_SPEED;
-                        collision_detected_next = 1;
-                        curr_center_x_next   = x_sum / collision_pixel_count;
-                    end
-                    else begin
-                        x_sum_next = x_sum + x_pixel;
-                        tick_counter_next = tick_counter + 1;
-                        collision_pixel_count_next = collision_pixel_count + 1;
-                    end
-                end
-
-                else begin
-                    next = IDLE;
-                    tick_counter_next = 0;
+                    next = DETECT;
+                    detect_x_sum_next = x_pixel;
+                    detect_pixel_count_next = 1;
                 end
             end
+            DETECT: begin
+                if (is_hit_area && is_target_color) begin
+                    detect_x_sum_next = detect_x_sum + x_pixel;
+                    detect_pixel_count_next = detect_pixel_count + 1;
+                    if (detect_pixel_count >= COLLISION_THRESHOLD) begin
+                        prev_center_x_next = detect_x_sum / detect_pixel_count;
+                        next = TRACK;
+                        track_x_sum_next = prev_center_x;
+                        track_pixel_count_next = 0;
+                    end
+                end else begin
+                    next = IDLE;
+                end
+            end
+            TRACK: begin
+                    collision_detected_next = 1;
+                    if (is_hit_area && is_target_color) begin
+                        track_x_sum_next = track_x_sum + x_pixel;
+                        track_pixel_count_next = track_pixel_count + 1;
+                        if (track_pixel_count >= TRACK_DURATION) begin
+                            curr_center_x_next = track_x_sum / track_pixel_count;
+                            next = CALC;
+                        end
+                    end else begin
+                        next = IDLE;
+                    end
+                end
 
-            CALC_SPEED: begin
-                estimated_speed_next = (curr_center_x > prev_center_x) ?
-                                   ((curr_center_x - prev_center_x)) :
-                                   ((prev_center_x - curr_center_x));
+           CALC: begin
+                delta_x_next = curr_center_x - prev_center_x;
                 collision_detected_next = 1;
-                curr_center_x_next = 0;
-                prev_center_x_next = curr_center_x; // 이전 중심 저장
-                tick_counter_next = 0;
-                collision_pixel_count_next = 0;
-                x_sum_next = 0;
+                if ((is_ball_moving_left && delta_x > 0) || (!is_ball_moving_left && delta_x < 0)) begin
+//                    collision_detected_next = 1;
+                    estimated_speed_next = (delta_x > 0) ? delta_x : -delta_x;
+                end
+                next = WAIT_RELEASE;
+            end
+
+        WAIT_RELEASE: begin
+            // 색깔이 사라지면 다시 idle로
+            if (!is_hit_area || !is_target_color) begin
                 next = IDLE;
             end
+            // 새 충돌이 또 시작되면 DETECT로 다시 감
+            else if (is_hit_area && is_target_color && is_ball_moving_left) begin
+                next = DETECT;
+            end
+        end
 
+            
         endcase
     end
 

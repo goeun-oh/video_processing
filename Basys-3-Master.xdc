@@ -45,8 +45,8 @@ set_property -dict { PACKAGE_PIN V3   IOSTANDARD LVCMOS33 } [get_ports { estimat
 #set_property -dict { PACKAGE_PIN U3   IOSTANDARD LVCMOS33 } [get_ports { led[11] }]; #IO_L9P_T1_DQS_34             ,Sch=LED11
 #set_property -dict { PACKAGE_PIN P3   IOSTANDARD LVCMOS33 } [get_ports { led[12] }]; #IO_L12N_T1_MRCC_35           ,Sch=LED12
 #set_property -dict { PACKAGE_PIN N3   IOSTANDARD LVCMOS33 } [get_ports { led[13] }]; #IO_L12P_T1_MRCC_35           ,Sch=LED13
-set_property -dict { PACKAGE_PIN P1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[0] }]; #IO_L19N_T3_VREF_35           ,Sch=LED14
-set_property -dict { PACKAGE_PIN L1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[1] }]; #IO_L6N_T0_VREF_35            ,Sch=LED15
+# set_property -dict { PACKAGE_PIN P1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[0] }]; #IO_L19N_T3_VREF_35           ,Sch=LED14
+# set_property -dict { PACKAGE_PIN L1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[1] }]; #IO_L6N_T0_VREF_35            ,Sch=LED15
 
 
 ##7 segment display
@@ -69,7 +69,7 @@ set_property -dict { PACKAGE_PIN L1   IOSTANDARD LVCMOS33 } [get_ports { coll_de
 ##Buttons
 
 set_property -dict { PACKAGE_PIN U18  IOSTANDARD LVCMOS33 } [get_ports { reset }]; #IO_L18N_T2_A11_D27_14 ,Sch=BTNC
-#set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { btnU }]; #IO_L17N_T2_A13_D29_14 ,Sch=BTNU
+set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_start }]; #IO_L17N_T2_A13_D29_14 ,Sch=BTNU
 #set_property -dict { PACKAGE_PIN W19  IOSTANDARD LVCMOS33 } [get_ports { btnL }]; #IO_L16N_T2_A15_D31_14 ,Sch=BTNL
 #set_property -dict { PACKAGE_PIN T17  IOSTANDARD LVCMOS33 } [get_ports { btnR }]; #IO_L17P_T2_A14_D30_14 ,Sch=BTNR
 #set_property -dict { PACKAGE_PIN U17  IOSTANDARD LVCMOS33 } [get_ports { btnD }]; #IO_L18P_T2_A12_D28_14 ,Sch=BTND
