@@ -59,7 +59,7 @@ module Collision_Detector (
 
     logic signed [10:0] delta_x, delta_x_next;
     parameter COLLISION_THRESHOLD = 19;
-    parameter TRACK_DURATION = 5;
+    parameter TRACK_DURATION = 10;
 
 
 
@@ -141,11 +141,10 @@ module Collision_Detector (
                 end
 
            CALC: begin
-                delta_x_next = curr_center_x - prev_center_x;
                 collision_detected_next = 1;
-                if ((is_ball_moving_left && delta_x > 0) || (!is_ball_moving_left && delta_x < 0)) begin
-//                    collision_detected_next = 1;
-                    estimated_speed_next = (delta_x > 0) ? delta_x : -delta_x;
+                if ((is_ball_moving_left && delta_x > 0)) begin
+                    delta_x_next = curr_center_x - prev_center_x;
+                    estimated_speed_next = delta_x_next;
                 end
                 next = WAIT_RELEASE;
             end

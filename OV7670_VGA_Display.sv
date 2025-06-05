@@ -22,7 +22,7 @@ module OV7670_VGA_Display (
     output logic [3:0] blue_port,
 
     input logic upscale,
-    output logic [9:0] estimated_speed,
+ //   output logic [9:0] estimated_speed,
     input logic game_start,
 
     output [7:0] seg,
@@ -122,7 +122,7 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
-    //logic [9:0] estimated_speed;
+    logic [9:0] estimated_speed;
     logic [7:0] score;
     logic w_game_start;
 
@@ -175,7 +175,7 @@ module OV7670_VGA_Display (
     );
 
     btn_debounce U_BTN(
-        .clk(clk),
+        .clk(ov7670_xclk),
         .reset(reset),
         .i_btn(game_start),
         .o_btn(w_game_start)
@@ -195,6 +195,6 @@ module OV7670_VGA_Display (
 
     fnd_controller U_FND(
         .*,
-        .Digit(score)
+        .Digit(estimated_speed)
         );
 endmodule

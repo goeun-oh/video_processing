@@ -35,6 +35,7 @@ module score_calculator (
         score_next = score_reg;
         case(state)
             IDLE: begin
+                score_next=0;
                if(collision_detected && is_ball_moving_left) begin
                     state_next = START;  
                end 
