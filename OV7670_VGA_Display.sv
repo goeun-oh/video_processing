@@ -124,7 +124,7 @@ module OV7670_VGA_Display (
     logic is_target_color;
     //logic [9:0] estimated_speed;
     logic [7:0] score;
-
+    logic w_game_start;
 
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
@@ -135,7 +135,7 @@ module OV7670_VGA_Display (
         .collision_detected(collision_detected),
         .estimated_speed(estimated_speed),
         .is_ball_moving_left(is_ball_moving_left),
-        .game_start(game_start)
+        .game_start(w_game_start)
     );
 
 
@@ -174,6 +174,12 @@ module OV7670_VGA_Display (
         .estimated_speed(estimated_speed)
     );
 
+    btn_debounce U_BTN(
+        .clk(clk),
+        .reset(reset),
+        .i_btn(game_start),
+        .o_btn(w_game_start)
+    );
 
 
     score_calculator U_SCORE(
@@ -182,7 +188,8 @@ module OV7670_VGA_Display (
         .collision_detected(collision_detected),
         .is_ball_moving_left(is_ball_moving_left),
         .x_pixel(x_pixel),
-        .score(score)
+        .score(score),
+        .game_start(w_game_start)
     );
 
 
