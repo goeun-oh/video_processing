@@ -26,7 +26,7 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk
 # #set_property -dict { PACKAGE_PIN W2   IOSTANDARD LVCMOS33 } [get_ports { sw[12] }]; #IO_L5N_T0_34               ,Sch=SW12
 # #set_property -dict { PACKAGE_PIN U1   IOSTANDARD LVCMOS33 } [get_ports { sw[13] }]; #IO_L3N_T0_DQS_34           ,Sch=SW13
 set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports { upscale }]; #IO_L3P_T0_DQS_34           ,Sch=SW14
- set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports { game_start }]; #IO_L1P_T0_34               ,Sch=SW15
+# set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports { game_start }]; #IO_L1P_T0_34               ,Sch=SW15
 
 
 ## LEDs
@@ -69,7 +69,7 @@ set_property -dict { PACKAGE_PIN V3   IOSTANDARD LVCMOS33 } [get_ports { estimat
 ##Buttons
 
 set_property -dict { PACKAGE_PIN U18  IOSTANDARD LVCMOS33 } [get_ports { reset }]; #IO_L18N_T2_A11_D27_14 ,Sch=BTNC
-#set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_start }]; #IO_L17N_T2_A13_D29_14 ,Sch=BTNU
+set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_start }]; #IO_L17N_T2_A13_D29_14 ,Sch=BTNU
 #set_property -dict { PACKAGE_PIN W19  IOSTANDARD LVCMOS33 } [get_ports { btnL }]; #IO_L16N_T2_A15_D31_14 ,Sch=BTNL
 #set_property -dict { PACKAGE_PIN T17  IOSTANDARD LVCMOS33 } [get_ports { btnR }]; #IO_L17P_T2_A14_D30_14 ,Sch=BTNR
 #set_property -dict { PACKAGE_PIN U17  IOSTANDARD LVCMOS33 } [get_ports { btnD }]; #IO_L18P_T2_A12_D28_14 ,Sch=BTND

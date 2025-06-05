@@ -20,7 +20,7 @@ module score_calculator (
     assign score = score_reg;
 
     always_ff @(posedge clk or posedge reset ) begin
-        if(reset) begin
+        if(reset || game_start) begin
             state <= IDLE;
             score_reg <=0;
         end else begin
