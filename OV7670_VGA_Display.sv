@@ -21,7 +21,9 @@ module OV7670_VGA_Display (
     output logic [3:0] green_port,
     output logic [3:0] blue_port,
 
-    input logic upscale
+    input logic upscale,
+    output logic [9:0] estimated_speed,
+    output logic [1:0] coll_det_state
 );
 
     logic we;
@@ -116,7 +118,7 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
-    logic [9:0] estimated_speed;
+    //logic [9:0] estimated_speed;
 
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
@@ -160,7 +162,8 @@ module OV7670_VGA_Display (
         .is_target_color(is_target_color),    // 해당 픽셀이 빨간색인지 여부
 
         .collision_detected(collision_detected),
-        .estimated_speed(estimated_speed)
+        .estimated_speed(estimated_speed),
+        .coll_det_state(coll_det_state)
     );
 
 endmodule

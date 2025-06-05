@@ -11,7 +11,13 @@ module color_detector (
     assign B = camera_pixel[4:1];
 
     // 빨간색: R 크고, G/B 작을 때
-    assign is_target_color = (R >= 4'd12) && (G >= 4'd12) && (B >= 4'd12);
+    assign is_target_color = (
+        // 어두운 빨강
+        ((R >= 4'd10 && R <= 4'd12) && (G <= 4'd3) && (B <= 4'd3)) ||
+        // 밝은 빨강
+        ((R >= 4'd13) && (G <= 4'd5) && (B <= 4'd5))
+    );
+
 
 endmodule
 
@@ -24,7 +30,8 @@ module Collision_Detector (
     input logic is_target_color,    // 해당 픽셀이 빨간색인지 여부
 
     output logic collision_detected,
-    output logic [9:0] estimated_speed
+    output logic [9:0] estimated_speed,
+    output logic [1:0] coll_det_state
 );
 
     typedef enum logic [1:0] {
@@ -43,7 +50,11 @@ module Collision_Detector (
     logic [9:0] prev_center_x, prev_center_x_next;
     logic [9:0] estimated_speed_next;
 
-    parameter COLLISION_THRESHOLD = 16;
+    logic [19:0] tick_counter, tick_counter_next;
+    parameter COLLISION_THRESHOLD = 19;
+
+    assign coll_det_state = state;
+
 
     always_ff @(posedge clk_25MHz or posedge reset) begin
         if (reset) begin
@@ -54,6 +65,7 @@ module Collision_Detector (
             prev_center_x <= 0;
             estimated_speed <= 0;
             x_sum <= 0;
+            tick_counter <= 0;
         end
         else begin
             state <= next;
@@ -63,6 +75,7 @@ module Collision_Detector (
             prev_center_x <= prev_center_x_next;
             estimated_speed <= estimated_speed_next;
             x_sum <= x_sum_next;
+            tick_counter <= tick_counter_next;
         end
     end
 
@@ -79,18 +92,23 @@ module Collision_Detector (
         curr_center_x_next = curr_center_x;
         prev_center_x_next = prev_center_x;
         estimated_speed_next = estimated_speed;
-
+        tick_counter_next = tick_counter;
         case (state)
             IDLE: begin
-                x_sum_next       = 0;
-                collision_detected_next = 0;
-                collision_pixel_count_next = 0;
                 if (is_hit_area && is_target_color) begin
                     next = START;
-                    prev_center_x_next = x_pixel;
+                    //prev_center_x_next = x_pixel;
                     x_sum_next = x_pixel;
                     collision_pixel_count_next = collision_pixel_count + 1;
+                    tick_counter_next = tick_counter + 1;
                     //curr_center_x_next = x_pixel; // hit 한 순간 x pixel
+                end
+
+                else begin
+                    x_sum_next       = 0;
+                    collision_detected_next = 0;
+                    collision_pixel_count_next = 0;
+                    tick_counter_next = 0;
                 end
             end 
 
@@ -103,20 +121,27 @@ module Collision_Detector (
                     end
                     else begin
                         x_sum_next = x_sum + x_pixel;
+                        tick_counter_next = tick_counter + 1;
                         collision_pixel_count_next = collision_pixel_count + 1;
                     end
                 end
 
                 else begin
                     next = IDLE;
+                    tick_counter_next = 0;
                 end
             end
 
             CALC_SPEED: begin
-                estimated_speed_next = curr_center_x - prev_center_x;
+                estimated_speed_next = (curr_center_x > prev_center_x) ?
+                                   ((curr_center_x - prev_center_x)) :
+                                   ((prev_center_x - curr_center_x));
                 collision_detected_next = 1;
                 curr_center_x_next = 0;
-                prev_center_x_next = 0;
+                prev_center_x_next = curr_center_x; // 이전 중심 저장
+                tick_counter_next = 0;
+                collision_pixel_count_next = 0;
+                x_sum_next = 0;
                 next = IDLE;
             end
 
