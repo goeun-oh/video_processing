@@ -130,17 +130,18 @@ module OV7670_VGA_Display (
         .upscale(upscale),
         .collision_detected(collision_detected),
         .estimated_speed(estimated_speed),
-        .is_ball_moving_left(is_ball_moving_left)
+        .is_ball_moving_left(is_ball_moving_left),
+        .game_start(w_game_start)
     );
 
 
 
-    Video_Ball_Display U_VIDEO_BALL_DISPLAY(
+    Video_Display U_VIDEO_DISPLAY(
         .x_pixel(x_pixel),
         .y_pixel(y_pixel),
         .camera_pixel(camera_pixel),
         .rom_pixel(rom_pixel),
-
+        .score(score),
         .red_port(red_port),
         .green_port(green_port),
         .blue_port(blue_port),
@@ -186,4 +187,5 @@ module OV7670_VGA_Display (
         .game_start(w_game_start),
         .score(score)
     );
+    
 endmodule
