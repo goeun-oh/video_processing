@@ -124,7 +124,7 @@ module OV7670_VGA_Display (
     logic collision_detected;
     logic is_target_color;
     //logic [9:0] estimated_speed;
-    logic [6:0] score;
+    logic [7:0] score;
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
         .reset(reset),

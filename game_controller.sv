@@ -75,11 +75,15 @@ module game_controller(
             end
 
             RUNNING_RIGHT: begin
-                if ((ball_x_out >= ( 640 - 20)) || collision_detected) begin
+                if (collision_detected) begin
                     next = RUNNING_LEFT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                end else begin
+                end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
+                    next = IDLE;
+                end
+
+                else begin
                     if (ball_counter >= ball_speed) begin
                         ball_x_next = ball_x_out + 4;
                         ball_counter_next = 0;
