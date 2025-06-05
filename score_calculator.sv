@@ -14,11 +14,13 @@ module score_calculator (
 
     state_e state, state_next;
     logic [7:0] score_reg, score_next;
-    
+    logic is_right;
+
+    assign is_right = (x_pixel == 640-20);
     assign score = score_reg;
 
     always_ff @(posedge clk or posedge reset ) begin
-        if(reset && x_pixel == 640 - 20) begin
+        if(reset || is_right) begin
             state <= IDLE;
             score_reg <=0;
         end else begin
