@@ -140,7 +140,7 @@ module game_controller(
                 game_over_next = 0;
 
                 if (collision_detected) begin
-                    safe_speed = (estimated_speed < 2) ? 2 : estimated_speed;
+                    safe_speed = (estimated_speed < 2) ? 1.6 : estimated_speed;
                     ball_speed_next = 32'd270000 / safe_speed;
                 end
 

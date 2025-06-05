@@ -56,7 +56,7 @@ module Video_Display(
     logic [7:0] go_font_data;
     logic go_bit_on;
 
-    localparam int GO_X = 200;
+    localparam int GO_X = 250;
     localparam int GO_Y = 200;
     localparam int OVER_WIDTH = 8;
     localparam int OVER_HEIGHT = 8;

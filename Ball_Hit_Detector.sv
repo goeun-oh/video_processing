@@ -132,7 +132,7 @@ module Collision_Detector (
                         track_x_sum_next = track_x_sum + x_pixel;
                         track_pixel_count_next = track_pixel_count + 1;
                         if (track_pixel_count >= TRACK_DURATION) begin
-                            curr_center_x_next = track_x_sum / track_pixel_count;
+                            curr_center_x_next = (track_x_sum << 1) / track_pixel_count;
                             next = CALC;
                         end
                     end else begin
