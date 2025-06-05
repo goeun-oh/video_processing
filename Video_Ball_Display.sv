@@ -5,7 +5,7 @@ module Video_Display(
     input logic [9:0] y_pixel,
     input logic [15:0] camera_pixel,
     input logic [15:0] rom_pixel,
-    input logic [6:0] score,
+    input logic [7:0] score,
 
     output logic [3:0] red_port,
     output logic [3:0] green_port,
