@@ -21,8 +21,9 @@ module OV7670_VGA_Display (
     output logic [3:0] green_port,
     output logic [3:0] blue_port,
 
-    input logic upscale
-);
+    input logic upscale,
+    output logic [9:0] estimated_speed
+    );
 
     logic we;
     logic [16:0] wAddr;
@@ -116,6 +117,7 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
+    //logic [9:0] estimated_speed;
 
     game_controller U_GAME_CONTROLLER(
         .clk_25MHZ(ov7670_xclk),
@@ -123,7 +125,9 @@ module OV7670_VGA_Display (
         .ball_x_out(ball_x),    // 공의 X 좌표
         .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
         .upscale(upscale),
-        .collision_detected(collision_detected)
+        .collision_detected(collision_detected),
+        .estimated_speed(estimated_speed),
+        .is_ball_moving_left(is_ball_moving_left)
     );
 
 
@@ -150,6 +154,7 @@ module OV7670_VGA_Display (
     );
 
     Collision_Detector U_COLLISION_DETECTOR(
+        .is_ball_moving_left(is_ball_moving_left),
         .clk_25MHz(ov7670_xclk),
         .reset(reset),
         .x_pixel(x_pixel),
@@ -157,7 +162,8 @@ module OV7670_VGA_Display (
         .is_hit_area(is_hit_area),       // 화면 상 물체와 공이 겹치는 위치
         .is_target_color(is_target_color),    // 해당 픽셀이 빨간색인지 여부
 
-        .collision_detected(collision_detected)
+        .collision_detected(collision_detected),
+        .estimated_speed(estimated_speed)
     );
 
 endmodule

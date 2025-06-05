@@ -31,25 +31,25 @@ set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports { upscale
 
 ## LEDs
 
-#set_property -dict { PACKAGE_PIN U16  IOSTANDARD LVCMOS33 } [get_ports { led[0]  }]; #IO_L23N_T3_A02_D18_14        ,Sch=LED0
-#set_property -dict { PACKAGE_PIN E19  IOSTANDARD LVCMOS33 } [get_ports { led[1]  }]; #IO_L3N_T0_DQS_EMCCLK_14      ,Sch=LED1
-#set_property -dict { PACKAGE_PIN U19  IOSTANDARD LVCMOS33 } [get_ports { led[2]  }]; #IO_L15P_T2_DQS_RDWR_B_14     ,Sch=LED2
-#set_property -dict { PACKAGE_PIN V19  IOSTANDARD LVCMOS33 } [get_ports { led[3]  }]; #IO_L15N_T2_DQS_DOUT_CSO_B_14 ,Sch=LED3
-#set_property -dict { PACKAGE_PIN W18  IOSTANDARD LVCMOS33 } [get_ports { led[4]  }]; #IO_L16P_T2_CSI_B_14          ,Sch=LED4
-#set_property -dict { PACKAGE_PIN U15  IOSTANDARD LVCMOS33 } [get_ports { led[5]  }]; #IO_L23P_T3_A03_D19_14        ,Sch=LED5
-#set_property -dict { PACKAGE_PIN U14  IOSTANDARD LVCMOS33 } [get_ports { led[6]  }]; #IO_25_14                     ,Sch=LED6
-#set_property -dict { PACKAGE_PIN V14  IOSTANDARD LVCMOS33 } [get_ports { led[7]  }]; #IO_L24N_T3_A00_D16_14        ,Sch=LED7
-#set_property -dict { PACKAGE_PIN V13  IOSTANDARD LVCMOS33 } [get_ports { led[8]  }]; #IO_L24P_T3_A01_D17_14        ,Sch=LED8
-#set_property -dict { PACKAGE_PIN V3   IOSTANDARD LVCMOS33 } [get_ports { led[9]  }]; #IO_L6P_T0_34                 ,Sch=LED9
+set_property -dict { PACKAGE_PIN U16  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[0]  }]; #IO_L23N_T3_A02_D18_14        ,Sch=LED0
+set_property -dict { PACKAGE_PIN E19  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[1]  }]; #IO_L3N_T0_DQS_EMCCLK_14      ,Sch=LED1
+set_property -dict { PACKAGE_PIN U19  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[2]  }]; #IO_L15P_T2_DQS_RDWR_B_14     ,Sch=LED2
+set_property -dict { PACKAGE_PIN V19  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[3]  }]; #IO_L15N_T2_DQS_DOUT_CSO_B_14 ,Sch=LED3
+set_property -dict { PACKAGE_PIN W18  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[4]  }]; #IO_L16P_T2_CSI_B_14          ,Sch=LED4
+set_property -dict { PACKAGE_PIN U15  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[5]  }]; #IO_L23P_T3_A03_D19_14        ,Sch=LED5
+set_property -dict { PACKAGE_PIN U14  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[6]  }]; #IO_25_14                     ,Sch=LED6
+set_property -dict { PACKAGE_PIN V14  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[7]  }]; #IO_L24N_T3_A00_D16_14        ,Sch=LED7
+set_property -dict { PACKAGE_PIN V13  IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[8]  }]; #IO_L24P_T3_A01_D17_14        ,Sch=LED8
+set_property -dict { PACKAGE_PIN V3   IOSTANDARD LVCMOS33 } [get_ports { estimated_speed[9]  }]; #IO_L6P_T0_34                 ,Sch=LED9
 #set_property -dict { PACKAGE_PIN W3   IOSTANDARD LVCMOS33 } [get_ports { led[10] }]; #IO_L6N_T0_VREF_34            ,Sch=LED10
 #set_property -dict { PACKAGE_PIN U3   IOSTANDARD LVCMOS33 } [get_ports { led[11] }]; #IO_L9P_T1_DQS_34             ,Sch=LED11
 #set_property -dict { PACKAGE_PIN P3   IOSTANDARD LVCMOS33 } [get_ports { led[12] }]; #IO_L12N_T1_MRCC_35           ,Sch=LED12
 #set_property -dict { PACKAGE_PIN N3   IOSTANDARD LVCMOS33 } [get_ports { led[13] }]; #IO_L12P_T1_MRCC_35           ,Sch=LED13
-#set_property -dict { PACKAGE_PIN P1   IOSTANDARD LVCMOS33 } [get_ports { led[14] }]; #IO_L19N_T3_VREF_35           ,Sch=LED14
-#set_property -dict { PACKAGE_PIN L1   IOSTANDARD LVCMOS33 } [get_ports { led[15] }]; #IO_L6N_T0_VREF_35            ,Sch=LED15
+#set_property -dict { PACKAGE_PIN P1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[0] }]; #IO_L19N_T3_VREF_35           ,Sch=LED14
+#set_property -dict { PACKAGE_PIN L1   IOSTANDARD LVCMOS33 } [get_ports { coll_det_state[1] }]; #IO_L6N_T0_VREF_35            ,Sch=LED15
 
 
-##7 segment display
+###7 segment display
 
 # set_property -dict { PACKAGE_PIN W7  IOSTANDARD LVCMOS33 } [get_ports { fndFont[0] }]; #IO_L13P_T2_MRCC_34 ,Sch=seg[0]
 # set_property -dict { PACKAGE_PIN W6  IOSTANDARD LVCMOS33 } [get_ports { fndFont[1] }]; #IO_L13N_T2_MRCC_34 ,Sch=seg[1]
