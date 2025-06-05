@@ -5,7 +5,7 @@ module score_calculator (
     input  logic       reset,
     input  logic       collision_detected,
     input logic        is_ball_moving_left,
-    input  logic [9:0] x_pixel,
+    input  logic x_pixel,
     input  logic       game_start,
     output logic [7:0] score
 );
