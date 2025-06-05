@@ -120,6 +120,7 @@ module Collision_Detector (
                         next = TRACK;
                         track_x_sum_next = prev_center_x;
                         track_pixel_count_next = 0;
+                        //
                     end
                 end else begin
                     next = IDLE;
