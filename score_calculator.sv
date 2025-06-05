@@ -10,7 +10,7 @@ module score_calculator (
     output logic [7:0] score
 );
 
-    typedef enum { IDLE, START} state_e;
+    typedef enum { IDLE, START, STAY} state_e;
 
     state_e state, state_next;
     logic [7:0] score_reg, score_next;
@@ -38,8 +38,13 @@ module score_calculator (
                end 
             end
             START: begin
-                if(x_pixel <= 0) begin
+                if(x_pixel == 0) begin
                     score_next = score_reg +1;
+                    state_next = STAY;
+                end
+            end
+            STAY: begin
+                if(!is_ball_moving_left) begin
                     state_next = IDLE;
                 end
             end
