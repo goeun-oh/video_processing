@@ -4,6 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
+    input logic [2:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -25,8 +26,8 @@ module OV7670_VGA_Display (
     output logic [15:0] led,
     input logic game_start,
 
-    output [7:0] seg,
-    output [3:0] seg_comm,
+    output logic [3:0] fndCom,
+    output logic [7:0] fndFont,
 
     // i2c 관련//
     output logic i2c_scl,
@@ -135,8 +136,7 @@ module OV7670_VGA_Display (
 
     //ball 전송 관련 //
     logic [7:0] ball_vy;
-    logic [7:0] o_ball_vy;
-    logic [9:0] o_ball_y;
+
     logic ball_send_trigger;
     logic is_transfer;
 
@@ -148,19 +148,10 @@ module OV7670_VGA_Display (
         .collision_detected(collision_detected),
         .game_start(w_game_start)
     );
-
-    ball_send_controller BALL_SEND_CNTRL(
-        .*,
-        .clk(ov7670_xclk),
-        .i_ball_y(ball_y),
-        .i_ball_vy(ball_vy)
-    );
     
     I2C_Intf U_I2C_INTF(
         .*,
         .clk(clk),
-        .ball_y(o_ball_y),
-        .ball_vy(o_ball_vy),
         .SCL(i2c_scl),
         .SDA(i2c_sda)
     );
@@ -217,10 +208,11 @@ module OV7670_VGA_Display (
         .game_start(w_game_start),
         .score(score) // 잠시대기
     );
-
-
-    fnd_controller U_FND(
+    
+    FND_C U_FND(
         .*,
-        .Digit(score)
-        );
+        .slv_reg0({ball_y[9:8],6'b0}),
+        .slv_reg1(ball_y[7:0]),
+        .slv_reg2(ball_vy)
+    );
 endmodule

@@ -21,7 +21,7 @@ module fnd_controller (
 
     counter_4 U_counter_4(
         .clk(w_clk_100hz),
-        .rst(reset),
+        .rst(rst),
         .count(w_seg_sel)
     );
 

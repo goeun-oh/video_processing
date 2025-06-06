@@ -111,13 +111,13 @@ module I2C_Controller(
                 intf_led = 8'b0000_0001;
                 if(ready) begin
                     case(state_cnt_reg)
+                        // 2'd0: begin
+                        //     state_next = SEND_ADDR;
+                        // end
                         2'd0: begin
-                            state_next = SEND_ADDR;
-                        end
-                        2'd1: begin
                             state_next= SEND_DATA;
                         end
-                        2'd2: begin
+                        2'd1: begin
                             state_next = STOP;
                         end
                     endcase
@@ -128,18 +128,18 @@ module I2C_Controller(
 
             end
 
-            SEND_ADDR: begin
-                intf_led = 8'b0000_0010;
-                tx_data_next = i2c_addr;
-                i2c_en = 1;
-                if(!ready) begin
-                    state_next = WAIT;
-                    state_cnt_next = state_cnt_reg +1;
-                end
-                if (is_ball_moving_left) begin
-                    state_next = IDLE;
-                end
-            end
+            // SEND_ADDR: begin
+            //     intf_led = 8'b0000_0010;
+            //     tx_data_next = i2c_addr;
+            //     i2c_en = 1;
+            //     if(!ready) begin
+            //         state_next = WAIT;
+            //         state_cnt_next = state_cnt_reg +1;
+            //     end
+            //     if (is_ball_moving_left) begin
+            //         state_next = IDLE;
+            //     end
+            // end
 
             SEND_DATA: begin
                 intf_led = 8'b0000_0100;
@@ -147,7 +147,10 @@ module I2C_Controller(
                 if(!ready) begin
                     state_next =WAIT;
                     state_addr_next = state_addr_reg +1;
-                    if(state_addr_reg == 2'd2) state_cnt_next = state_cnt_reg +1;
+                    if(state_addr_reg == 2'd2) begin 
+                        state_cnt_next = state_cnt_reg +1;
+                        state_addr_next =0;
+                    end
                 end
                 case (state_addr_reg)
                     2'd0: begin
