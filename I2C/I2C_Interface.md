@@ -28,6 +28,7 @@ Master(왼쪽 보드)는 Slave(오른쪽 보드) 에게
 
 ## I2C SLAVE (오른쪽 보드 부분)
 ### 코드
+[I2C Slave code](./SLAVE/I2C_Slave.sv)
 
 ### 개략 설명
 기존 `i2c_slave`모듈에서 수신 만 정해진 시나리오대로 가능 하도록 대폭 수정 필요.
