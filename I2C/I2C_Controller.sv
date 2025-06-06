@@ -159,11 +159,12 @@ module I2C_Controller(
                 intf_led = 8'b0000_1000;
                 stop = 1;
                 i2c_en = 1;
-                state_next = DONE;
                 if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
-
+                if(!ready) begin
+                    state_next = DONE;
+                end
             end
 
             DONE: begin
