@@ -228,8 +228,8 @@ module I2C_Master (
     reg [$clog2(CLK3)-1:0] counter_reg, counter_next;
     
 
-    always @(posedge clk or negedge reset) begin
-        if(!reset) begin
+    always @(posedge clk or posedge reset) begin
+        if(reset) begin
             counter_reg <=0;
             gen_scl <=0;
             tick_sample <=1;

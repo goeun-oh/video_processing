@@ -7,12 +7,16 @@ module tb_I2C_Intf;
     logic ball_send_trigger;
     logic [9:0] ball_y;
     logic [7:0] ball_vy;
-    logic SCL;
-    tri1 SDA;
-    logic is_transfer;
-    logic [15:0] led;
+    wire SCL;
+    tri SDA;
+    wire is_transfer;
+    wire [15:0] led;
 
-    // DUT instantiation
+    logic sda_drv_en;
+    logic sda_drv_val;
+
+    assign SDA = sda_drv_en ? sda_drv_val : 1'bz;
+
     I2C_Intf dut (
         .clk(clk),
         .reset(reset),
@@ -25,29 +29,38 @@ module tb_I2C_Intf;
         .led(led)
     );
 
-    // Clock generation
-    initial clk = 0;
-    always #5 clk = ~clk; // 100MHz
+    initial begin
+        clk = 0;
+        forever #5 clk = ~clk;  // 100MHz clock
+    end
 
     initial begin
-        // Initial values
         reset = 1;
         ball_send_trigger = 0;
-        ball_y = 10'd256;
-        ball_vy = 8'd50;
+        ball_y = 10'd300;
+        ball_vy = 8'd20;
+        sda_drv_en = 0;
+        sda_drv_val = 1;
 
-        // Apply reset
-        #20;
+        #50;
         reset = 0;
-
-        // Trigger ball send
-        #100;
+        #50;
         ball_send_trigger = 1;
         #10;
         ball_send_trigger = 0;
 
-        // Let it run
-        #5000;
+        // wait until WRITE_ACK phase
+        wait (led== 16'h2002); // WRITE_ACK
+
+        #2;
+        sda_drv_en = 1;
+        sda_drv_val = 0;
+
+        // release SDA after ACK sampled
+        #100;
+        sda_drv_en = 0;
+
+        #1000;
 
     end
 
