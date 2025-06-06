@@ -136,7 +136,7 @@ module I2C_Controller(
                 if(!ready) begin
                     state_next =WAIT;
                     state_addr_next = state_addr_reg +1;
-                    if(state_addr_reg == 2'd3) state_cnt_next = state_cnt_reg +1;
+                    if(state_addr_reg == 2'd2) state_cnt_next = state_cnt_reg +1;
                 end
                 case (state_addr_reg)
                     2'd0: begin
@@ -145,7 +145,7 @@ module I2C_Controller(
                     2'd1: begin
                         tx_data_next = slv0_data1; 
                     end
-                    2'd3: begin
+                    2'd2: begin
                         tx_data_next = slv1_data0;
                     end
                 endcase
