@@ -118,7 +118,6 @@ module game_controller (
                     x_counter_next = 0;
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     next = STOP;
-                    ball_send_trigger_next = 1'b1;
                 end else begin
                     if (ball_counter >= ball_speed) begin
                         ball_x_next = ball_x_out + 4;
