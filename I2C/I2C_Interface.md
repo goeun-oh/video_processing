@@ -3,7 +3,7 @@
 ### 코드
 [I2C Interface 버전 1](./I2C_Intf_V00.sv)  
 단순하게 공의 좌표, 속도만을 `전송`만 하는 Interface  
-- [I2C Controller](./I2C_Controller.sv)
+- [I2C Controller](./I2C_Controller.sv)  
     I2C 전송을 관리하는 Controller
 - [I2C Master](./I2C_Master.sv)  
     전송을 쉽게 하기 위해 READ 관련 STATE 삭제
