@@ -41,5 +41,8 @@ IDLE -> START -> ADDR -> ACK ->  SLV0_DATA0 -> ACK -> SLV0_DATA1 -> ACK -> ...
 
 
 ## 시뮬 & 테스트
-가장 초기 테스트로는 I2C Master와 Interface를 build up 하고 다른 보드에는 I2C Slave를 bitstream download하여 정해진 register에 정해진 값을 저장하는지만 확인 할 것.
+1) 가장 초기 테스트로는 I2C Master와 Interface를 build up 하고 다른 보드에는 I2C Slave를 bitstream download하여 정해진 register에 정해진 값을 저장하는지만 확인 할 것.  
+
+-> 확인 완료, 정상 동작
+
 
