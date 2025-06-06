@@ -8,7 +8,8 @@ module I2C_Intf(
     output logic       SCL,
     inout  logic       SDA,
     output logic is_transfer,
-    output logic [15:0] led
+    output logic [15:0] led,
+    input logic game_start
 );
     logic       ready;
     logic       start;

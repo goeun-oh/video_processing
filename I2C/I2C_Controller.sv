@@ -12,13 +12,14 @@ module I2C_Controller(
     output logic       i2c_en,
     output logic [7:0] tx_data,
     input  logic       tx_done,
+    input logic game_start,
     output logic       is_transfer,
     output logic [7:0] intf_led
 );
 
     typedef enum{
         IDLE,
-        ADDR_WAIT,
+        START_WAIT,
         WAIT,
         SEND_ADDR,
         SEND_DATA,
@@ -79,53 +80,79 @@ module I2C_Controller(
                 if (ball_send_trigger) begin
                     start =1;
                     i2c_en=1;
-                    state_next = ADDR_WAIT;
+                    state_next = START_WAIT;
                     tx_data_next = i2c_addr;
                 end
             end
 
-            ADDR_WAIT: begin
-                intf_led = 8'b0000_0001;
+            START_WAIT: begin
                 start =1;
                 i2c_en=1;
                 if(!ready) begin
                     state_next = WAIT;
                 end
+                if (game_start) begin
+                    state_next = IDLE;
+                end
             end
 
             WAIT: begin
-                intf_led = 8'b0000_0010;
+                intf_led = 8'b0000_0001;
                 if(ready) begin
                     case(state_cnt_reg)
                         2'd0: begin
-                            state_next = SEND_DATA;
+                            state_next = SEND_ADDR;
                         end
                         2'd1: begin
-                            state_next= STOP;
-                        end 
+                            state_next= SEND_DATA;
+                        end
+                        2'd2: begin
+                            state_next = STOP;
+                        end
                     endcase
+                end
+                if (game_start) begin
+                    state_next = IDLE;
+                end
+
+            end
+
+            SEND_ADDR: begin
+                intf_led = 8'b0000_0010;
+                tx_data_next = i2c_addr;
+                i2c_en = 1;
+                if(!ready) begin
+                    state_next = WAIT;
+                    state_cnt_next = state_cnt_reg +1;
+                end
+                if (game_start) begin
+                    state_next = IDLE;
                 end
             end
 
             SEND_DATA: begin
                 intf_led = 8'b0000_0100;
                 i2c_en = 1;
-                if(!ready) state_next =WAIT;
+                if(!ready) begin
+                    state_next =WAIT;
+                    state_addr_next = state_addr_reg +1;
+                    if(state_addr_reg == 2'd3) state_cnt_next = state_cnt_reg +1;
+                end
                 case (state_addr_reg)
                     2'd0: begin
                         tx_data_next = slv0_data0; 
-                        state_addr_next = state_addr_reg +1;
                     end
                     2'd1: begin
                         tx_data_next = slv0_data1; 
-                        state_addr_next = state_addr_reg +1;
                     end
                     2'd3: begin
                         tx_data_next = slv1_data0;
-                        state_addr_next =0;
-                        state_cnt_next = state_cnt_reg +1;
                     end
                 endcase
+                if (game_start) begin
+                    state_next = IDLE;
+                end
+
             end
 
             STOP: begin
@@ -133,12 +160,19 @@ module I2C_Controller(
                 stop = 1;
                 i2c_en = 1;
                 state_next = DONE;
+                if (game_start) begin
+                    state_next = IDLE;
+                end
+
             end
 
             DONE: begin
                 intf_led = 8'b0001_0000;
                 is_transfer = 0;
                 state_next = IDLE;
+                if (game_start) begin
+                    state_next = IDLE;
+                end
             end
         endcase
     end

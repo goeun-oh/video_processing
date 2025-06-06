@@ -50,18 +50,70 @@ module tb_I2C_Intf;
         ball_send_trigger = 0;
 
         // wait until WRITE_ACK phase
-        wait (led== 16'h2002); // WRITE_ACK
+        wait (led== 16'h2001); // WRITE_ACK
 
         #2;
         sda_drv_en = 1;
         sda_drv_val = 0;
 
         // release SDA after ACK sampled
-        #100;
+        #10000;
+        sda_drv_en = 0;
+
+        #1000;
+        // wait until WRITE_ACK phase
+        wait (led== 16'h2001); // WRITE_ACK
+
+        #2;
+        sda_drv_en = 1;
+        sda_drv_val = 0;
+
+        // release SDA after ACK sampled
+        #10000;
         sda_drv_en = 0;
 
         #1000;
 
+        wait (led== 16'h2001); // WRITE_ACK
+
+        #2;
+        sda_drv_en = 1;
+        sda_drv_val = 0;
+
+        // release SDA after ACK sampled
+        #10000;
+        sda_drv_en = 0;
+
+        #1000;
+
+        wait (led== 16'h2001); // WRITE_ACK
+
+        #2;
+        sda_drv_en = 1;
+        sda_drv_val = 0;
+
+        // release SDA after ACK sampled
+        #10000;
+        sda_drv_en = 0;
+
+        #1000;
+                // release SDA after ACK sampled
+        #10000;
+        sda_drv_en = 0;
+
+        #1000;
+
+        wait (led== 16'h2001); // WRITE_ACK
+
+        #2;
+        sda_drv_en = 1;
+        sda_drv_val = 0;
+
+        // release SDA after ACK sampled
+        #10000;
+        sda_drv_en = 0;
+
+        #1000;
     end
 
 endmodule
