@@ -7,7 +7,8 @@ module I2C_Intf(
     input  logic [7:0] ball_vy,
     output logic       SCL,
     inout  logic       SDA,
-    output logic is_transfer
+    output logic is_transfer,
+    output logic [15:0] led
 );
     logic       ready;
     logic       start;
@@ -16,7 +17,10 @@ module I2C_Intf(
     logic [7:0] tx_data;
     logic       tx_done;
 
+    logic [7:0] intf_led;
+    logic [7:0] master_led;
 
+    assign led = {master_led, intf_led};
     I2C_Controller U_I2C_CNTRL(
         .*
     );

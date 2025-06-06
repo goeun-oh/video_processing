@@ -102,9 +102,11 @@ module game_controller (
 
             STOP: begin
                 game_over_next = 1;
+                ball_send_trigger_next =1;
                 if (game_start) begin
                     score_test_next = 0;
                     next = RUNNING_LEFT;
+                    ball_send_trigger_next =0;
                 end
             end
 

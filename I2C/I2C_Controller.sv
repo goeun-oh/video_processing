@@ -12,11 +12,13 @@ module I2C_Controller(
     output logic       i2c_en,
     output logic [7:0] tx_data,
     input  logic       tx_done,
-    output logic       is_transfer
+    output logic       is_transfer,
+    output logic [7:0] intf_led
 );
 
     typedef enum{
         IDLE,
+        ADDR_WAIT,
         WAIT,
         SEND_ADDR,
         SEND_DATA,
@@ -28,7 +30,6 @@ module I2C_Controller(
 
     logic [7:0]  slv0_data0, slv0_data1, slv1_data0;
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
-    
     //state 관련//
     logic [1:0] state_cnt_reg, state_cnt_next; 
     //0: send addr, 1: send data, 2: stop
@@ -74,36 +75,40 @@ module I2C_Controller(
                 state_addr_next =0;
                 tx_data_next =0;
                 is_transfer = 0;
+                intf_led = 8'b0000_0000;
                 if (ball_send_trigger) begin
                     start =1;
+                    i2c_en=1;
+                    state_next = ADDR_WAIT;
+                    tx_data_next = i2c_addr;
+                end
+            end
+
+            ADDR_WAIT: begin
+                intf_led = 8'b0000_0001;
+                start =1;
+                i2c_en=1;
+                if(!ready) begin
                     state_next = WAIT;
                 end
             end
 
             WAIT: begin
+                intf_led = 8'b0000_0010;
                 if(ready) begin
                     case(state_cnt_reg)
                         2'd0: begin
-                            state_next = SEND_ADDR;
+                            state_next = SEND_DATA;
                         end
                         2'd1: begin
-                            state_next= SEND_DATA;
-                        end
-                        2'd2: begin
-                            state_next = STOP;
-                        end
+                            state_next= STOP;
+                        end 
                     endcase
                 end
             end
 
-            SEND_ADDR: begin
-                tx_data_next = i2c_addr;
-                i2c_en = 1;
-                state_next = WAIT;
-                state_cnt_next = state_cnt_reg +1;
-            end
-
             SEND_DATA: begin
+                intf_led = 8'b0000_0100;
                 i2c_en = 1;
                 state_next =WAIT;
                 case (state_addr_reg)
@@ -124,12 +129,14 @@ module I2C_Controller(
             end
 
             STOP: begin
+                intf_led = 8'b0000_1000;
                 stop = 1;
                 i2c_en = 1;
                 state_next = DONE;
             end
 
             DONE: begin
+                intf_led = 8'b0001_0000;
                 is_transfer = 0;
                 state_next = IDLE;
             end

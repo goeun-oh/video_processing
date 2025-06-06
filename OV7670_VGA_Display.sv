@@ -22,7 +22,7 @@ module OV7670_VGA_Display (
     output logic [3:0] blue_port,
 
     input logic upscale,
-    output logic [9:0] estimated_speed,
+    output logic [15:0] led,
     input logic game_start,
 
     output [7:0] seg,
@@ -127,7 +127,7 @@ module OV7670_VGA_Display (
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
-    //logic [9:0] estimated_speed;
+    logic [9:0] estimated_speed;
     logic [7:0] score;
     logic game_over;
     logic [7:0] score_test;

@@ -10,7 +10,8 @@ module I2C_Master (
     input    logic         i2c_en,
     input    logic         stop,
     output   logic         SCL,
-    inout    logic         SDA
+    inout    logic         SDA,
+    output logic [7:0] master_led
 );
 
     typedef enum { 
@@ -23,7 +24,7 @@ module I2C_Master (
         STOP1,
         STOP2
     } state_e;
-    
+
     parameter FCOUNT = 500;
     state_e state, state_next;
     reg tx_done_reg, tx_done_next;
@@ -50,8 +51,8 @@ module I2C_Master (
     assign SDA = sda_en ? o_data : 1'bz;
     assign tx_done = tx_done_reg;
 
-    always @(posedge clk or negedge reset) begin
-        if (!reset) begin
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
             state <= IDLE;
             sclk_counter_reg <= 0;
             temp_tx_data_reg <= 8'b1111_1111;
@@ -68,8 +69,8 @@ module I2C_Master (
         end
     end
 
-    always @(posedge clk or negedge reset) begin
-        if (!reset) begin
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
             sclk_sync0 <= 1;
             sclk_sync1 <= 1;
             slv_count_reg <=0;
@@ -103,6 +104,7 @@ module I2C_Master (
             IDLE: begin
                 o_data = 1'b1;
                 ready = 1;
+                master_led =8'b0000_0001;
                 if (start && i2c_en) begin
                     state_next = START1;
                     sclk_counter_next = 0;
@@ -113,6 +115,7 @@ module I2C_Master (
             end
             START1: begin
                 o_data = 1'b0;
+                master_led = 8'b0000_0010;
                 if (sclk_counter_reg == FCOUNT - 1) begin
                     state_next = START2;
                     sclk_counter_next = 0;
@@ -123,6 +126,8 @@ module I2C_Master (
             START2: begin
                 o_data = 1'b0;
                 internal_scl = 1'b0;
+                master_led = 8'b0000_0100;
+
                 if (sclk_counter_reg == FCOUNT - 1) begin
                     sclk_counter_next = 0;
                     state_next = HOLD;
@@ -136,6 +141,7 @@ module I2C_Master (
                 o_data = 1'b0;
                 ready = 1;
                 write_ack_next = 1'bz;
+                master_led = 8'b0000_1000;
 
                 if (i2c_en) begin
                     case ({
@@ -158,6 +164,7 @@ module I2C_Master (
                 end
             end
             WRITE: begin
+                master_led = 8'b0001_0000;
                 o_data = temp_tx_data_reg[7];
                 scl_en = 1'b1;
                 if (tick_sample) begin
@@ -173,6 +180,7 @@ module I2C_Master (
             end
     
             WRITE_ACK: begin
+                master_led = 8'b0010_0000;
                 scl_en = 1'b1;
                 sda_en = 1'b0;
                 if (sclk_rising) begin
@@ -185,6 +193,7 @@ module I2C_Master (
             end
 
             STOP1: begin
+                master_led = 8'b0100_0000;
                 o_data = 1'b0;
                 internal_scl = 1'b1;
                 ready = 0;
@@ -198,6 +207,7 @@ module I2C_Master (
                 end
             end
             STOP2: begin
+                master_led = 8'b1000_0000;
                 o_data = 1'b1;
                 internal_scl = 1'b1;
                 ready = 0;
