@@ -110,7 +110,7 @@ module I2C_Controller(
             SEND_DATA: begin
                 intf_led = 8'b0000_0100;
                 i2c_en = 1;
-                state_next =WAIT;
+                if(!ready) state_next =WAIT;
                 case (state_addr_reg)
                     2'd0: begin
                         tx_data_next = slv0_data0; 
