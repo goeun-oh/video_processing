@@ -29,7 +29,9 @@ module I2C_Controller(
 
     state_t state, state_next;
 
-    logic [7:0]  slv0_data0, slv0_data1, slv1_data0;
+    logic [7:0]  slv0_data0, slv0_data0_next;
+    logic [7:0]  slv0_data1, slv0_data1_next;
+    logic [7:0]  slv1_data0, slv1_data0_next;
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
     //state 관련//
     logic [1:0] state_cnt_reg, state_cnt_next; 
@@ -40,9 +42,7 @@ module I2C_Controller(
     assign i2c_addr = 8'haa;
     
     //i2c 전송 data 관련//
-    assign slv0_data0 = {ball_y[9:8], 6'b0};  // 공 y 좌표의 최상위 2비트
-    assign slv0_data1 = ball_y[7:0];  //공 y 좌표 나머지
-    assign slv1_data0 = ball_vy;  //공 속도
+
     assign tx_data =tx_data_reg;
 
     always_ff @(posedge clk or posedge reset) begin
@@ -51,11 +51,17 @@ module I2C_Controller(
             state_cnt_reg <=0;
             state_addr_reg <=0;
             tx_data_reg <=0;
+            slv0_data0 <=0;
+            slv0_data1 <=0;
+            slv1_data0 <=0;
         end else begin
             state <= state_next;
             state_cnt_reg <= state_cnt_next;
             state_addr_reg <= state_addr_next;
             tx_data_reg <=tx_data_next;
+            slv0_data0 <=slv0_data0_next;
+            slv0_data1 <=slv0_data1_next;
+            slv1_data0 <=slv1_data0_next;
         end
     end
 
@@ -69,7 +75,9 @@ module I2C_Controller(
         state_next    = state;
         state_cnt_next = state_cnt_reg;
         state_addr_next = state_addr_reg;
-
+        slv0_data0_next =slv0_data0;
+        slv0_data1_next =slv0_data1;
+        slv1_data0_next =slv1_data0;
         case (state)
             IDLE: begin
                 state_cnt_next =0;
@@ -82,6 +90,9 @@ module I2C_Controller(
                     i2c_en=1;
                     state_next = START_WAIT;
                     tx_data_next = i2c_addr;
+                    slv0_data0_next = {ball_y[9:8], 6'b0};  // 공 y 좌표의 최상위 2비트
+                    slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
+                    slv1_data0_next = ball_vy;  //공 속도
                 end
             end
 
