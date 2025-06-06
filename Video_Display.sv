@@ -87,7 +87,7 @@ module Video_Display(
             display_pixel = game_over_pixel;
         end else if (in_ball_overlay_area && rom_pixel != 16'h0000) begin
             display_pixel = rom_pixel;
-        end else if (in_score_overlay_area) begin
+        end else if (in_score_overlay_area && in_score_overlay_area != 16'h0000) begin
             display_pixel = score_text;
         end else begin
             display_pixel = camera_pixel;

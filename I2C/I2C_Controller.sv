@@ -75,6 +75,7 @@ module I2C_Controller(
                 tx_data_next =0;
                 is_transfer = 0;
                 if (ball_send_trigger) begin
+                    start =1;
                     state_next = WAIT;
                 end
             end
