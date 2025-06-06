@@ -10,10 +10,13 @@ I2C Intf               I2C Intf
 I2C 채택 이유 : SPI는 양방향 통신이라 unpredictable한 모션 생길 가능성.. 애초에 차단하기
 
 2) I2C intf 만들기
+
  - I2C Intf는 양 보드 간 I2C 통신을 제어하는 역할을 수행할 것.
  - 받을 때는 받고, 보낼 때는 보내기만 하는 제어 로직 필요 (FSM  설계)
     - Master가 활성화 되었을 때는 Slave는 비활성화 되어야함. 
     - 한 쪽 보드의 Master 가 활성화 되었을 때 반대 쪽 보드의 Master는 비활성화 되어야 함
+
+  [자세한 설계 내용은 여기에](./I2C/I2C_Interface.md)
 
 
 2. ball 모션 수정 필요

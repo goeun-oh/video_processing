@@ -23,6 +23,7 @@ module I2C_Master (
         STOP1,
         STOP2
     } state_e;
+    
     parameter FCOUNT = 500;
     state_e state, state_next;
     reg tx_done_reg, tx_done_next;
