@@ -162,8 +162,7 @@ module OV7670_VGA_Display (
         .ball_y(o_ball_y),
         .ball_vy(o_ball_vy),
         .SCL(i2c_scl),
-        .SDA(i2c_sda),
-        .game_start(w_game_start)
+        .SDA(i2c_sda)
     );
 
     Video_Display U_VIDEO_DISPLAY(

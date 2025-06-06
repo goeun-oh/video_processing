@@ -9,7 +9,7 @@ module I2C_Intf(
     inout  logic       SDA,
     output logic is_transfer,
     output logic [15:0] led,
-    input logic game_start
+    input logic is_ball_moving_left
 );
     logic       ready;
     logic       start;

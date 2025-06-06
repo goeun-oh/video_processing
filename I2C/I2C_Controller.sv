@@ -12,7 +12,7 @@ module I2C_Controller(
     output logic       i2c_en,
     output logic [7:0] tx_data,
     input  logic       tx_done,
-    input logic game_start,
+    input logic is_ball_moving_left,
     output logic       is_transfer,
     output logic [7:0] intf_led
 );
@@ -91,7 +91,7 @@ module I2C_Controller(
                 if(!ready) begin
                     state_next = WAIT;
                 end
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
             end
@@ -111,7 +111,7 @@ module I2C_Controller(
                         end
                     endcase
                 end
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
 
@@ -125,7 +125,7 @@ module I2C_Controller(
                     state_next = WAIT;
                     state_cnt_next = state_cnt_reg +1;
                 end
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
             end
@@ -149,7 +149,7 @@ module I2C_Controller(
                         tx_data_next = slv1_data0;
                     end
                 endcase
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
 
@@ -160,7 +160,7 @@ module I2C_Controller(
                 stop = 1;
                 i2c_en = 1;
                 state_next = DONE;
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
 
@@ -170,7 +170,7 @@ module I2C_Controller(
                 intf_led = 8'b0001_0000;
                 is_transfer = 0;
                 state_next = IDLE;
-                if (game_start) begin
+                if (is_ball_moving_left) begin
                     state_next = IDLE;
                 end
             end
