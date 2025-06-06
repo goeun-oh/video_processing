@@ -133,22 +133,18 @@ module I2C_Slave(
                 end
             end
             ACK: begin
-                led_next[15:8] = 8'b0010_0000;
-                en = 1'b1;
-                o_data =1'b0;
-                state_next=DATA;
-                
-                // if (temp_addr_reg[7:1] == 7'b1010101) begin
-                //     en = 1'b1;
-                //     o_data =1'b0;
-                //     if(sclk_falling) begin
-                //         if(!temp_addr_reg[0]) begin
-                //             state_next=DATA;
-                //         end
-                //     end
-                // end else begin
-                //     state_next= IDLE;
-                // end
+                led_next[15:8] = 8'b0010_0000;                
+                if (temp_addr_reg[7:1] == 7'b1010101) begin
+                    en = 1'b1;
+                    o_data =1'b0;
+                    if(sclk_falling) begin
+                        if(!temp_addr_reg[0]) begin
+                            state_next=DATA;
+                        end
+                    end
+                end else begin
+                    state_next= IDLE;
+                end
             end
 
             DATA: begin
