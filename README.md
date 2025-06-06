@@ -1,7 +1,7 @@
-### 공 상대 쪽으로 넘기는 모션 구현
+# 공 상대 쪽으로 넘기는 모션 구현
 이를 위해,
-1. I2C 통신 수정 필요
-1) 개략적인 schematic
+## 1. I2C 통신 수정 필요
+### 1) 개략적인 schematic
 [board1]               [board2]
 I2C Intf               I2C Intf
   I2C Master   <----->   I2C Slave
@@ -9,7 +9,7 @@ I2C Intf               I2C Intf
 
 I2C 채택 이유 : SPI는 양방향 통신이라 unpredictable한 모션 생길 가능성.. 애초에 차단하기
 
-2) I2C intf 만들기
+### 2) I2C intf 만들기
 
  - I2C Intf는 양 보드 간 I2C 통신을 제어하는 역할을 수행할 것.
  - 받을 때는 받고, 보낼 때는 보내기만 하는 제어 로직 필요 (FSM  설계)
@@ -19,7 +19,7 @@ I2C 채택 이유 : SPI는 양방향 통신이라 unpredictable한 모션 생길
   [자세한 설계 내용은 여기에](./I2C/I2C_Interface.md)
 
 
-2. ball 모션 수정 필요
+## 2. ball 모션 수정 필요
 - 2개의 모션이 필요
     - 1) 왼쪽 보드의 경우 : 오른쪽으로 점차 사라지는 모션 필요
     - 2) 오른쪽 보드의 경우 : 왼쪽으로 점차 사라지는 모션 필요
