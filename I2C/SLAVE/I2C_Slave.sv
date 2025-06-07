@@ -5,12 +5,13 @@ module I2C_Slave(
     input  logic reset,
     input  logic SCL,
     inout  logic SDA,
-    output logic  [15:0] LED,
     output logic  [7:0] slv_reg0,
     output logic  [7:0] slv_reg1,
     output logic  [7:0] slv_reg2,
     output logic  [7:0] slv_reg3,
-    output logic go_right
+    output logic  [7:0] slv_reg4,
+    output logic go_right,
+    input logic responsing_i2c
 );
 
     typedef enum { 
@@ -19,7 +20,8 @@ module I2C_Slave(
         ACK,
         DATA,
         DATA_ACK,
-        STOP
+        STOP,
+        WAIT
     } state_e;
 
     state_e state, state_next;
@@ -27,7 +29,7 @@ module I2C_Slave(
     reg [7:0] temp_tx_data_reg, temp_tx_data_next;
     reg [7:0] temp_addr_reg, temp_addr_next;
     reg [3:0] bit_counter_reg, bit_counter_next;
-    reg [1:0] slv_count_reg, slv_count_next;
+    reg [2:0] slv_count_reg, slv_count_next;
     reg en;
     reg o_data;
 
@@ -43,15 +45,15 @@ module I2C_Slave(
     reg [7:0] slv_reg1_reg, slv_reg1_next;
     reg [7:0] slv_reg2_reg, slv_reg2_next;
     reg [7:0] slv_reg3_reg, slv_reg3_next;
+    reg [7:0] slv_reg4_reg, slv_reg4_next;
 
-    reg [15:0] led_reg, led_next;
     assign SDA= en? o_data: 1'bz;
-    assign LED=led_reg;
     
     assign slv_reg0 = slv_reg0_reg;
     assign slv_reg1 = slv_reg1_reg;
     assign slv_reg2 = slv_reg2_reg;
     assign slv_reg3 = slv_reg3_reg;
+    assign slv_reg4 = slv_reg4_reg;
 
 
      always @(posedge clk or posedge reset) begin
@@ -64,7 +66,6 @@ module I2C_Slave(
              temp_rx_data_reg <=0;
              bit_counter_reg <=0;
              temp_addr_reg <=0;
-             led_reg <=0;
          end else begin
              state <= state_next;
              sclk_sync0 <= SCL;
@@ -74,7 +75,6 @@ module I2C_Slave(
              temp_rx_data_reg <= temp_rx_data_next;
              bit_counter_reg <= bit_counter_next;
              temp_addr_reg <= temp_addr_next;
-             led_reg <= led_next;
          end
      end
 
@@ -107,7 +107,6 @@ module I2C_Slave(
         temp_rx_data_next = temp_rx_data_reg;
         bit_counter_next = bit_counter_reg;
         temp_addr_next = temp_addr_reg;
-        led_next = led_reg;
         slv_count_next = slv_count_reg;
         slv_reg0_next = slv_reg0_reg;
         slv_reg1_next = slv_reg1_reg;
@@ -116,7 +115,6 @@ module I2C_Slave(
         go_right =0;
         case (state)
             IDLE: begin
-                led_next[15:8] = 8'b1000_0000;
                 if(sclk_falling && ~SDA) begin
                     state_next = ADDR;
                     bit_counter_next = 0;
@@ -124,7 +122,6 @@ module I2C_Slave(
                 end
             end
             ADDR: begin
-                led_next[15:8] = 8'b0100_0000;
                 if(sclk_rising) begin
                     temp_addr_next = {temp_addr_reg[6:0], SDA};
                 end
@@ -138,7 +135,6 @@ module I2C_Slave(
                 end
             end
             ACK: begin
-                led_next[15:8] = 8'b0010_0000;                
                 if (temp_addr_reg[7:1] == 7'b1010101) begin
                     en = 1'b1;
                     o_data =1'b0;
@@ -153,7 +149,6 @@ module I2C_Slave(
             end
 
             DATA: begin
-                led_next[15:8] = 8'b000_0010;
                 if(sclk_rising) begin
                     temp_rx_data_next = {temp_rx_data_reg[6:0], SDA};
                 end
@@ -163,16 +158,19 @@ module I2C_Slave(
                         state_next = DATA_ACK;
                         slv_count_next= slv_count_reg + 1;
                         case(slv_count_reg)
-                            2'd0: begin
+                            3'd0: begin
                                 slv_reg0_next = temp_rx_data_reg;
                             end
-                            2'd1: begin
+                            3'd1: begin
                                 slv_reg1_next = temp_rx_data_reg;
                             end
-                            2'd2: begin
+                            3'd2: begin
                                 slv_reg2_next = temp_rx_data_reg;
                             end
-                            2'd3: begin
+                            3'd3: begin
+                                slv_reg3_next = temp_rx_data_reg;
+                            end
+                            3'd4: begin
                                 slv_reg3_next = temp_rx_data_reg;
                             end
                         endcase
@@ -185,7 +183,6 @@ module I2C_Slave(
                 end
             end
             DATA_ACK: begin
-                led_next[15:8] = 8'b000_0001;
                 en=1'b1;
                 o_data =1'b0;
                 if(sclk_falling) begin
@@ -193,10 +190,15 @@ module I2C_Slave(
                 end
             end
             STOP: begin
-                led_next[15:8] = 8'b000_1111;
                 if(SDA && SCL) begin
-                    state_next = IDLE;
+                    state_next = WAIT;
                     go_right = 1'b1;
+                end
+            end
+            WAIT: begin
+                go_right = 1'b1;
+                if (responsing_i2c) begin
+                    state_next = IDLE;
                 end
             end
         endcase

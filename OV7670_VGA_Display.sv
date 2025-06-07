@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [2:0] sw,
+    input logic [3:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -137,6 +137,7 @@ module OV7670_VGA_Display (
     //ball 전송 관련 //
     logic [7:0] ball_vy;
     logic [1:0] gravity_counter;
+    logic [7:0] safe_speed;
 
     logic ball_send_trigger;
     logic is_transfer;
@@ -214,6 +215,7 @@ module OV7670_VGA_Display (
         .*,
         .slv_reg0({ball_y[9:8],6'b0}),
         .slv_reg1(ball_y[7:0]),
-        .slv_reg2(ball_vy)
+        .slv_reg2(ball_vy),
+        .slv_reg3({6'b0,gravity_counter})
     );
 endmodule

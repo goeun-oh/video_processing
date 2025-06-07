@@ -142,10 +142,12 @@ module OV7670_VGA_Display (
 
     logic [7:0] slv_reg0_y0;
     logic [7:0] slv_reg1_y1;
-    logic [7:0] slv_reg2_speed;
+    logic [7:0] slv_reg2_Yspeed;
     logic [7:0] slv_reg3_gravity;
+    logic [7:0] slv_reg4_ballspeed;
 
     logic go_right;
+    logic responsing_i2c;
 
     game_controller U_GAME_CONTROLLER(
         .*,
@@ -153,32 +155,18 @@ module OV7670_VGA_Display (
         .ball_x_out(ball_x),    // 공의 X 좌표
         .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
         .collision_detected(collision_detected),
-        .game_start(w_game_start),
-
-        // master로 부터 데이터 받기
-        .slv_reg0_y0(slv_reg0_y0),
-        .slv_reg1_y1(slv_reg1_y1),
-        .slv_reg2_speed(slv_reg2_speed),
-        .slv_reg3_gravity(slv_reg3_gravity),
-
-        .go_right(go_right)
+        .game_start(w_game_start)
     );
     
     top_i2c_slave U_I2C_SLAVE(
+        .*,
         .clk(clk),
         .reset(reset),
         .sw(sw),
         .SCL(i2c_scl),
         .SDA(i2c_sda),
         .fndFont(fndFont),
-        .fndCom(fndCom),
-        .LED(LED),
-
-        .slv_reg0_y0(slv_reg0_y0),
-        .slv_reg1_y1(slv_reg1_y1),
-        .slv_reg2_speed(slv_reg2_speed),
-        .slv_reg3_gravity(slv_reg3_gravity),
-        .go_right(go_right)
+        .fndCom(fndCom)
         );
 
     Video_Display U_VIDEO_DISPLAY(

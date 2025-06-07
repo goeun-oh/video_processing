@@ -7,6 +7,7 @@ module I2C_Controller(
     input  logic [9:0] ball_y,
     input  logic [7:0] ball_vy,
     input  logic [1:0] gravity_counter,
+    input logic [7:0] safe_speed,
     input  logic       ready,
     output logic       start,
     output logic       stop,
@@ -34,12 +35,13 @@ module I2C_Controller(
     logic [7:0]  slv0_data1, slv0_data1_next;
     logic [7:0]  slv1_data0, slv1_data0_next;
     logic [7:0]  slv2_data0, slv2_data0_next;
+    logic [7:0]  slv3_data0, slv3_data0_next;
 
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
     //state 관련//
     logic [1:0] state_cnt_reg, state_cnt_next; 
     //0: send addr, 1: send data, 2: stop
-    logic [1:0] state_addr_reg, state_addr_next;
+    logic [2:0] state_addr_reg, state_addr_next;
 
     //i2c 주소관련//
     assign i2c_addr = 8'haa;
@@ -60,6 +62,7 @@ module I2C_Controller(
             slv0_data1 <=0;
             slv1_data0 <=0;
             slv2_data0 <= 0;
+            slv3_data0 <= 0;
         end else begin
             state <= state_next;
             state_cnt_reg <= state_cnt_next;
@@ -69,6 +72,7 @@ module I2C_Controller(
             slv0_data1 <=slv0_data1_next;
             slv1_data0 <=slv1_data0_next;
             slv2_data0 <= slv2_data0_next;
+            slv3_data0 <= slv3_data0_next;
         end
     end
 
@@ -86,6 +90,7 @@ module I2C_Controller(
         slv0_data1_next =slv0_data1;
         slv1_data0_next =slv1_data0;
         slv2_data0_next = slv2_data0;
+        slv3_data0_next = slv3_data0;
         case (state)
             IDLE: begin
                 state_cnt_next =0;
@@ -94,7 +99,6 @@ module I2C_Controller(
                 is_transfer = 0;
                 intf_led = 8'b0000_0000;
                 ball_send_to_slave_next = 0;
-                slv2_data0_next = 0;
 
                 if (ball_send_trigger) begin
                     ball_send_to_slave_next = 1;
@@ -106,6 +110,7 @@ module I2C_Controller(
                     slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
+                    slv3_data0_next = safe_speed;
                 end
             end
 
@@ -160,23 +165,26 @@ module I2C_Controller(
                 if(!ready) begin
                     state_next =WAIT;
                     state_addr_next = state_addr_reg +1;
-                    if(state_addr_reg == 2'd3) begin 
+                    if(state_addr_reg == 3'd4) begin 
                         state_cnt_next = state_cnt_reg +1;
                         state_addr_next =0;
                     end
                 end
                 case (state_addr_reg)
-                    2'd0: begin
+                    3'd0: begin
                         tx_data_next = slv0_data0; 
                     end
-                    2'd1: begin
+                    3'd1: begin
                         tx_data_next = slv0_data1; 
                     end
-                    2'd2: begin
+                    3'd2: begin
                         tx_data_next = slv1_data0;
                     end
-                    2'd3: begin
+                    3'd3: begin
                         tx_data_next = slv2_data0;
+                    end
+                    3'd4: begin
+                        tx_data_next = slv3_data0;
                     end
                 endcase
                 if (is_ball_moving_left) begin
