@@ -148,6 +148,7 @@ module OV7670_VGA_Display (
 
     logic go_right;
     logic responsing_i2c;
+    logic is_idle;
 
     game_controller U_GAME_CONTROLLER(
         .*,
@@ -170,6 +171,7 @@ module OV7670_VGA_Display (
         );
 
     Video_Display U_VIDEO_DISPLAY(
+        .*,
         .x_pixel(x_pixel),
         .y_pixel(y_pixel),
         .camera_pixel(camera_pixel),

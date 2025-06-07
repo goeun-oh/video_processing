@@ -25,7 +25,9 @@ module game_controller (
 
     input logic go_right,
     output logic responsing_i2c,
-    output logic [7:0] LED
+    output logic [7:0] LED,
+
+    output logic is_idle
 );
 
 
@@ -45,7 +47,7 @@ module game_controller (
     logic [31:0] ball_counter, ball_counter_next;
     logic [1:0] gravity_counter, gravity_counter_next;
     logic [1:0] x_counter, x_counter_next;
-    logic [9:0] safe_speed;
+    logic [9:0] safe_speed_reg, safe_speed_next;
     // 속도 갱신용
     logic [19:0] ball_speed, ball_speed_next;
     logic [9:0] y_min = 0;
@@ -72,6 +74,7 @@ module game_controller (
             game_over <= 0;
             score_test <= 0;
             ball_send_trigger_reg <= 0;
+            safe_speed_reg <= 1;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -84,6 +87,7 @@ module game_controller (
             game_over <= game_over_next;
             score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
+            safe_speed_reg <= safe_speed_next;
         end
     end
 
@@ -101,6 +105,8 @@ module game_controller (
         score_test_next = score_test;
         ball_send_trigger_next = 1'b0;
         responsing_i2c = 1'b0;
+        safe_speed_next = safe_speed_reg;
+        is_idle =1'b0;
 
         y_max = upscale ? 479 : 239;
 
@@ -109,13 +115,16 @@ module game_controller (
                 LED = 8'b0000_0001;
                 game_over_next = 0;
                 score_test_next = 0;
+                safe_speed_next = 1;
+                is_idle = 1'b1;
                 if (go_right) begin
                     next = WAIT;
                     ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    ball_speed_next = slv_reg4_ballspeed;
+                    safe_speed_next = (slv_reg4_ballspeed == 8'd0) ? 1: slv_reg4_ballspeed;
+                    ball_speed_next = 20'd270000 / safe_speed_next;
                 end
             end
 
@@ -180,8 +189,8 @@ module game_controller (
                 game_over_next = 0;
 
                 if (collision_detected) begin
-                    safe_speed = (estimated_speed < 2) ? 1.6 : estimated_speed;
-                    ball_speed_next = 32'd270000 / safe_speed;
+                    safe_speed_next = (estimated_speed < 2) ? 1.6 : estimated_speed;
+                    ball_speed_next = 20'd270000 / safe_speed_next;
                 end
 
                 if (ball_x_out <= 0) begin
