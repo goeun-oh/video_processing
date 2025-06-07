@@ -49,6 +49,12 @@ IDLE -> START -> ADDR -> ACK ->  SLV0_DATA0 -> ACK -> SLV0_DATA1 -> ACK -> ...
 ## 기능 구현 목표:
 왼쪽 화면의 공이 기존의 포물선 운동을 유지한 채 오른쪽 화면으로 자연스럽게 이동하는 동작 구현 
 
+### 전체 시스템 흐름
+1. 공이 왼쪽 보드에서 포물선 운동 중 오른쪽 벽에 도달하면 `ball_send_trigger` 발생
+2. `I2C_Controller`는 해당 신호를 받아 공의 y좌표, 속도, 중력 등을 전송
+3. I2C Master → I2C Slave로 정보 전달 완료되면 `go_right` 발생
+4. 오른쪽 보드의 `game_controller`가 해당 신호를 받아 공 운동 재시작
+
 I2C Slave Register 는 다음과 같이 구성됨
 
 ## I2C Slave Reigster Map
