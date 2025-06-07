@@ -1,5 +1,5 @@
 # video_processing
-열심히하자
+i2c slave 수정 진행 중
 
 
 
