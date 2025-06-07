@@ -110,12 +110,11 @@ go_right 신호는 I2C Slave가 Master로부터 모든 데이터를 수신하고
 **[해결]**.  
 I2C 에서 'go_right'신호를 game controller가 받았다는 signal 을 보내기 전까지 유지하게 함
 
-- Handshake 기반 CDC 처리. 
+- Handshake 기반 CDC 처리.  
 `I2C Slave`와 `game_controller`는 서로 다른 클럭 도메인에서 동작하므로, 단발성 신호(`pulse`)만으로는 안정적인 상태 전달이 어려움.  
 이를 해결하기 위해 **레벨 기반의 handshake 방식**을 적용함.
 
-- 동작 흐름. 
-
+- 동작 흐름.  
 1. `I2C FSM`에서 모든 데이터를 전송한 후, `go_right` 신호를 1로 설정하고 **유지**
 2. `game_controller`는 FSM에서 `go_right`가 high일 때 `IDLE → RUNNING_RIGHT`로 전이, I2C에 go right signal을 정상적으로 받았다는 flag전송
 3. `I2C FSM`은 `game_controller`에게서 해당 flag를 수신 후
