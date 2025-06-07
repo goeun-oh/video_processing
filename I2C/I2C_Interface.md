@@ -49,11 +49,12 @@ IDLE -> START -> ADDR -> ACK ->  SLV0_DATA0 -> ACK -> SLV0_DATA1 -> ACK -> ...
 왼쪽 화면의 공이 오른쪽 화면으로 기존 포물선 운동을 유지하며 운동하는 것 까지 구현
 
 I2C Slave Register 는 다음과 같이 구성됨
+
 ## I2C Slave Reigster Map
 | Register 이름 | 용도               | 비트수 | 비고             |
 |---------------|--------------------|--------|------------------|
-| `slv_reg0`    | 공의 y 좌표 저장   | 2bit  | 추후 x좌표 추가 예정 |
-| `slv_reg1`    | 공의 y 좌표 저장   | 8bit  | 추후 x좌표 추가 예정 |
+| `slv_reg0`    | 공의 y 좌표 저장   | 2bit  | |
+| `slv_reg1`    | 공의 y 좌표 저장   | 8bit  |  |
 | `slv_reg2`    | 공의 y 방향 속도   | 8bit | 부호 포함        |
 | `slv_reg3`    | gravity   | 2bit |         |
 | `slv_reg4`    | safe speed   | 8bit | 공의 speed 를 유지하기 위해 safe speed를 가져오고, ball speed를 이로 나눈 값으로 적용하기 위해 필요함        |
