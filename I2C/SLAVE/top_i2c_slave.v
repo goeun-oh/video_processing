@@ -23,6 +23,7 @@ module top_i2c_slave(
     wire [7:0] slv_reg1;
     wire [7:0] slv_reg2;
     wire [7:0] slv_reg3;
+    wire [7:0] slv_reg4;
 
     assign slv_reg0_y0 = slv_reg0;
     assign slv_reg1_y1 = slv_reg1;

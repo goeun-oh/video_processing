@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [3:0] sw,
+    input logic [4:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -216,6 +216,7 @@ module OV7670_VGA_Display (
         .slv_reg0({ball_y[9:8],6'b0}),
         .slv_reg1(ball_y[7:0]),
         .slv_reg2(ball_vy),
-        .slv_reg3({6'b0,gravity_counter})
+        .slv_reg3({6'b0,gravity_counter}),
+        .slv_reg4(safe_speed)
     );
 endmodule

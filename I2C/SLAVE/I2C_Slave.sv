@@ -85,12 +85,14 @@ module I2C_Slave(
             slv_reg2_reg <=0;
             slv_count_reg <=0;
             slv_reg3_reg <= 0;
+            slv_reg4_reg <= 0;
         end else begin
             slv_reg0_reg <= slv_reg0_next;
             slv_reg1_reg <= slv_reg1_next;
             slv_reg2_reg <= slv_reg2_next;
             slv_count_reg <= slv_count_next;
             slv_reg3_reg <= slv_reg3_next;
+            slv_reg4_reg <= slv_reg4_next;
         end
      end
 
@@ -112,6 +114,7 @@ module I2C_Slave(
         slv_reg1_next = slv_reg1_reg;
         slv_reg2_next = slv_reg2_reg;
         slv_reg3_next = slv_reg3_reg;
+        slv_reg4_next = slv_reg4_reg;
         go_right =0;
         case (state)
             IDLE: begin
@@ -171,7 +174,7 @@ module I2C_Slave(
                                 slv_reg3_next = temp_rx_data_reg;
                             end
                             3'd4: begin
-                                slv_reg3_next = temp_rx_data_reg;
+                                slv_reg4_next = temp_rx_data_reg;
                             end
                         endcase
                     end else begin

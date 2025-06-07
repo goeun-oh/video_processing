@@ -3,11 +3,12 @@
 module FND_C(
     input clk, 
     input reset,
-    input [3:0] sw,
+    input [4:0] sw,
     input  [7:0] slv_reg0,
     input  [7:0] slv_reg1,
     input  [7:0] slv_reg2,
     input  [7:0] slv_reg3,
+    input  [7:0] slv_reg4,
     output [7:0] fndFont,
     output [3:0] fndCom
     );
@@ -20,6 +21,7 @@ module FND_C(
     .slv_reg1(slv_reg1),
     .slv_reg2(slv_reg2),
     .slv_reg3(slv_reg3),
+    .slv_reg4(slv_reg4),
     .fnd_reg(fnd_reg)
     );
 
@@ -34,19 +36,21 @@ module FND_C(
 endmodule
 
 module mux_4x1_spi (
-  input [3:0] sw,
+  input [4:0] sw,
   input [7:0] slv_reg0,
   input [7:0] slv_reg1,
   input [7:0] slv_reg2,
   input [7:0] slv_reg3,
+  input [7:0] slv_reg4,
   output reg [7:0] fnd_reg
 );
     always @(*) begin
         case (sw)
-            4'b0001: fnd_reg = slv_reg0;
-            4'b0010: fnd_reg = slv_reg1;
-            4'b0100: fnd_reg = slv_reg2;
-            4'b1000: fnd_reg = slv_reg3;
+            5'b00001: fnd_reg = slv_reg0;
+            5'b00010: fnd_reg = slv_reg1;
+            5'b00100: fnd_reg = slv_reg2;
+            5'b01000: fnd_reg = slv_reg3;
+            5'b10000: fnd_reg = slv_reg4;
             default: fnd_reg = 8'b0;
         endcase
     end

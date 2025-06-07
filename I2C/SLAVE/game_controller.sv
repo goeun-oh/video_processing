@@ -12,26 +12,24 @@ module game_controller (
     input  logic       game_start,
     output logic       game_over,
     output logic [7:0] score_test,
-    
+
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
 
-    input logic [7:0] slv_reg0_y0,
-    input logic [7:0] slv_reg1_y1,
+    input logic        [7:0] slv_reg0_y0,
+    input logic        [7:0] slv_reg1_y1,
     input logic signed [7:0] slv_reg2_Yspeed,
-    input logic [7:0] slv_reg3_gravity,
-    input logic [7:0] slv_reg4_ballspeed,
+    input logic        [7:0] slv_reg3_gravity,
+    input logic        [7:0] slv_reg4_ballspeed,
 
     input logic go_right,
     output logic responsing_i2c,
     output logic [7:0] LED
 );
-    //game controller의 clk은 25MHz, go right을 전송하는 i2c의 clk과 다르므로 CDC 해결해야함
-    //syncrhonizer ff 연결하기
 
 
-    typedef enum{
+    typedef enum {
         IDLE,
         WAIT,
         RUNNING_RIGHT,
@@ -56,7 +54,7 @@ module game_controller (
     logic game_over_next;
 
     logic [7:0] score_test_next;
-    
+
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
 
@@ -73,7 +71,7 @@ module game_controller (
             ball_speed <= 20'd270000;
             game_over <= 0;
             score_test <= 0;
-            ball_send_trigger_reg <=0;
+            ball_send_trigger_reg <= 0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -108,8 +106,8 @@ module game_controller (
 
         case (state)
             IDLE: begin
-                LED=8'b0000_0001;
-                game_over_next  = 0;
+                LED = 8'b0000_0001;
+                game_over_next = 0;
                 score_test_next = 0;
                 if (go_right) begin
                     next = WAIT;
@@ -123,25 +121,25 @@ module game_controller (
 
             WAIT: begin
                 responsing_i2c = 1'b1;
-                if(!go_right) begin
+                if (!go_right) begin
                     next = RUNNING_RIGHT;
                 end
             end
 
             STOP: begin
-                LED=8'b0000_0010;
+                LED = 8'b0000_0010;
                 game_over_next = 1;
-                ball_send_trigger_next =1;
+                ball_send_trigger_next = 1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
-                    ball_send_trigger_next =0;
+                    ball_send_trigger_next = 0;
                 end
-                
+
             end
 
             RUNNING_RIGHT: begin
-                LED=8'b0000_0100;
+                LED = 8'b0000_0100;
                 game_over_next = 0;
                 if (collision_detected) begin
                     next = RUNNING_LEFT;
@@ -177,7 +175,7 @@ module game_controller (
             end
 
             RUNNING_LEFT: begin
-                LED=8'b0000_1000;
+                LED = 8'b0000_1000;
                 is_ball_moving_left = 1'b1;
                 game_over_next = 0;
 
