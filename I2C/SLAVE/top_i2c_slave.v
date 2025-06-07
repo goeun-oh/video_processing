@@ -8,12 +8,23 @@ module top_i2c_slave(
     inout SDA,
     output [7:0] fndFont,
     output [3:0] fndCom,
-    output [15:0] LED
+    output [15:0] LED,
+
+    output [7:0] slv_reg0_y0,
+    output [7:0] slv_reg1_y1,
+    output [7:0] slv_reg2_speed,
+    output [7:0] slv_reg3_trig
     );
 
     wire [7:0] slv_reg0;
     wire [7:0] slv_reg1;
     wire [7:0] slv_reg2;
+    wire [7:0] slv_reg3;
+
+    assign slv_reg0_y0 = slv_reg0;
+    assign slv_reg1_y1 = slv_reg1;
+    assign slv_reg2_speed = slv_reg2;
+    assign slv_reg3_trig = slv_reg3;
 
     I2C_Slave U_I2C_Slave(
     .clk(clk),
@@ -23,7 +34,8 @@ module top_i2c_slave(
     .LED(LED),
     .slv_reg0(slv_reg0),
     .slv_reg1(slv_reg1),
-    .slv_reg2(slv_reg2)
+    .slv_reg2(slv_reg2),
+    .slv_reg3(slv_reg3)
     );
 
     FND_C U_FND_C(
@@ -33,6 +45,7 @@ module top_i2c_slave(
     .slv_reg0(slv_reg0),
     .slv_reg1(slv_reg1),
     .slv_reg2(slv_reg2),
+    .slv_reg3(slv_reg3),
     .fndFont(fndFont),
     .fndCom(fndCom)
     );

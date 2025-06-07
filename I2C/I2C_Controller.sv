@@ -14,7 +14,9 @@ module I2C_Controller(
     input  logic       tx_done,
     input logic is_ball_moving_left,
     output logic       is_transfer,
-    output logic [7:0] intf_led
+    output logic [7:0] intf_led,
+
+    output logic ball_send_to_slave
 );
 
     typedef enum{
@@ -32,6 +34,8 @@ module I2C_Controller(
     logic [7:0]  slv0_data0, slv0_data0_next;
     logic [7:0]  slv0_data1, slv0_data1_next;
     logic [7:0]  slv1_data0, slv1_data0_next;
+    logic [7:0]  slv3_data, slv3_data_next;
+
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
     //state 관련//
     logic [1:0] state_cnt_reg, state_cnt_next; 
@@ -45,6 +49,8 @@ module I2C_Controller(
 
     assign tx_data =tx_data_reg;
 
+    logic ball_send_to_slave_next;
+
     always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
             state <= IDLE;
@@ -54,6 +60,8 @@ module I2C_Controller(
             slv0_data0 <=0;
             slv0_data1 <=0;
             slv1_data0 <=0;
+            ball_send_to_slave <= 0;
+            slv3_data <= 0;
         end else begin
             state <= state_next;
             state_cnt_reg <= state_cnt_next;
@@ -62,11 +70,14 @@ module I2C_Controller(
             slv0_data0 <=slv0_data0_next;
             slv0_data1 <=slv0_data1_next;
             slv1_data0 <=slv1_data0_next;
+            ball_send_to_slave <= ball_send_to_slave_next;
+            slv3_data <= slv3_data_next;
         end
     end
 
     // 기본값
     always_comb begin
+        ball_send_to_slave = 0;
         start         = 0;
         stop          = 0;
         i2c_en        = 0;
@@ -78,6 +89,8 @@ module I2C_Controller(
         slv0_data0_next =slv0_data0;
         slv0_data1_next =slv0_data1;
         slv1_data0_next =slv1_data0;
+        ball_send_to_slave_next <= ball_send_to_slave;
+        slv3_data_next = slv3_data;
         case (state)
             IDLE: begin
                 state_cnt_next =0;
@@ -85,7 +98,11 @@ module I2C_Controller(
                 tx_data_next =0;
                 is_transfer = 0;
                 intf_led = 8'b0000_0000;
+                ball_send_to_slave_next = 0;
+                slv3_data_next = 0;
+
                 if (ball_send_trigger) begin
+                    ball_send_to_slave_next = 1;
                     start =1;
                     i2c_en=1;
                     state_next = START_WAIT;
@@ -93,6 +110,7 @@ module I2C_Controller(
                     slv0_data0_next = {ball_y[9:8], 6'b0};  // 공 y 좌표의 최상위 2비트
                     slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
                     slv1_data0_next = ball_vy;  //공 속도
+                    slv3_data_next = 1;
                 end
             end
 
@@ -147,7 +165,7 @@ module I2C_Controller(
                 if(!ready) begin
                     state_next =WAIT;
                     state_addr_next = state_addr_reg +1;
-                    if(state_addr_reg == 2'd2) begin 
+                    if(state_addr_reg == 2'd3) begin 
                         state_cnt_next = state_cnt_reg +1;
                         state_addr_next =0;
                     end
@@ -161,6 +179,9 @@ module I2C_Controller(
                     end
                     2'd2: begin
                         tx_data_next = slv1_data0;
+                    end
+                    2'd3: begin
+                        tx_data_next = slv3_data;
                     end
                 endcase
                 if (is_ball_moving_left) begin

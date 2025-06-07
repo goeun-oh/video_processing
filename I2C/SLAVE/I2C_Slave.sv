@@ -9,7 +9,8 @@ module I2C_Slave(
     output logic  [7:0] slv_reg0,
     output logic  [7:0] slv_reg1,
     output logic  [7:0] slv_reg2,
-    output logic  [7:0] slv_reg3
+    output logic  [7:0] slv_reg3,
+    output logic go_right
 );
 
     typedef enum { 
@@ -83,11 +84,13 @@ module I2C_Slave(
             slv_reg1_reg <=0;
             slv_reg2_reg <=0;
             slv_count_reg <=0;
+            slv_reg3_reg <= 0;
         end else begin
             slv_reg0_reg <= slv_reg0_next;
             slv_reg1_reg <= slv_reg1_next;
             slv_reg2_reg <= slv_reg2_next;
             slv_count_reg <= slv_count_next;
+            slv_reg3_reg <= slv_reg3_next;
         end
      end
 
@@ -109,6 +112,8 @@ module I2C_Slave(
         slv_reg0_next = slv_reg0_reg;
         slv_reg1_next = slv_reg1_reg;
         slv_reg2_next = slv_reg2_reg;
+        slv_reg3_next = slv_reg3_reg;
+        go_right =0;
         case (state)
             IDLE: begin
                 led_next[15:8] = 8'b1000_0000;
@@ -167,6 +172,9 @@ module I2C_Slave(
                             2'd2: begin
                                 slv_reg2_next = temp_rx_data_reg;
                             end
+                            2'd3: begin
+                                slv_reg3_next = temp_rx_data_reg;
+                            end
                         endcase
                     end else begin
                         bit_counter_next = bit_counter_reg + 1;
@@ -188,6 +196,7 @@ module I2C_Slave(
                 led_next[15:8] = 8'b000_1111;
                 if(SDA && SCL) begin
                     state_next = IDLE;
+                    go_right = 1'b1;
                 end
             end
         endcase
