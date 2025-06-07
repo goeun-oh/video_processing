@@ -1,4 +1,4 @@
-# 버전 1
+# 버전 1 (6/6)
 ## I2C Master (왼쪽 보드 부분)
 ### 코드
 [I2C Interface 버전 1](../MASTER/I2C_Intf_V00.sv)  
@@ -45,8 +45,9 @@ IDLE -> START -> ADDR -> ACK ->  SLV0_DATA0 -> ACK -> SLV0_DATA1 -> ACK -> ...
 
 -> 확인 완료, 정상 동작
 
-# 버전 2
-왼쪽 화면의 공이 오른쪽 화면으로 기존 포물선 운동을 유지하며 운동하는 것 까지 구현
+# 버전 2 (6/8)
+## 기능 구현 목표:
+왼쪽 화면의 공이 기존의 포물선 운동을 유지한 채 오른쪽 화면으로 자연스럽게 이동하는 동작 구현 
 
 I2C Slave Register 는 다음과 같이 구성됨
 
@@ -59,12 +60,23 @@ I2C Slave Register 는 다음과 같이 구성됨
 | `slv_reg3`    | gravity   | 2bit |         |
 | `slv_reg4`    | safe speed   | 8bit | 공의 speed 를 유지하기 위해 safe speed를 가져오고, ball speed를 이로 나눈 값으로 적용하기 위해 필요함        |
 
+## 시뮬 & 테스트
+- **조건:**  
+  - 왼쪽 화면에서 공이 오른쪽 벽에 도달할 때 `ball_send_trigger`가 발생  
+  - I2C Master가 공의 y좌표, y속도, 중력값, safe_speed를 전송  
+
+- **검증 절차:**  
+  - 오른쪽 보드에서 I2C Slave가 해당 값을 수신 후 공 운동 재개  
+  - 공이 왼쪽 보드의 y좌표에서 시작하여 동일한 속도와 궤적으로 포물선 운동을 하는지 확인  
+  - 궤적 일치 여부를 시각적으로 확인 (양쪽 화면 비교)
 
 ## 트러블 및 해결
-### 1. I2C 통신으로 왼쪽 공의 좌표값 등은 잘 전송 되나 오른쪽 화면의 공의 움직임이 이상하거나, 멈추는 현상
+### 1. 오른쪽 보드에서 공이 멈춘 상태로 움직이지 않는 현상
+
 **[현상]**  
-- 왼쪽 공이 멈춘 y 좌표에 오른쪽 공이 멈추기는 하나
-- 오른쪽 공이 움직이지 않고 정지해있음 -> 확인해 보니 IDLE 상태에 계속 stuck 됨
+- 왼쪽 공이 오른쪽으로 넘어간 후, 오른쪽 보드의 공이 y좌표 위치까지는 이동하지만 더 이상 움직이지 않고 정지함  
+- 내부적으로 `game_controller` 모듈이 `IDLE` 상태에서 `RUNNING_RIGHT` 상태로 전이되지 않고 **stuck**됨을 확인함
+
 
 **[원인]**  
 오른쪽 보드의 `game_controller.sv` 모듈에서 IDLE -> RUNNING_RIGHT 로 천이하는 코드
@@ -85,9 +97,9 @@ I2C Slave Register 는 다음과 같이 구성됨
         ball_speed_next = 20'd270000 / safe_speed_next;
     end
 ```
-`go_right`신호는 I2C SLAVE가 MASTER 로 부터 데이터를 모두 전송 받은 후(STOP state에서) `game_controller.sv` 모듈에 주는 신호.
-I2C SLAVE의 CLK은 `100MHz`주기, game controller CLK은 `25MHz`주기
-따라서 game controller가 `go_right`를 catch 하지 못할 가능성이 존재
+go_right 신호는 I2C Slave가 Master로부터 모든 데이터를 수신하고 STOP 상태에 도달한 이후 발생시킴
+그러나 I2C Slave는 100MHz 클럭으로 동작하고, game_controller는 25MHz로 동작하여
+클럭 도메인 차이로 인해 go_right가 너무 짧게 발생하면 game_controller가 해당 신호를 잡지 못하고 놓치는 현상 발생
 
 **[해결]**.  
 I2C 에서 'go_right'신호를 game controller가 받았다는 signal 을 보내기 전까지 유지하게 함
