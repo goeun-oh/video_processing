@@ -15,7 +15,9 @@ module game_controller (
     
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
-    output logic [7:0] ball_vy
+    output logic [7:0] ball_vy,
+    output logic [1:0] gravity_counter
+//    output logic [19:0] ball_speed
 );
 
     typedef enum logic [1:0] {
@@ -31,11 +33,11 @@ module game_controller (
     logic signed [9:0] ball_y_vel, ball_y_vel_next;
     logic ball_send_trigger_reg, ball_send_trigger_next;
     logic [31:0] ball_counter, ball_counter_next;
-    logic [1:0] gravity_counter, gravity_counter_next;
+    logic [1:0] gravity_counter_reg, gravity_counter_next;
     logic [1:0] x_counter, x_counter_next;
     logic [9:0] safe_speed;
     // 속도 갱신용
-    logic [19:0] ball_speed, ball_speed_next;
+    logic [19:0] ball_speed_reg, ball_speed_next;
     logic [9:0] y_min = 0;
     logic [9:0] y_max;
 
@@ -45,7 +47,8 @@ module game_controller (
     
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
-
+    assign gravity_counter = gravity_counter_reg;
+    //assign ball_speed = ball_speed_reg;
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
@@ -53,10 +56,10 @@ module game_controller (
             ball_x_out <= 100;
             ball_y_out <= 80;
             ball_counter <= 0;
-            gravity_counter <= 0;
+            gravity_counter_reg <= 0;
             x_counter <= 0;
             ball_y_vel <= -3;
-            ball_speed <= 20'd270000;
+            ball_speed_reg <= 20'd270000;
             game_over <= 0;
             score_test <= 0;
             ball_send_trigger_reg <=0;
@@ -65,10 +68,10 @@ module game_controller (
             ball_x_out <= ball_x_next;
             ball_y_out <= ball_y_next;
             ball_counter <= ball_counter_next;
-            gravity_counter <= gravity_counter_next;
+            gravity_counter_reg <= gravity_counter_next;
             x_counter <= x_counter_next;
             ball_y_vel <= ball_y_vel_next;
-            ball_speed <= ball_speed_next;
+            ball_speed_reg <= ball_speed_next;
             game_over <= game_over_next;
             score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
@@ -80,11 +83,11 @@ module game_controller (
         ball_x_next = ball_x_out;
         ball_y_next = ball_y_out;
         ball_counter_next = ball_counter;
-        gravity_counter_next = gravity_counter;
+        gravity_counter_next = gravity_counter_reg;
         x_counter_next = x_counter;
         ball_y_vel_next = ball_y_vel;
         is_ball_moving_left = 1'b0;
-        ball_speed_next = ball_speed;
+        ball_speed_next = ball_speed_reg;
         game_over_next = game_over;
         score_test_next = score_test;
         ball_send_trigger_next = 1'b0;
@@ -119,15 +122,15 @@ module game_controller (
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     next = STOP;
                 end else begin
-                    if (ball_counter >= ball_speed) begin
+                    if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out + 4;
                         ball_counter_next = 0;
 
-                        if (gravity_counter == 2'd3) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
-                            gravity_counter_next = gravity_counter + 1;
+                            gravity_counter_next = gravity_counter_reg + 1;
                         end
 
                         ball_y_next = ball_y_out + ball_y_vel;
@@ -161,15 +164,15 @@ module game_controller (
                     x_counter_next = 0;
                     ball_speed_next = 20'd270000;  // 속도 초기화
                 end else begin
-                    if (ball_counter >= ball_speed) begin
+                    if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 4;
                         ball_counter_next = 0;
 
-                        if (gravity_counter == 2'd3) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
-                            gravity_counter_next = gravity_counter + 1;
+                            gravity_counter_next = gravity_counter_reg + 1;
                         end
 
                         ball_y_next = ball_y_out + ball_y_vel;

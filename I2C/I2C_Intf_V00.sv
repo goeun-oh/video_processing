@@ -5,6 +5,7 @@ module I2C_Intf(
     input  logic       ball_send_trigger,
     input  logic [9:0] ball_y,
     input  logic [7:0] ball_vy,
+    input logic [1:0] gravity_counter,
     output logic       SCL,
     inout  logic       SDA,
     output logic is_transfer,

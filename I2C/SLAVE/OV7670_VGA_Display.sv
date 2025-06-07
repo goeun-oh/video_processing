@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [2:0] sw,
+    input logic [3:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -143,7 +143,7 @@ module OV7670_VGA_Display (
     logic [7:0] slv_reg0_y0;
     logic [7:0] slv_reg1_y1;
     logic [7:0] slv_reg2_speed;
-    logic [7:0] slv_reg3_trig;
+    logic [7:0] slv_reg3_gravity;
 
     logic go_right;
 
@@ -159,7 +159,7 @@ module OV7670_VGA_Display (
         .slv_reg0_y0(slv_reg0_y0),
         .slv_reg1_y1(slv_reg1_y1),
         .slv_reg2_speed(slv_reg2_speed),
-        .slv_reg3_trig(slv_reg3_trig),
+        .slv_reg3_gravity(slv_reg3_gravity),
 
         .go_right(go_right)
     );
@@ -177,7 +177,7 @@ module OV7670_VGA_Display (
         .slv_reg0_y0(slv_reg0_y0),
         .slv_reg1_y1(slv_reg1_y1),
         .slv_reg2_speed(slv_reg2_speed),
-        .slv_reg3_trig(slv_reg3_trig),
+        .slv_reg3_gravity(slv_reg3_gravity),
         .go_right(go_right)
         );
 

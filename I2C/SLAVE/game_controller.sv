@@ -20,7 +20,7 @@ module game_controller (
     input logic [7:0] slv_reg0_y0,
     input logic [7:0] slv_reg1_y1,
     input logic [7:0] slv_reg2_speed,
-    input logic [7:0] slv_reg3_trig,
+    input logic [7:0] slv_reg3_gravity,
 
     input logic go_right
 );
@@ -107,6 +107,7 @@ module game_controller (
                     ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
                     ball_x_next = 0;
                     ball_y_vel_next = $signed(slv_reg2_speed);
+                    gravity_counter_next = slv_reg3_gravity[1:0];
                 end
             end
 

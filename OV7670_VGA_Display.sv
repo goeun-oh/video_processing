@@ -136,6 +136,7 @@ module OV7670_VGA_Display (
 
     //ball 전송 관련 //
     logic [7:0] ball_vy;
+    logic [1:0] gravity_counter;
 
     logic ball_send_trigger;
     logic is_transfer;
