@@ -104,9 +104,9 @@ module game_controller (
                 score_test_next = 0;
                 if (go_right) begin
                     next = RUNNING_RIGHT;
-                    ball_y_next = {slv_reg0_y0[9:8], slv_reg1_y1};
+                    ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
                     ball_x_next = 0;
-                    ball_y_vel_next = slv_reg2_speed;
+                    ball_y_vel_next = $signed(slv_reg2_speed);
                 end
             end
 

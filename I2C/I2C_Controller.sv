@@ -14,9 +14,7 @@ module I2C_Controller(
     input  logic       tx_done,
     input logic is_ball_moving_left,
     output logic       is_transfer,
-    output logic [7:0] intf_led,
-
-    output logic ball_send_to_slave
+    output logic [7:0] intf_led
 );
 
     typedef enum{
@@ -60,7 +58,6 @@ module I2C_Controller(
             slv0_data0 <=0;
             slv0_data1 <=0;
             slv1_data0 <=0;
-            ball_send_to_slave <= 0;
             slv3_data <= 0;
         end else begin
             state <= state_next;
@@ -70,14 +67,12 @@ module I2C_Controller(
             slv0_data0 <=slv0_data0_next;
             slv0_data1 <=slv0_data1_next;
             slv1_data0 <=slv1_data0_next;
-            ball_send_to_slave <= ball_send_to_slave_next;
             slv3_data <= slv3_data_next;
         end
     end
 
     // 기본값
     always_comb begin
-        ball_send_to_slave = 0;
         start         = 0;
         stop          = 0;
         i2c_en        = 0;
@@ -89,7 +84,6 @@ module I2C_Controller(
         slv0_data0_next =slv0_data0;
         slv0_data1_next =slv0_data1;
         slv1_data0_next =slv1_data0;
-        ball_send_to_slave_next <= ball_send_to_slave;
         slv3_data_next = slv3_data;
         case (state)
             IDLE: begin

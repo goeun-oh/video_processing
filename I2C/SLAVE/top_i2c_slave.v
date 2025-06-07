@@ -13,7 +13,9 @@ module top_i2c_slave(
     output [7:0] slv_reg0_y0,
     output [7:0] slv_reg1_y1,
     output [7:0] slv_reg2_speed,
-    output [7:0] slv_reg3_trig
+    output [7:0] slv_reg3_trig,
+
+    output go_right
     );
 
     wire [7:0] slv_reg0;
@@ -35,7 +37,8 @@ module top_i2c_slave(
     .slv_reg0(slv_reg0),
     .slv_reg1(slv_reg1),
     .slv_reg2(slv_reg2),
-    .slv_reg3(slv_reg3)
+    .slv_reg3(slv_reg3),
+    .go_right(go_right)
     );
 
     FND_C U_FND_C(
