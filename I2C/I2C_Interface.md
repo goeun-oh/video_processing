@@ -56,7 +56,7 @@ I2C Slave Register 는 다음과 같이 구성됨
 | `slv_reg1`    | 공의 y 좌표 저장   | 8bit  | 추후 x좌표 추가 예정 |
 | `slv_reg2`    | 공의 y 방향 속도   | 8bit | 부호 포함        |
 | `slv_reg3`    | gravity   | 2bit |         |
-| `slv_reg4`    | safe speed   | 2bit | 공의 speed 를 유지하기 위해 safe speed를 가져오고, ball speed를 이로 나눈 값으로 적용하기 위해 필요함        |
+| `slv_reg4`    | safe speed   | 8bit | 공의 speed 를 유지하기 위해 safe speed를 가져오고, ball speed를 이로 나눈 값으로 적용하기 위해 필요함        |
 
 
 ## 트러블 및 해결
@@ -66,7 +66,7 @@ I2C Slave Register 는 다음과 같이 구성됨
 - 오른쪽 공이 움직이지 않고 정지해있음 -> 확인해 보니 IDLE 상태에 계속 stuck 됨
 
 **[원인]**  
-오른쪽 보드의 `game_controller.sv` 모듈에서 RUNNING
+오른쪽 보드의 `game_controller.sv` 모듈에서 IDLE -> RUNNING_RIGHT 로 천이하는 코드
 ```systemVerilog
   IDLE: begin
     LED = 8'b0000_0001;
@@ -84,6 +84,9 @@ I2C Slave Register 는 다음과 같이 구성됨
         ball_speed_next = 20'd270000 / safe_speed_next;
     end
 ```
-`go_right`신호는 I2C SLAVE가 MASTER 로 부터 데이터를 모두 전송 받은 후 `game_controller.sv` 모듈에 주는 신호.
+`go_right`신호는 I2C SLAVE가 MASTER 로 부터 데이터를 모두 전송 받은 후(STOP state에서) `game_controller.sv` 모듈에 주는 신호.
 I2C SLAVE의 CLK은 `100MHz`주기, game controller CLK은 `25MHz`주기
 따라서 game controller가 `go_right`를 catch 하지 못할 가능성이 존재
+
+**[해결]**.  
+I2C 에서 'go_right'신호를 game controller가 받았다는 signal 을 보내기 전까지 유지하게 함
