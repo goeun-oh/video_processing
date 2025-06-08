@@ -11,14 +11,12 @@ module game_controller_for_two (
     input  logic [9:0] estimated_speed,
     input  logic       game_start,
     output logic       game_over,
-    
+
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
     output logic [1:0] gravity_counter,
-    output logic [7:0] ball_speed_reg0,
-    output logic [7:0] ball_speed_reg1,
-    output logic [3:0] ball_speed_reg2
+    output logic       is_collusion
 );
 
     typedef enum logic [2:0] {
@@ -45,15 +43,13 @@ module game_controller_for_two (
 
     logic game_over_next;
 
-    
+
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
     assign gravity_counter = gravity_counter_reg;
     //assign ball_speed = ball_speed_reg;
-    assign ball_speed_reg0 = ball_speed_reg[7:0];
-    assign ball_speed_reg1 = ball_speed_reg[15:8];
-    assign ball_speed_reg2 = ball_speed_reg[19:16];
-    
+
+
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
             state <= IDLE;
@@ -65,8 +61,8 @@ module game_controller_for_two (
             ball_y_vel <= -3;
             ball_speed_reg <= 20'd270000;
             game_over <= 0;
-            ball_send_trigger_reg <=0;
-            safe_speed_reg <=1;
+            ball_send_trigger_reg <= 0;
+            safe_speed_reg <= 1;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -99,11 +95,12 @@ module game_controller_for_two (
 
         case (state)
             IDLE: begin
-                game_over_next  = 0;
-                safe_speed_next =1;
+                game_over_next = 0;
+                safe_speed_next = 1;
                 ball_x_next = 0;
                 ball_y_next = 220;
                 ball_speed_next = 20'd270000;
+                is_collusion = 1'b0;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                 end
@@ -113,15 +110,15 @@ module game_controller_for_two (
                 game_over_next = 1;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
-                    ball_send_trigger_next =0;
+                    ball_send_trigger_next = 0;
                 end
             end
 
             SEND_BALL: begin
-                ball_send_trigger_next =1;
+                ball_send_trigger_next = 1;
                 if (game_start) begin
                     next = IDLE;
-                    ball_send_trigger_next =0;
+                    ball_send_trigger_next = 0;
                 end
             end
 
@@ -131,11 +128,9 @@ module game_controller_for_two (
                     next = RUNNING_RIGHT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                end
-                else if (ball_x_out <= 0) begin
+                end else if (ball_x_out <= 0) begin
                     next = STOP;
-                end
-                else begin
+                end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 10;
                         ball_counter_next = 0;
@@ -162,21 +157,21 @@ module game_controller_for_two (
                 end
             end
 
-            RUNNING_RIGHT: begin // 원래 left
+            RUNNING_RIGHT: begin  // 원래 left
                 is_ball_moving_left = 1'b1;
                 game_over_next = 0;
 
                 if (collision_detected) begin
                     safe_speed_next = (estimated_speed < 2) ? 1.6 : estimated_speed;
                     ball_speed_next = 20'd270000 / safe_speed_next;
+                    is_collusion = 1'b1;
                 end
 
                 if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     next = SEND_BALL;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                end
-                else begin
+                end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out + 10;
                         ball_counter_next = 0;

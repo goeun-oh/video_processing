@@ -17,9 +17,7 @@ module top_game_controller (
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
     output logic [1:0] gravity_counter,
-    output logic [7:0] ball_speed_reg0,
-    output logic [7:0] ball_speed_reg1,
-    output logic [3:0] ball_speed_reg2
+    output logic is_collusion
 );
 
     logic [9:0] ball_x_out_for_one, ball_x_out_for_two;
