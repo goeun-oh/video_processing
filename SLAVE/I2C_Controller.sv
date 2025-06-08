@@ -15,8 +15,7 @@ module I2C_Controller (
     output logic [7:0] tx_data,
     input  logic       tx_done,
     input  logic       is_ball_moving_left,
-    output logic       is_transfer,
-    output logic [7:0] intf_led
+    output logic       is_transfer
 );
 
     typedef enum {
@@ -101,7 +100,6 @@ module I2C_Controller (
                 state_addr_next = 0;
                 tx_data_next = 0;
                 is_transfer = 0;
-                intf_led = 8'b0000_0000;
                 ball_send_to_slave_next = 0;
 
                 if (ball_send_trigger) begin
@@ -132,7 +130,6 @@ module I2C_Controller (
             end
 
             WAIT: begin
-                intf_led = 8'b0000_0001;
                 if (ready) begin
                     case (state_cnt_reg)
                         // 2'd0: begin
@@ -166,7 +163,6 @@ module I2C_Controller (
             // end
 
             SEND_DATA: begin
-                intf_led = 8'b0000_0100;
                 i2c_en   = 1;
                 if (!ready) begin
                     state_next = WAIT;
@@ -200,7 +196,6 @@ module I2C_Controller (
             end
 
             STOP: begin
-                intf_led = 8'b0000_1000;
                 stop = 1;
                 i2c_en = 1;
                 if (is_ball_moving_left) begin
@@ -212,7 +207,6 @@ module I2C_Controller (
             end
 
             DONE: begin
-                intf_led = 8'b0001_0000;
                 is_transfer = 0;
                 state_next = IDLE;
                 if (is_ball_moving_left) begin

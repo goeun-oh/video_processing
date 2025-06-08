@@ -25,7 +25,6 @@ module game_controller (
 
     input logic go_right,
     output logic responsing_i2c,
-    output logic [7:0] LED,
 
     output logic is_idle
 );
@@ -36,7 +35,8 @@ module game_controller (
         WAIT,
         RUNNING_RIGHT,
         RUNNING_LEFT,
-        STOP
+        STOP,
+        SEND_BALL
     } state_t;
 
     state_t state, next;
@@ -111,7 +111,6 @@ module game_controller (
 
         case (state)
             IDLE: begin
-                LED = 8'b0000_0001;
                 game_over_next = 0;
                 score_test_next = 0;
                 safe_speed_next = 1;
@@ -134,19 +133,20 @@ module game_controller (
             end
 
             STOP: begin
-                LED = 8'b0000_0010;
                 game_over_next = 1;
-                ball_send_trigger_next = 1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
-                    ball_send_trigger_next = 0;
                 end
 
             end
 
+            SEND_BALL: begin
+                ball_send_trigger_next = 1;
+                next = IDLE;
+            end
+
             RUNNING_RIGHT: begin
-                LED = 8'b0000_0100;
                 game_over_next = 0;
                 if (collision_detected) begin
                     next = RUNNING_LEFT;
@@ -182,7 +182,6 @@ module game_controller (
             end
 
             RUNNING_LEFT: begin
-                LED = 8'b0000_1000;
                 is_ball_moving_left = 1'b1;
                 game_over_next = 0;
 
