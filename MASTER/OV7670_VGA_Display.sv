@@ -131,7 +131,6 @@ module OV7670_VGA_Display (
     logic [9:0] estimated_speed;
     logic [7:0] score;
     logic game_over;
-    logic [7:0] score_test;
 
 
     //ball 전송 관련 //

@@ -11,7 +11,6 @@ module game_controller_for_two (
     input  logic [9:0] estimated_speed,
     input  logic       game_start,
     output logic       game_over,
-    output logic [7:0] score_test,
     
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
@@ -61,7 +60,6 @@ module game_controller_for_two (
             ball_y_vel <= -3;
             ball_speed_reg <= 20'd270000;
             game_over <= 0;
-            score_test <= 0;
             ball_send_trigger_reg <=0;
             safe_speed_reg <=1;
         end else begin
