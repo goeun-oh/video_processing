@@ -236,10 +236,10 @@ module OV7670_VGA_Display (
     
     FND_C U_FND(
         .*,
-        .slv_reg0({ball_y[9:8],6'b0}),
-        .slv_reg1(ball_y[7:0]),
-        .slv_reg2(ball_vy),
-        .slv_reg3({6'b0,gravity_counter}),
-        .slv_reg4({7'b0, is_collusion})
+        .slv_reg0(i_y_pos0),
+        .slv_reg1(i_y_pos1),
+        .slv_reg2(i_y_vel),
+        .slv_reg3(i_gravity),
+        .slv_reg4(i_is_collusion)
     );
 endmodule

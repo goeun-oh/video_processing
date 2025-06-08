@@ -24,6 +24,7 @@ module I2C_Intf (
     output logic [7:0] i_is_collusion,
     output logic go_left,
     input logic responsing_i2c
+
 );
     logic       ready;
     logic       start;
@@ -52,4 +53,8 @@ module I2C_Intf (
         .slv_reg3(i_gravity),
         .slv_reg4(i_is_collusion)
     );
+
+
+
+
 endmodule

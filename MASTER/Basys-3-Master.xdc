@@ -77,8 +77,8 @@ set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_st
 
 ##Pmod Header JA
 
-#set_property -dict { PACKAGE_PIN J1  IOSTANDARD LVCMOS33 } [get_ports { JA[0] }]; #IO_L3N_T0_DQS_AD5N_35 ,Sch=JA1
-#set_property -dict { PACKAGE_PIN L2  IOSTANDARD LVCMOS33 } [get_ports { JA[1] }]; #IO_L5N_T0_AD13N_35    ,Sch=JA2
+set_property -dict { PACKAGE_PIN J1  IOSTANDARD LVCMOS33 } [get_ports { i_scl}]; #IO_L3N_T0_DQS_AD5N_35 ,Sch=JA1
+set_property -dict { PACKAGE_PIN L2  IOSTANDARD LVCMOS33 } [get_ports { i_sda}]; #IO_L5N_T0_AD13N_35    ,Sch=JA2
 #set_property -dict { PACKAGE_PIN J2  IOSTANDARD LVCMOS33 } [get_ports { JA[2] }]; #IO_L2N_T0_AD12N_35    ,Sch=JA3
 #set_property -dict { PACKAGE_PIN G2  IOSTANDARD LVCMOS33 } [get_ports { JA[3] }]; #IO_L1N_T0_AD4N_35     ,Sch=JA4
 #set_property -dict { PACKAGE_PIN H1  IOSTANDARD LVCMOS33 } [get_ports { JA[4] }]; #IO_L3P_T0_DQS_AD5P_35 ,Sch=JA7
@@ -113,8 +113,8 @@ set_property -dict { PACKAGE_PIN R18  IOSTANDARD LVCMOS33 } [get_ports { ov7670_
 
 ##Pmod Header JXADC
 
-set_property -dict { PACKAGE_PIN J3  IOSTANDARD LVCMOS33 } [get_ports { i_scl}]; #IO_L7P_T1_AD6P_35     ,Sch=XA1_P
-set_property -dict { PACKAGE_PIN L3  IOSTANDARD LVCMOS33 } [get_ports { i_sda}]; #IO_L7N_T1_AD6N_35     ,Sch=XA2_P
+#set_property -dict { PACKAGE_PIN J3  IOSTANDARD LVCMOS33 } [get_ports { i_scl}]; #IO_L7P_T1_AD6P_35     ,Sch=XA1_P
+#set_property -dict { PACKAGE_PIN L3  IOSTANDARD LVCMOS33 } [get_ports { i_sda}]; #IO_L7N_T1_AD6N_35     ,Sch=XA2_P
 #set_property -dict { PACKAGE_PIN M2  IOSTANDARD LVCMOS33 } [get_ports { JXADC[2] }]; #IO_L8P_T1_AD14P_35    ,Sch=XA3_P
 #set_property -dict { PACKAGE_PIN N2  IOSTANDARD LVCMOS33 } [get_ports { JXADC[3] }]; #IO_L8N_T1_AD14N_35    ,Sch=XA4_P
 #set_property -dict { PACKAGE_PIN K3  IOSTANDARD LVCMOS33 } [get_ports { JXADC[4] }]; #IO_L9P_T1_DQS_AD7P_35 ,Sch=XA1_N

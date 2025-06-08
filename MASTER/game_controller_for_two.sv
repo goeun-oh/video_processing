@@ -100,7 +100,7 @@ module game_controller_for_two (
         ball_y_vel_next = ball_y_vel;
         is_ball_moving_left = 1'b0;
         ball_speed_next = ball_speed_reg;
-        game_over_next = game_over;
+        game_over_next = 0;
         ball_send_trigger_next = 1'b0;
         safe_speed_next = safe_speed_reg;
         y_max = upscale ? 479 : 239;
