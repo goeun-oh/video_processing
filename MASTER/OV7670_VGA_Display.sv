@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [4:0] sw,
+    input logic [15:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -142,12 +142,12 @@ module OV7670_VGA_Display (
     logic ball_send_trigger;
     logic is_transfer;
 
-    game_controller U_GAME_CONTROLLER(
+    top_game_controller U_TOP_GAME_CONTROLLER(
         .*,
+        .sw(sw[15]),
         .clk_25MHZ(ov7670_xclk),
-        .ball_x_out(ball_x),    // 공의 X 좌표
-        .ball_y_out(ball_y),    // 공의 Y 좌표 (고정)
-        .collision_detected(collision_detected),
+        .ball_x_out(ball_x),
+        .ball_y_out(ball_y),
         .game_start(w_game_start)
     );
     
