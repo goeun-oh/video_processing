@@ -16,7 +16,9 @@ module game_controller_for_two (
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
     output logic [1:0] gravity_counter,
-    output logic [7:0] safe_speed
+    output logic [7:0] ball_speed_reg0,
+    output logic [7:0] ball_speed_reg1,
+    output logic [3:0] ball_speed_reg2
 );
 
     typedef enum logic [2:0] {
@@ -48,13 +50,15 @@ module game_controller_for_two (
     assign ball_vy = ball_y_vel;
     assign gravity_counter = gravity_counter_reg;
     //assign ball_speed = ball_speed_reg;
-    assign safe_speed = safe_speed_reg[7:0];
+    assign ball_speed_reg0 = ball_speed_reg[7:0];
+    assign ball_speed_reg1 = ball_speed_reg[15:8];
+    assign ball_speed_reg2 = ball_speed_reg[19:16];
     
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
             state <= IDLE;
-            ball_x_out <= 100;
-            ball_y_out <= 80;
+            ball_x_out <= 0;
+            ball_y_out <= 220;
             ball_counter <= 0;
             gravity_counter_reg <= 0;
             x_counter <= 0;
@@ -97,8 +101,9 @@ module game_controller_for_two (
             IDLE: begin
                 game_over_next  = 0;
                 safe_speed_next =1;
-                ball_x_next = 100;
-                ball_y_next = 230;
+                ball_x_next = 0;
+                ball_y_next = 220;
+                ball_speed_next = 20'd270000;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                 end
@@ -162,16 +167,14 @@ module game_controller_for_two (
                 game_over_next = 0;
 
                 if (collision_detected) begin
-                    safe_speed_reg = (estimated_speed < 2) ? 1.6 : estimated_speed;
-                    ball_speed_next = 32'd270000 / safe_speed_reg;
+                    safe_speed_next = (estimated_speed < 2) ? 1.6 : estimated_speed;
+                    ball_speed_next = 20'd270000 / safe_speed_next;
                 end
 
                 if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     next = SEND_BALL;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                    ball_speed_next = 20'd270000;  // 속도 초기화
-                    safe_speed_next = 1;
                 end
                 else begin
                     if (ball_counter >= ball_speed_reg) begin

@@ -21,7 +21,9 @@ module game_controller (
     input logic        [7:0] slv_reg1_y1,
     input logic signed [7:0] slv_reg2_Yspeed,
     input logic        [7:0] slv_reg3_gravity,
-    input logic        [7:0] slv_reg4_ballspeed,
+    input logic        [7:0] slv_reg4_ballspeed0,
+    input logic        [7:0] slv_reg4_ballspeed1,
+    input logic        [7:0] slv_reg4_ballspeed2,
 
     input logic go_right,
     output logic responsing_i2c,
@@ -50,6 +52,7 @@ module game_controller (
     logic [9:0] safe_speed_reg, safe_speed_next;
     // 속도 갱신용
     logic [19:0] ball_speed, ball_speed_next;
+    logic [19:0] sending_ball_speed;
     logic [9:0] y_min = 0;
     logic [9:0] y_max;
 
@@ -59,7 +62,7 @@ module game_controller (
 
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
-
+    assign sending_ball_speed = {slv_reg4_ballspeed2[3:0], slv_reg4_ballspeed1, slv_reg4_ballspeed0};
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
@@ -123,8 +126,7 @@ module game_controller (
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    safe_speed_next = (slv_reg4_ballspeed == 8'd0) ? 1: slv_reg4_ballspeed<<1;
-                    ball_speed_next = 20'd270000 / safe_speed_next;
+                    ball_speed_next = (sending_ball_speed == 20'd0) ? 20'd270000:sending_ball_speed;
                 end
             end
 

@@ -137,7 +137,9 @@ module OV7670_VGA_Display (
     //ball 전송 관련 //
     logic [7:0] ball_vy;
     logic [1:0] gravity_counter;
-    logic [7:0] safe_speed;
+    logic [7:0] ball_speed_reg0;
+    logic [7:0] ball_speed_reg1;
+    logic [3:0] ball_speed_reg2;
 
     logic ball_send_trigger;
     logic is_transfer;
@@ -218,6 +220,8 @@ module OV7670_VGA_Display (
         .slv_reg1(ball_y[7:0]),
         .slv_reg2(ball_vy),
         .slv_reg3({6'b0,gravity_counter}),
-        .slv_reg4(safe_speed)
+        .slv_reg4(ball_speed_reg0),
+        .slv_reg5(ball_speed_reg1),
+        .slv_reg6({4'b0,ball_speed_reg2})
     );
 endmodule

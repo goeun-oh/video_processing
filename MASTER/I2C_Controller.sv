@@ -7,7 +7,9 @@ module I2C_Controller (
     input  logic [9:0] ball_y,
     input  logic [7:0] ball_vy,
     input  logic [1:0] gravity_counter,
-    input  logic [7:0] safe_speed,
+    input  logic [7:0] ball_speed_reg0,
+    input  logic [7:0] ball_speed_reg1,
+    input  logic [3:0] ball_speed_reg2,
     input  logic       ready,
     output logic       start,
     output logic       stop,
@@ -35,7 +37,9 @@ module I2C_Controller (
     logic [7:0] slv0_data1, slv0_data1_next; //vpos
     logic [7:0] slv1_data0, slv1_data0_next; //vy
     logic [7:0] slv2_data0, slv2_data0_next; //gravity
-    logic [7:0] slv3_data0, slv3_data0_next; //safe_speed
+    logic [7:0] slv3_data0, slv3_data0_next; //ball_speed
+    logic [7:0] slv3_data1, slv3_data1_next; //ball_speed
+    logic [7:0] slv3_data2, slv3_data2_next; //ball_speed
 
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
     //state 관련//
@@ -63,6 +67,8 @@ module I2C_Controller (
             slv1_data0 <= 0;
             slv2_data0 <= 0;
             slv3_data0 <= 0;
+            slv3_data1 <= 0;
+            slv3_data2 <= 0;
         end else begin
             state <= state_next;
             state_cnt_reg <= state_cnt_next;
@@ -73,6 +79,8 @@ module I2C_Controller (
             slv1_data0 <= slv1_data0_next;
             slv2_data0 <= slv2_data0_next;
             slv3_data0 <= slv3_data0_next;
+            slv3_data1 <= slv3_data1_next;
+            slv3_data2 <= slv3_data2_next;
         end
     end
 
@@ -91,6 +99,8 @@ module I2C_Controller (
         slv1_data0_next = slv1_data0;
         slv2_data0_next = slv2_data0;
         slv3_data0_next = slv3_data0;
+        slv3_data1_next = slv3_data1;
+        slv3_data2_next = slv3_data2;
         case (state)
             IDLE: begin
                 state_cnt_next = 0;
@@ -112,7 +122,9 @@ module I2C_Controller (
                     slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
-                    slv3_data0_next = safe_speed;
+                    slv3_data0_next = ball_speed_reg0;
+                    slv3_data1_next = ball_speed_reg1;
+                    slv3_data2_next = {4'b0,ball_speed_reg2};
                 end
             end
 
@@ -187,6 +199,12 @@ module I2C_Controller (
                     end
                     3'd4: begin
                         tx_data_next = slv3_data0;
+                    end
+                    3'd5: begin
+                        tx_data_next = slv3_data1;
+                    end
+                    3'd6: begin
+                        tx_data_next = slv3_data2;
                     end
                 endcase
                 if (is_ball_moving_left) begin
