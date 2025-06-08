@@ -16,15 +16,27 @@ module game_controller_for_two (
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
     output logic [1:0] gravity_counter,
-    output logic       is_collusion
+    output logic       is_collusion,
+
+    input logic        [7:0] slv_reg0_y0,
+    input logic        [7:0] slv_reg1_y1,
+    input logic signed [7:0] slv_reg2_Yspeed,
+    input logic        [7:0] slv_reg3_gravity,
+    input logic        [7:0] slv_reg4_ballspeed,
+
+    input logic go_left,
+    output logic responsing_i2c,
+    output logic [7:0] contrl_led
+
 );
 
-    typedef enum logic [2:0] {
-        IDLE = 0,
-        RUNNING_RIGHT = 1,
-        RUNNING_LEFT = 2,
-        STOP = 3,
-        SEND_BALL = 4
+    typedef enum{
+        IDLE,
+        WAIT,
+        RUNNING_RIGHT,
+        RUNNING_LEFT,
+        STOP,
+        SEND_BALL
     } state_t;
 
     state_t state, next;
@@ -92,9 +104,11 @@ module game_controller_for_two (
         ball_send_trigger_next = 1'b0;
         safe_speed_next = safe_speed_reg;
         y_max = upscale ? 479 : 239;
+        responsing_i2c = 1'b0;
 
         case (state)
             IDLE: begin
+                contrl_led = 8'b0000_0001;
                 game_over_next = 0;
                 safe_speed_next = 1;
                 ball_x_next = 0;
@@ -105,16 +119,34 @@ module game_controller_for_two (
                     next = RUNNING_RIGHT;
                 end
             end
-
+            
+            WAIT: begin
+                contrl_led = 8'b0000_0010;
+                responsing_i2c = 1'b1;
+                if (!go_left) begin
+                    next = RUNNING_LEFT;
+                end
+            end
+            
             STOP: begin
+                contrl_led = 8'b0000_0100;
                 game_over_next = 1;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                     ball_send_trigger_next = 0;
                 end
+                if (go_left) begin
+                    next = WAIT;
+                    ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
+                    ball_x_next = 20;
+                    ball_y_vel_next = slv_reg2_Yspeed;
+                    gravity_counter_next = slv_reg3_gravity[1:0];
+                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
+                end
             end
 
             SEND_BALL: begin
+                contrl_led = 8'b0000_1000;
                 ball_send_trigger_next = 1;
                 if (game_start) begin
                     next = IDLE;
@@ -123,6 +155,7 @@ module game_controller_for_two (
             end
 
             RUNNING_LEFT: begin
+                contrl_led = 8'b0001_0000;
                 game_over_next = 0;
                 if (collision_detected) begin
                     next = RUNNING_RIGHT;
@@ -160,6 +193,7 @@ module game_controller_for_two (
             RUNNING_RIGHT: begin  // 원래 left
                 is_ball_moving_left = 1'b1;
                 game_over_next = 0;
+                contrl_led = 8'b0010_0000;
 
                 if (collision_detected) begin
                     safe_speed_next = (estimated_speed < 2) ? 1.6 : estimated_speed;

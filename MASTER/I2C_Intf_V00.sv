@@ -12,7 +12,7 @@ module I2C_Intf (
     input  logic        i_SCL,
     inout  logic        i_SDA,
     output logic        is_transfer,
-    output logic [15:0] led,
+    output logic [7:0] slave_led,
     input  logic        is_ball_moving_left,
 
 
@@ -22,7 +22,7 @@ module I2C_Intf (
     output logic [7:0] i_y_vel,
     output logic [7:0] i_gravity,
     output logic [7:0] i_is_collusion,
-    output logic go_right,
+    output logic go_left,
     input logic responsing_i2c
 );
     logic       ready;
@@ -32,11 +32,7 @@ module I2C_Intf (
     logic [7:0] tx_data;
     logic       tx_done;
 
-    logic [7:0] intf_led;
-    logic [7:0] master_led;
 
-
-    assign led = {master_led, intf_led};
 
     I2C_Controller U_I2C_CNTRL (.*);
 

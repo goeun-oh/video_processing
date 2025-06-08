@@ -15,9 +15,9 @@ module I2C_Controller (
     output logic [7:0] tx_data,
     input  logic       tx_done,
     input  logic       is_ball_moving_left,
-    output logic       is_transfer,
-    output logic [7:0] intf_led
+    output logic       is_transfer
 );
+    logic [7:0] intf_led;
 
     typedef enum {
         IDLE,

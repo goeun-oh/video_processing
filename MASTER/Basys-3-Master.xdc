@@ -89,10 +89,10 @@ set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_st
 
 ##Pmod Header JB
 
-set_property -dict { PACKAGE_PIN A14  IOSTANDARD LVCMOS33 } [get_ports { i2c_scl }]; #IO_L6P_T0_16       ,Sch=JB1
+set_property -dict { PACKAGE_PIN A14  IOSTANDARD LVCMOS33 } [get_ports { o_scl }]; #IO_L6P_T0_16       ,Sch=JB1
 set_property -dict { PACKAGE_PIN A16  IOSTANDARD LVCMOS33 } [get_ports { ov7670_pclk }]; #IO_L12P_T1_MRCC_16 ,Sch=JB2
 set_property -dict { PACKAGE_PIN B15  IOSTANDARD LVCMOS33 } [get_ports { ov7670_v_sync }]; #IO_L11N_T1_SRCC_16 ,Sch=JB3
-set_property -dict { PACKAGE_PIN B16  IOSTANDARD LVCMOS33 } [get_ports { i2c_sda }]; #IO_L13N_T2_MRCC_16 ,Sch=JB4
+set_property -dict { PACKAGE_PIN B16  IOSTANDARD LVCMOS33 } [get_ports { o_sda }]; #IO_L13N_T2_MRCC_16 ,Sch=JB4
 set_property -dict { PACKAGE_PIN A15  IOSTANDARD LVCMOS33 } [get_ports { scl }]; #IO_L6N_T0_VREF_16  ,Sch=JB7
 set_property -dict { PACKAGE_PIN A17  IOSTANDARD LVCMOS33 } [get_ports { sda }]; #IO_L12N_T1_MRCC_16 ,Sch=JB8
 set_property -dict { PACKAGE_PIN C15  IOSTANDARD LVCMOS33 } [get_ports { ov7670_href }]; #IO_L11P_T1_SRCC_16 ,Sch=JB9
@@ -113,8 +113,8 @@ set_property -dict { PACKAGE_PIN R18  IOSTANDARD LVCMOS33 } [get_ports { ov7670_
 
 ##Pmod Header JXADC
 
-#set_property -dict { PACKAGE_PIN J3  IOSTANDARD LVCMOS33 } [get_ports { JXADC[0] }]; #IO_L7P_T1_AD6P_35     ,Sch=XA1_P
-#set_property -dict { PACKAGE_PIN L3  IOSTANDARD LVCMOS33 } [get_ports { JXADC[1] }]; #IO_L7N_T1_AD6N_35     ,Sch=XA2_P
+set_property -dict { PACKAGE_PIN J3  IOSTANDARD LVCMOS33 } [get_ports { i_scl}]; #IO_L7P_T1_AD6P_35     ,Sch=XA1_P
+set_property -dict { PACKAGE_PIN L3  IOSTANDARD LVCMOS33 } [get_ports { i_sda}]; #IO_L7N_T1_AD6N_35     ,Sch=XA2_P
 #set_property -dict { PACKAGE_PIN M2  IOSTANDARD LVCMOS33 } [get_ports { JXADC[2] }]; #IO_L8P_T1_AD14P_35    ,Sch=XA3_P
 #set_property -dict { PACKAGE_PIN N2  IOSTANDARD LVCMOS33 } [get_ports { JXADC[3] }]; #IO_L8N_T1_AD14N_35    ,Sch=XA4_P
 #set_property -dict { PACKAGE_PIN K3  IOSTANDARD LVCMOS33 } [get_ports { JXADC[4] }]; #IO_L9P_T1_DQS_AD7P_35 ,Sch=XA1_N
