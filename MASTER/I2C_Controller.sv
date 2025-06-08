@@ -7,7 +7,7 @@ module I2C_Controller (
     input  logic [9:0] ball_y,
     input  logic [7:0] ball_vy,
     input  logic [1:0] gravity_counter,
-    input  logic [7:0] safe_speed,
+    input  logic       is_collusion,
     input  logic       ready,
     output logic       start,
     output logic       stop,
@@ -15,9 +15,9 @@ module I2C_Controller (
     output logic [7:0] tx_data,
     input  logic       tx_done,
     input  logic       is_ball_moving_left,
-    output logic       is_transfer,
-    output logic [7:0] intf_led
+    output logic       is_i2c_master_done
 );
+    logic [7:0] intf_led;
 
     typedef enum {
         IDLE,
@@ -31,11 +31,12 @@ module I2C_Controller (
 
     state_t state, state_next;
 
-    logic [7:0] slv0_data0, slv0_data0_next; //vpos
-    logic [7:0] slv0_data1, slv0_data1_next; //vpos
-    logic [7:0] slv1_data0, slv1_data0_next; //vy
-    logic [7:0] slv2_data0, slv2_data0_next; //gravity
-    logic [7:0] slv3_data0, slv3_data0_next; //safe_speed
+    logic [7:0] slv0_data0, slv0_data0_next;  //vpos
+    logic [7:0] slv0_data1, slv0_data1_next;  //vpos
+    logic [7:0] slv1_data0, slv1_data0_next;  //vy
+    logic [7:0] slv2_data0, slv2_data0_next;  //gravity
+    logic [7:0] slv3_data0, slv3_data0_next;  //is collusion
+
 
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
     //state 관련//
@@ -63,6 +64,7 @@ module I2C_Controller (
             slv1_data0 <= 0;
             slv2_data0 <= 0;
             slv3_data0 <= 0;
+
         end else begin
             state <= state_next;
             state_cnt_reg <= state_cnt_next;
@@ -73,6 +75,7 @@ module I2C_Controller (
             slv1_data0 <= slv1_data0_next;
             slv2_data0 <= slv2_data0_next;
             slv3_data0 <= slv3_data0_next;
+
         end
     end
 
@@ -82,7 +85,7 @@ module I2C_Controller (
         stop            = 0;
         i2c_en          = 0;
         tx_data_next    = tx_data_reg;
-        is_transfer     = 1;
+        is_i2c_master_done     = 0;
         state_next      = state;
         state_cnt_next  = state_cnt_reg;
         state_addr_next = state_addr_reg;
@@ -91,12 +94,13 @@ module I2C_Controller (
         slv1_data0_next = slv1_data0;
         slv2_data0_next = slv2_data0;
         slv3_data0_next = slv3_data0;
+
         case (state)
             IDLE: begin
                 state_cnt_next = 0;
                 state_addr_next = 0;
                 tx_data_next = 0;
-                is_transfer = 0;
+                is_i2c_master_done = 0;
                 intf_led = 8'b0000_0000;
                 ball_send_to_slave_next = 0;
 
@@ -112,7 +116,7 @@ module I2C_Controller (
                     slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
-                    slv3_data0_next = safe_speed;
+                    slv3_data0_next = {7'b0, is_collusion};
                 end
             end
 
@@ -209,11 +213,11 @@ module I2C_Controller (
 
             DONE: begin
                 intf_led = 8'b0001_0000;
-                is_transfer = 0;
-                state_next = IDLE;
-                if (is_ball_moving_left) begin
+                is_i2c_master_done = 1;
+                if (!ball_send_trigger) begin
                     state_next = IDLE;
                 end
+
             end
         endcase
     end

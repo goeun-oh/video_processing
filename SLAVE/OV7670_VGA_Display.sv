@@ -23,18 +23,21 @@ module OV7670_VGA_Display (
     output logic [3:0] blue_port,
 
     input logic upscale,
-    output logic [15:0] LED,
     input logic game_start,
 
     output logic [3:0] fndCom,
     output logic [7:0] fndFont,
 
     // i2c 관련//
-    input logic i2c_scl,
-    inout logic i2c_sda
+    input logic i_scl,
+    inout logic i_sda,
+    output logic o_scl,
+    inout logic o_sda,
+
+    output logic [15:0] led
 );
     logic w_game_start;
-
+    logic is_ball_moving_right;
 
     logic we;
     logic [16:0] wAddr;
@@ -51,6 +54,10 @@ module OV7670_VGA_Display (
 
     logic [4:0] x_offset;
     logic [4:0] y_offset;
+
+    logic [7:0] contrl_led;
+    logic [7:0] master_led;
+    assign led = {master_led, contrl_led};
 
     SCCB U_SCCB (.*);
     
@@ -136,6 +143,8 @@ module OV7670_VGA_Display (
 
     //ball 전송 관련 //
     logic [7:0] ball_vy;
+    logic [1:0] gravity_counter;
+    logic is_collusion;
 
     logic ball_send_trigger;
     logic is_transfer;
@@ -159,17 +168,22 @@ module OV7670_VGA_Display (
         .game_start(w_game_start)
     );
     
-    top_i2c_slave U_I2C_SLAVE(
+    I2C_Intf U_I2C_INTF(
         .*,
         .clk(clk),
-        .reset(reset),
-        .sw(sw),
-        .SCL(i2c_scl),
-        .SDA(i2c_sda),
-        .fndFont(fndFont),
-        .fndCom(fndCom)
-        );
-
+        .o_SCL(o_scl),
+        .o_SDA(o_sda),
+        .i_SCL(i_scl),
+        .i_SDA(i_sda),
+    // slave//
+        .i_y_pos0(slv_reg0_y0),
+        .i_y_pos1(slv_reg1_y1),
+        .i_y_vel(slv_reg2_Yspeed),
+        .i_gravity(slv_reg3_gravity),
+        .i_is_collusion(slv_reg4_ballspeed)
+    );
+    
+    
     Video_Display U_VIDEO_DISPLAY(
         .*,
         .x_pixel(x_pixel),
@@ -194,7 +208,7 @@ module OV7670_VGA_Display (
     );
 
     Collision_Detector U_COLLISION_DETECTOR(
-        .is_ball_moving_left(is_ball_moving_left),
+        .is_ball_moving_right(is_ball_moving_right),
         .clk_25MHz(ov7670_xclk),
         .reset(reset),
         .x_pixel(x_pixel),
@@ -218,7 +232,7 @@ module OV7670_VGA_Display (
         .clk_25MHz(ov7670_xclk),
         .reset(reset),
         .collision_detected(collision_detected),
-        .is_ball_moving_left(is_ball_moving_left),
+        .is_ball_moving_right(is_ball_moving_right),
         .x_pixel(x_pixel),
         .game_start(w_game_start),
         .score(score) // 잠시대기

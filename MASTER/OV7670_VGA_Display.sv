@@ -30,10 +30,17 @@ module OV7670_VGA_Display (
     output logic [7:0] fndFont,
 
     // i2c 관련//
-    output logic i2c_scl,
-    inout logic i2c_sda
+    input logic i_scl,
+    inout logic i_sda,
+    output logic o_scl,
+    inout logic o_sda
 );
+
+    logic [7:0] slave_led;
+    logic [7:0] contrl_led;
+    assign led = {slave_led, contrl_led};
     logic w_game_start;
+    logic is_i2c_master_done;
 
 
     logic we;
@@ -137,25 +144,41 @@ module OV7670_VGA_Display (
     //ball 전송 관련 //
     logic [7:0] ball_vy;
     logic [1:0] gravity_counter;
-    logic [7:0] safe_speed;
+    logic is_collusion;
 
     logic ball_send_trigger;
     logic is_transfer;
+    logic [7:0] slv_reg0_y0;
+    logic [7:0] slv_reg1_y1;
+    logic [7:0] slv_reg2_Yspeed;
+    logic [7:0] slv_reg3_gravity;
+    logic [7:0] slv_reg4_ballspeed;
 
+    logic go_left;
+    logic responsing_i2c;
     top_game_controller U_TOP_GAME_CONTROLLER(
         .*,
         .sw(sw[14]),
         .clk_25MHZ(ov7670_xclk),
         .ball_x_out(ball_x),
         .ball_y_out(ball_y),
-        .game_start(w_game_start)
+        .game_start(w_game_start),
+        .go_left(go_left)
     );
     
     I2C_Intf U_I2C_INTF(
         .*,
         .clk(clk),
-        .SCL(i2c_scl),
-        .SDA(i2c_sda)
+        .o_SCL(o_scl),
+        .o_SDA(o_sda),
+        .i_SCL(i_scl),
+        .i_SDA(i_sda),
+        .i_y_pos0(slv_reg0_y0),
+        .i_y_pos1(slv_reg1_y1),
+        .i_y_vel(slv_reg2_Yspeed),
+        .i_gravity(slv_reg3_gravity),
+        .i_is_collusion(slv_reg4_ballspeed),
+        .go_left(go_left) 
     );
 
     Video_Display U_VIDEO_DISPLAY(
@@ -172,7 +195,8 @@ module OV7670_VGA_Display (
         .ball_x(ball_x),
         .ball_y(ball_y),
         .is_hit_area(is_hit_area),
-        .game_over(game_over)
+        .game_over(game_over),
+        .ball_send_trigger(ball_send_trigger)
         );
 
     color_detector U_COLOR_DETECT(
@@ -213,10 +237,10 @@ module OV7670_VGA_Display (
     
     FND_C U_FND(
         .*,
-        .slv_reg0({ball_y[9:8],6'b0}),
-        .slv_reg1(ball_y[7:0]),
-        .slv_reg2(ball_vy),
-        .slv_reg3({6'b0,gravity_counter}),
-        .slv_reg4(safe_speed)
+        .slv_reg0(slv_reg0_y0),
+        .slv_reg1(slv_reg1_y1),
+        .slv_reg2(slv_reg2_Yspeed),
+        .slv_reg3(slv_reg3_gravity),
+        .slv_reg4(slv_reg4_ballspeed)
     );
 endmodule

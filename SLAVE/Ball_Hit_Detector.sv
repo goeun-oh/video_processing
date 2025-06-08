@@ -28,7 +28,7 @@ module Collision_Detector (
     input logic [9:0] y_pixel,
     input logic is_hit_area,       // 화면 상 물체와 공이 겹치는 위치
     input logic is_target_color,    // 해당 픽셀이 빨간색인지 여부
-    input logic is_ball_moving_left,
+    input logic is_ball_moving_right,
     output logic collision_detected,
     output logic [9:0] estimated_speed
     );
@@ -143,7 +143,7 @@ module Collision_Detector (
            CALC: begin
                 delta_x_next = curr_center_x - prev_center_x;
                 collision_detected_next = 1;
-                if ((is_ball_moving_left && delta_x > 0) || (!is_ball_moving_left && delta_x < 0)) begin
+                if ((is_ball_moving_right && delta_x > 0) || (!is_ball_moving_right && delta_x < 0)) begin
 //                    collision_detected_next = 1;
                     estimated_speed_next = (delta_x > 0) ? delta_x : -delta_x;
                 end
@@ -156,7 +156,7 @@ module Collision_Detector (
                 next = IDLE;
             end
             // 새 충돌이 또 시작되면 DETECT로 다시 감
-            else if (is_hit_area && is_target_color && is_ball_moving_left) begin
+            else if (is_hit_area && is_target_color && is_ball_moving_right) begin
                 next = DETECT;
             end
         end

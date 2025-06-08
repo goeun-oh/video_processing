@@ -7,7 +7,7 @@ module game_controller (
     input  logic       collision_detected,
     output logic [9:0] ball_x_out,
     output logic [9:0] ball_y_out,
-    output logic       is_ball_moving_left,
+    output logic       is_ball_moving_right,
     input  logic [9:0] estimated_speed,
     input  logic       game_start,
     output logic       game_over,
@@ -25,9 +25,9 @@ module game_controller (
 
     input logic go_right,
     output logic responsing_i2c,
-    output logic [7:0] LED,
 
-    output logic is_idle
+    output logic is_idle,
+    output logic [7:0] contrl_led
 );
 
 
@@ -36,7 +36,8 @@ module game_controller (
         WAIT,
         RUNNING_RIGHT,
         RUNNING_LEFT,
-        STOP
+        STOP,
+        SEND_BALL
     } state_t;
 
     state_t state, next;
@@ -50,16 +51,15 @@ module game_controller (
     logic [9:0] safe_speed_reg, safe_speed_next;
     // 속도 갱신용
     logic [19:0] ball_speed, ball_speed_next;
+    logic [19:0] sending_ball_speed;
     logic [9:0] y_min = 0;
     logic [9:0] y_max;
-
     logic game_over_next;
 
     logic [7:0] score_test_next;
 
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
-
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
@@ -99,7 +99,7 @@ module game_controller (
         gravity_counter_next = gravity_counter;
         x_counter_next = x_counter;
         ball_y_vel_next = ball_y_vel;
-        is_ball_moving_left = 1'b0;
+        is_ball_moving_right = 1'b0;
         ball_speed_next = ball_speed;
         game_over_next = game_over;
         score_test_next = score_test;
@@ -112,7 +112,7 @@ module game_controller (
 
         case (state)
             IDLE: begin
-                LED = 8'b0000_0001;
+                contrl_led = 8'h01;
                 game_over_next = 0;
                 score_test_next = 0;
                 safe_speed_next = 1;
@@ -123,12 +123,12 @@ module game_controller (
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    safe_speed_next = (slv_reg4_ballspeed == 8'd0) ? 1: slv_reg4_ballspeed;
-                    ball_speed_next = 20'd270000 / safe_speed_next;
+                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
                 end
             end
 
             WAIT: begin
+                contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
                 if (!go_right) begin
                     next = RUNNING_RIGHT;
@@ -136,19 +136,27 @@ module game_controller (
             end
 
             STOP: begin
-                LED = 8'b0000_0010;
-                game_over_next = 1;
+                contrl_led = 8'b0000_0100;
+
                 ball_send_trigger_next = 1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
-                    ball_send_trigger_next = 0;
                 end
 
             end
 
+            SEND_BALL: begin
+                contrl_led = 8'b0000_1000;
+
+                ball_send_trigger_next = 1;
+                next = STOP;
+            end
+
             RUNNING_RIGHT: begin
-                LED = 8'b0000_0100;
+                is_ball_moving_right = 1'b1;
+                contrl_led = 8'b0001_0000;
+
                 game_over_next = 0;
                 if (collision_detected) begin
                     next = RUNNING_LEFT;
@@ -158,7 +166,7 @@ module game_controller (
                     next = STOP;
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out + 4;
+                        ball_x_next = ball_x_out + 10;
                         ball_counter_next = 0;
 
                         if (gravity_counter == 2'd3) begin
@@ -184,8 +192,8 @@ module game_controller (
             end
 
             RUNNING_LEFT: begin
-                LED = 8'b0000_1000;
-                is_ball_moving_left = 1'b1;
+                contrl_led = 8'b0010_0000;
+
                 game_over_next = 0;
 
                 if (collision_detected) begin
@@ -195,13 +203,13 @@ module game_controller (
 
                 if (ball_x_out <= 0) begin
                     score_test_next = score_test + 1;
-                    next = RUNNING_RIGHT;
+                    next = SEND_BALL;
                     ball_counter_next = 0;
                     x_counter_next = 0;
                     ball_speed_next = 20'd270000;  // 속도 초기화
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out - 4;
+                        ball_x_next = ball_x_out - 10;
                         ball_counter_next = 0;
 
                         if (gravity_counter == 2'd3) begin

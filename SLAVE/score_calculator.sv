@@ -4,7 +4,7 @@ module score_calculator (
     input  logic       clk_25MHz,
     input  logic       reset,
     input  logic       collision_detected,
-    input logic        is_ball_moving_left,
+    input logic        is_ball_moving_right,
     input  logic [9:0] x_pixel,
     input  logic       game_start,
     output logic [7:0] score
@@ -33,7 +33,7 @@ module score_calculator (
         score_next = score_reg;
         case(state)
             IDLE: begin
-               if(collision_detected && is_ball_moving_left) begin
+               if(collision_detected && is_ball_moving_right) begin
                     state_next = START;  
                end 
             end
@@ -44,7 +44,7 @@ module score_calculator (
                 end
             end
             STAY: begin
-                if(!is_ball_moving_left) begin
+                if(!is_ball_moving_right) begin
                     state_next = IDLE;
                 end
             end
