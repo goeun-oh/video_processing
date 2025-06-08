@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module game_controller_two (
+module game_controller_for_two (
     input  logic       clk_25MHZ,
     input  logic       reset,
     input  logic       upscale,
