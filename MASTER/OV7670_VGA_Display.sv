@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [15:0] sw,
+    input logic [14:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,
@@ -144,7 +144,7 @@ module OV7670_VGA_Display (
 
     top_game_controller U_TOP_GAME_CONTROLLER(
         .*,
-        .sw(sw[15]),
+        .sw(sw[14]),
         .clk_25MHZ(ov7670_xclk),
         .ball_x_out(ball_x),
         .ball_y_out(ball_y),
