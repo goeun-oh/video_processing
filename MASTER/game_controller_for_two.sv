@@ -43,7 +43,6 @@ module game_controller_for_two (
 
     logic game_over_next;
 
-    logic [7:0] score_test_next;
     
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
@@ -75,7 +74,6 @@ module game_controller_for_two (
             ball_y_vel <= ball_y_vel_next;
             ball_speed_reg <= ball_speed_next;
             game_over <= game_over_next;
-            score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
         end
@@ -92,7 +90,6 @@ module game_controller_for_two (
         is_ball_moving_left = 1'b0;
         ball_speed_next = ball_speed_reg;
         game_over_next = game_over;
-        score_test_next = score_test;
         ball_send_trigger_next = 1'b0;
         safe_speed_next = safe_speed_reg;
         y_max = upscale ? 479 : 239;
@@ -100,7 +97,6 @@ module game_controller_for_two (
         case (state)
             IDLE: begin
                 game_over_next  = 0;
-                score_test_next = 0;
                 safe_speed_next =1;
                 if (game_start) begin
                     next = RUNNING_LEFT;
@@ -111,7 +107,6 @@ module game_controller_for_two (
                 game_over_next = 1;
                 ball_send_trigger_next =1;
                 if (game_start) begin
-                    score_test_next = 0;
                     next = RUNNING_LEFT;
                     ball_send_trigger_next =0;
                 end
@@ -162,7 +157,6 @@ module game_controller_for_two (
                 end
 
                 if (ball_x_out <= 0) begin
-                    score_test_next = score_test + 1;
                     next = RUNNING_RIGHT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
