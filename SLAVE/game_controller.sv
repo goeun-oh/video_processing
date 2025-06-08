@@ -123,7 +123,7 @@ module game_controller (
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    safe_speed_next = (slv_reg4_ballspeed == 8'd0) ? 1: slv_reg4_ballspeed;
+                    safe_speed_next = (slv_reg4_ballspeed == 8'd0) ? 1: slv_reg4_ballspeed<<1;
                     ball_speed_next = 20'd270000 / safe_speed_next;
                 end
             end
@@ -158,7 +158,7 @@ module game_controller (
                     next = STOP;
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out + 4;
+                        ball_x_next = ball_x_out + 10;
                         ball_counter_next = 0;
 
                         if (gravity_counter == 2'd3) begin
@@ -201,7 +201,7 @@ module game_controller (
                     ball_speed_next = 20'd270000;  // 속도 초기화
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out - 4;
+                        ball_x_next = ball_x_out - 10;
                         ball_counter_next = 0;
 
                         if (gravity_counter == 2'd3) begin

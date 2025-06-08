@@ -131,6 +131,7 @@ module OV7670_VGA_Display (
     logic [9:0] estimated_speed;
     logic [7:0] score;
     logic game_over;
+    logic [7:0] score_test;
 
 
     //ball 전송 관련 //
@@ -171,7 +172,8 @@ module OV7670_VGA_Display (
         .ball_x(ball_x),
         .ball_y(ball_y),
         .is_hit_area(is_hit_area),
-        .game_over(game_over)
+        .game_over(game_over),
+        .ball_send_trigger(ball_send_trigger)
         );
 
     color_detector U_COLOR_DETECT(

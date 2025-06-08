@@ -19,11 +19,12 @@ module game_controller_for_two (
     output logic [7:0] safe_speed
 );
 
-    typedef enum logic [1:0] {
+    typedef enum logic [2:0] {
         IDLE = 0,
         RUNNING_RIGHT = 1,
         RUNNING_LEFT = 2,
-        STOP = 3
+        STOP = 3,
+        SEND_BALL = 4
     } state_t;
 
     state_t state, next;
@@ -32,7 +33,7 @@ module game_controller_for_two (
     logic signed [9:0] ball_y_vel, ball_y_vel_next;
     logic ball_send_trigger_reg, ball_send_trigger_next;
     logic [31:0] ball_counter, ball_counter_next;
-    logic [3:0] gravity_counter_reg, gravity_counter_next;                  //
+    logic [1:0] gravity_counter_reg, gravity_counter_next;
     logic [1:0] x_counter, x_counter_next;
     logic [9:0] safe_speed_reg, safe_speed_next;
     // 속도 갱신용
@@ -96,34 +97,45 @@ module game_controller_for_two (
             IDLE: begin
                 game_over_next  = 0;
                 safe_speed_next =1;
+                ball_x_next = 100;
+                ball_y_next = 230;
                 if (game_start) begin
-                    next = RUNNING_LEFT;
+                    next = RUNNING_RIGHT;
                 end
             end
 
             STOP: begin
                 game_over_next = 1;
-                ball_send_trigger_next =1;
                 if (game_start) begin
-                    next = RUNNING_LEFT;
+                    next = RUNNING_RIGHT;
                     ball_send_trigger_next =0;
                 end
             end
 
-            RUNNING_RIGHT: begin
+            SEND_BALL: begin
+                ball_send_trigger_next =1;
+                if (game_start) begin
+                    next = IDLE;
+                    ball_send_trigger_next =0;
+                end
+            end
+
+            RUNNING_LEFT: begin
                 game_over_next = 0;
                 if (collision_detected) begin
-                    next = RUNNING_LEFT;
+                    next = RUNNING_RIGHT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
+                end
+                else if (ball_x_out <= 0) begin
                     next = STOP;
-                end else begin
+                end
+                else begin
                     if (ball_counter >= ball_speed_reg) begin
-                        ball_x_next = ball_x_out + 12;
+                        ball_x_next = ball_x_out - 10;
                         ball_counter_next = 0;
 
-                        if (gravity_counter_reg == 4'd5) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
@@ -145,7 +157,7 @@ module game_controller_for_two (
                 end
             end
 
-            RUNNING_LEFT: begin
+            RUNNING_RIGHT: begin // 원래 left
                 is_ball_moving_left = 1'b1;
                 game_over_next = 0;
 
@@ -154,18 +166,19 @@ module game_controller_for_two (
                     ball_speed_next = 32'd270000 / safe_speed_reg;
                 end
 
-                if (ball_x_out <= 0) begin
-                    next = RUNNING_RIGHT;
+                if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
+                    next = SEND_BALL;
                     ball_counter_next = 0;
                     x_counter_next = 0;
                     ball_speed_next = 20'd270000;  // 속도 초기화
                     safe_speed_next = 1;
-                end else begin
+                end
+                else begin
                     if (ball_counter >= ball_speed_reg) begin
-                        ball_x_next = ball_x_out - 12;
+                        ball_x_next = ball_x_out + 10;
                         ball_counter_next = 0;
 
-                        if (gravity_counter_reg == 4'd5) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
