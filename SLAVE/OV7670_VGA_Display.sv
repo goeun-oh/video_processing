@@ -23,15 +23,16 @@ module OV7670_VGA_Display (
     output logic [3:0] blue_port,
 
     input logic upscale,
-    output logic [15:0] LED,
     input logic game_start,
 
     output logic [3:0] fndCom,
     output logic [7:0] fndFont,
 
     // i2c 관련//
-    input logic i2c_scl,
-    inout logic i2c_sda
+    input logic i_scl,
+    inout logic i_sda,
+    output logic o_scl,
+    inout logic o_sda
 );
     logic w_game_start;
 
@@ -136,6 +137,8 @@ module OV7670_VGA_Display (
 
     //ball 전송 관련 //
     logic [7:0] ball_vy;
+    logic [1:0] gravity_counter;
+    logic is_collusion;
 
     logic ball_send_trigger;
     logic is_transfer;
@@ -159,17 +162,22 @@ module OV7670_VGA_Display (
         .game_start(w_game_start)
     );
     
-    top_i2c_slave U_I2C_SLAVE(
+    I2C_Intf U_I2C_INTF(
         .*,
         .clk(clk),
-        .reset(reset),
-        .sw(sw),
-        .SCL(i2c_scl),
-        .SDA(i2c_sda),
-        .fndFont(fndFont),
-        .fndCom(fndCom)
-        );
-
+        .o_SCL(o_scl),
+        .o_SDA(o_sda),
+        .i_SCL(i_scl),
+        .i_SDA(i_sda),
+    // slave//
+        .i_y_pos0(slv_reg0_y0),
+        .i_y_pos1(slv_reg1_y1),
+        .i_y_vel(slv_reg2_Yspeed),
+        .i_gravity(slv_reg3_gravity),
+        .i_is_collusion(slv_reg4_ballspeed)
+    );
+    
+    
     Video_Display U_VIDEO_DISPLAY(
         .*,
         .x_pixel(x_pixel),
