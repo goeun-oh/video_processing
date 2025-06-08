@@ -23,7 +23,9 @@ module I2C_Intf (
     output logic [7:0] i_gravity,
     output logic [7:0] i_is_collusion,
     output logic go_left,
-    input logic responsing_i2c
+    input logic responsing_i2c,
+    output
+     logic is_i2c_master_done
 
 );
     logic       ready;

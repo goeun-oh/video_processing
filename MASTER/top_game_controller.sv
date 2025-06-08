@@ -27,7 +27,8 @@ module top_game_controller (
 
     input logic go_left,
     output logic responsing_i2c,
-    output logic [7:0] contrl_led
+    output logic [7:0] contrl_led,
+    input logic is_i2c_master_done
 );
 
     logic [9:0] ball_x_out_for_one, ball_x_out_for_two;
