@@ -12,7 +12,8 @@ module game_controller_for_one (
     input  logic       game_start,
     output logic       game_over,
 
-    output logic rand_en
+    output logic rand_en,
+    input logic [1:0] rand_ball
 );
 
     typedef enum logic [1:0] {
@@ -21,6 +22,8 @@ module game_controller_for_one (
         RUNNING_LEFT = 2,
         STOP = 3
     } state_t;
+
+    parameter BALL_PINGPONG = 0, BALL_SOCCER = 1, BALL_BASKET = 2;
 
     state_t state, next;
 
@@ -110,6 +113,13 @@ module game_controller_for_one (
             RUNNING_RIGHT: begin
                 rand_en_next = 0;
                 game_over_next = 0;
+                case (rand_ball)
+                    BALL_PINGPONG: ball_speed_next = 20'd270000;
+                    BALL_SOCCER:   ball_speed_next = 20'd360000;
+                    BALL_BASKET:   ball_speed_next = 20'd520000;
+                    default:       ball_speed_next = 20'd270000;
+                endcase
+
                 if (collision_detected) begin
                     next = RUNNING_LEFT;
                     ball_counter_next = 0;
@@ -158,7 +168,6 @@ module game_controller_for_one (
                     next = RUNNING_RIGHT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
-                    ball_speed_next = 20'd270000;  // 속도 초기화
                     safe_speed_next = 1;
                     rand_en_next = 1;
                 end else begin
