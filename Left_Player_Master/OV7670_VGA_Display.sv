@@ -23,7 +23,7 @@ module OV7670_VGA_Display (
     output logic [3:0] blue_port,
 
     input logic upscale,
-    output logic [15:0] led,
+    // output logic [15:0] led,
     input logic game_start,
 
     output logic [3:0] fndCom,
@@ -33,11 +33,13 @@ module OV7670_VGA_Display (
     input logic i_scl,
     inout logic i_sda,
     output logic o_scl,
-    inout logic o_sda
+    inout logic o_sda,
+    output logic [9:0] estimated_speed
 );
 
     logic [7:0] slave_led;
     logic [7:0] contrl_led;
+    logic [15:0] led;
     assign led = {slave_led, contrl_led};
     logic w_game_start;
     logic is_i2c_master_done;
@@ -48,7 +50,6 @@ module OV7670_VGA_Display (
     logic [15:0] wData;
     logic [16:0] rAddr;
     logic [15:0] rData;
-
     logic [9:0] x_pixel;
     logic [9:0] y_pixel;
     logic DE;
@@ -56,8 +57,8 @@ module OV7670_VGA_Display (
     logic [15:0] camera_pixel;
     logic [15:0] rom_pixel;
 
-    logic [4:0] x_offset;
-    logic [4:0] y_offset;
+    logic [5:0] x_offset;
+    logic [5:0] y_offset;
 
     SCCB U_SCCB (.*);
     
@@ -125,17 +126,10 @@ module OV7670_VGA_Display (
         .upscale(upscale)
     );
 
-   ball_rom U_BALL_ROM(
-        .x_offset(x_offset),
-        .y_offset(y_offset),
-        .pixel_data(rom_pixel)
-    );
-
     logic [9:0] ball_x, ball_y;
     logic is_hit_area;
     logic collision_detected;
     logic is_target_color;
-    logic [9:0] estimated_speed;
     logic [7:0] score;
     logic game_over;
     logic [7:0] score_test;
@@ -156,6 +150,23 @@ module OV7670_VGA_Display (
 
     logic go_left;
     logic responsing_i2c;
+    logic rand_en;
+    logic [1:0] rand_ball;
+
+    LFSR_ball U_LFSR_BALL(
+        .clk(ov7670_xclk),
+        .reset(reset),
+        .rand_en(rand_en),
+        .rand_ball(rand_ball)  
+    );
+
+   ball_rom U_BALL_ROM(
+        .x_offset(x_offset),
+        .y_offset(y_offset),
+        .rand_ball(rand_ball),
+        .pixel_data(rom_pixel)
+    );
+
     top_game_controller U_TOP_GAME_CONTROLLER(
         .*,
         .sw(sw[14]),
@@ -163,7 +174,8 @@ module OV7670_VGA_Display (
         .ball_x_out(ball_x),
         .ball_y_out(ball_y),
         .game_start(w_game_start),
-        .go_left(go_left)
+        .go_left(go_left),
+        .rand_en(rand_en)
     );
     
     I2C_Intf U_I2C_INTF(
@@ -197,7 +209,8 @@ module OV7670_VGA_Display (
         .ball_y(ball_y),
         .is_hit_area(is_hit_area),
         .game_over(game_over),
-        .ball_send_trigger(ball_send_trigger)
+        .ball_send_trigger(ball_send_trigger),
+        .rand_ball(rand_ball)
         );
 
     color_detector U_COLOR_DETECT(

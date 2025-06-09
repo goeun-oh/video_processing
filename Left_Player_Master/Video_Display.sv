@@ -11,8 +11,8 @@ module Video_Display(
     output logic [3:0] red_port,
     output logic [3:0] green_port,
     output logic [3:0] blue_port,
-    output logic [4:0] x_offset,
-    output logic [4:0] y_offset,
+    output logic [5:0] x_offset,
+    output logic [5:0] y_offset,
 
     input logic [9:0] ball_x,  // 움직이는 공의 x 위치
     input logic [9:0] ball_y,  // 움직이는 공의 y 위치
@@ -20,7 +20,9 @@ module Video_Display(
     output logic is_hit_area,
 
     input logic game_over,
-    input logic ball_send_trigger
+    input logic ball_send_trigger,
+
+    input logic [1:0] rand_ball
     );
 
     // 텍스트 표시 위치 및 크기
@@ -85,8 +87,8 @@ module Video_Display(
 
     // overlay 영역 판단
     // h cnt 가 100 ~ 120, v cnt가 80 ~ 100 일 때, 참 
-    assign in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 20) &&
-                             (y_pixel >= ball_y && y_pixel < ball_y + 20);
+    // assign in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 20) &&
+    //                          (y_pixel >= ball_y && y_pixel < ball_y + 20);
 
     assign in_score_overlay_area = (y_pixel >= TEXT_Y && y_pixel < TEXT_Y + FONT_HEIGHT * SCALE) &&
             (x_pixel >= TEXT_X && x_pixel < TEXT_X + 2 * FONT_WIDTH * SCALE);
@@ -111,18 +113,23 @@ module Video_Display(
         end
     end
 
+    always_comb begin
+        if (rand_ball == 0) begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 20) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 20);
+        end
+        else if (rand_ball == 1) begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 40) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 40);
+        end
+        else begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 64) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 64);
+        end
 
-    // always_comb begin
-    //     if(in_ball_overlay_area && rom_pixel != 16'h0000) begin
-    //         display_pixel = rom_pixel;
-    //     end else if (in_score_overlay_area) begin
-    //         display_pixel = score_text;
-    //     end else begin
-    //         display_pixel = camera_pixel;
-    //     end
-    // end
-    assign is_hit_area = (x_pixel >= ball_x) && (x_pixel < ball_x + 20) &&
-                        (y_pixel >= ball_y) && (y_pixel < ball_y + 20);
+    end
+
+    assign is_hit_area = in_ball_overlay_area;
 
     assign red_port   = display_pixel[15:12];
     assign green_port = display_pixel[10:7];

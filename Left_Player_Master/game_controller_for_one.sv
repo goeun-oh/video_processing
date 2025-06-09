@@ -10,7 +10,9 @@ module game_controller_for_one (
     output logic       is_ball_moving_left,
     input  logic [9:0] estimated_speed,
     input  logic       game_start,
-    output logic       game_over
+    output logic       game_over,
+
+    output logic rand_en
 );
 
     typedef enum logic [1:0] {
@@ -36,7 +38,7 @@ module game_controller_for_one (
 
     logic game_over_next;
 
-    
+    logic rand_en_next;    
 
     
     always_ff @(posedge clk_25MHZ or posedge reset) begin
@@ -52,6 +54,7 @@ module game_controller_for_one (
             game_over <= 0;
             ball_send_trigger_reg <=0;
             safe_speed_reg <=1;
+            rand_en <= 0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -64,6 +67,7 @@ module game_controller_for_one (
             game_over <= game_over_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
+            rand_en <= rand_en_next;
         end
     end
 
@@ -81,10 +85,12 @@ module game_controller_for_one (
         ball_send_trigger_next = 1'b0;
         safe_speed_next = safe_speed_reg;
         y_max = upscale ? 479 : 239;
+        rand_en_next = rand_en;
 
         case (state)
             IDLE: begin
                 game_over_next  = 0;
+                rand_en_next = 0;
                 if (game_start) begin
                     next = RUNNING_LEFT;
                 end
@@ -92,19 +98,23 @@ module game_controller_for_one (
 
             STOP: begin
                 game_over_next = 1;
+                rand_en_next = 0;
                 ball_send_trigger_next =1;
                 if (game_start) begin
                     next = RUNNING_LEFT;
+                    rand_en_next = 0;
                     ball_send_trigger_next =0;
                 end
             end
 
             RUNNING_RIGHT: begin
+                rand_en_next = 0;
                 game_over_next = 0;
                 if (collision_detected) begin
                     next = RUNNING_LEFT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
+                    rand_en_next = 0;
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     next = STOP;
                 end else begin
@@ -139,8 +149,9 @@ module game_controller_for_one (
                 game_over_next = 0;
 
                 if (collision_detected) begin
-                    safe_speed_reg = (estimated_speed < 2) ? 1.6 : estimated_speed;
+                    safe_speed_reg = (estimated_speed > 2) ? 1.6 : 1;
                     ball_speed_next = 32'd270000 / safe_speed_reg;
+                    //ball_speed_next = 32'd270000;
                 end
 
                 if (ball_x_out <= 0) begin
@@ -149,6 +160,7 @@ module game_controller_for_one (
                     x_counter_next = 0;
                     ball_speed_next = 20'd270000;  // 속도 초기화
                     safe_speed_next = 1;
+                    rand_en_next = 1;
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 4;
