@@ -10,10 +10,11 @@ module I2C_Master (
     input    logic         i2c_en,
     input    logic         stop,
     output   logic         SCL,
-    inout    logic         SDA,
-    output logic [7:0] master_led
+    inout    logic         SDA
 );
 
+    logic [7:0] master_led;
+    
     typedef enum { 
         IDLE,
         START1,

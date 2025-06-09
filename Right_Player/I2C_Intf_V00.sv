@@ -17,7 +17,7 @@ module I2C_Intf (
 
 
     //
-    input logic [4:0] sw,
+    input logic [5:0] sw,
     output logic [7:0] fndFont,
     output logic [3:0] fndCom,
 
@@ -32,7 +32,8 @@ module I2C_Intf (
     input logic responsing_i2c,
     input logic send_lose_information,
 
-    output logic [7:0] master_led
+    output logic [7:0] master_led,
+    output logic [7:0] contrl_led
 );
     logic       ready;
     logic       start;
@@ -70,6 +71,7 @@ module I2C_Intf (
         .slv_reg2(ball_vy),
         .slv_reg3(gravity_counter),
         .slv_reg4(is_collusion),
+        .slv_reg5({7'b0,send_lose_information}),
         .fndFont (fndFont),
         .fndCom(fndCom)
     );

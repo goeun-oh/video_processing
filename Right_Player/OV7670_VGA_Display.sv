@@ -4,7 +4,7 @@ module OV7670_VGA_Display (
     // global signals
     input logic clk,
     input logic reset,
-    input logic [4:0] sw,
+    input logic [5:0] sw,
 
     // ov7670 signals
     output logic       ov7670_xclk,

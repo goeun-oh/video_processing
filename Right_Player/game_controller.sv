@@ -40,6 +40,7 @@ module game_controller (
         RUNNING_RIGHT,
         RUNNING_LEFT,
         STOP,
+        SEND_LOSE,
         SEND_BALL
     } state_t;
 
@@ -149,9 +150,18 @@ module game_controller (
                 end
 
             end
+            SEND_LOSE: begin
+                contrl_led = 8'b0000_1000;
+                send_lose_information =1'b1;
+                ball_send_trigger_next = 1;
+                if (go_right) begin
+                    score_test_next = 0;
+                    next = IDLE;
+                end
+            end
 
             SEND_BALL: begin
-                contrl_led = 8'b0000_1000;
+                contrl_led = 8'b0001_0000;
 
                 ball_send_trigger_next = 1;
                 next = STOP;
@@ -159,7 +169,7 @@ module game_controller (
 
             RUNNING_RIGHT: begin
                 is_ball_moving_right = 1'b1;
-                contrl_led = 8'b0001_0000;
+                contrl_led = 8'b0010_0000;
 
                 game_over_next = 0;
                 if (collision_detected) begin
@@ -167,7 +177,7 @@ module game_controller (
                     ball_counter_next = 0;
                     x_counter_next = 0;
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
-                    next = STOP;
+                    next = SEND_LOSE;
                     send_lose_information =1'b1;
                 end else begin
                     if (ball_counter >= ball_speed) begin
@@ -197,7 +207,7 @@ module game_controller (
             end
 
             RUNNING_LEFT: begin
-                contrl_led = 8'b0010_0000;
+                contrl_led = 8'b0100_0000;
 
                 game_over_next = 0;
 
