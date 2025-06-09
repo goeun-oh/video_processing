@@ -27,11 +27,10 @@ module top_game_controller (
     input logic        [7:0] slv_reg4_ballspeed,
     input logic        [7:0] slv_reg5_win_flag,
 
-    input logic go_left,
+    input logic is_slave_done,
     output logic responsing_i2c,
     output logic [7:0] contrl_led,
     input logic is_i2c_master_done,
-    input logic you_win,
     output logic is_you_win
 );
 

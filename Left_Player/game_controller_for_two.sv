@@ -27,8 +27,7 @@ module game_controller_for_two (
     input logic        [7:0] slv_reg4_ballspeed,
     input logic        [7:0] slv_reg5_win_flag,
 
-    input  logic       go_left,
-    input  logic       you_win,
+    input  logic       is_slave_done,
     output logic       is_you_win,
     output logic       responsing_i2c,
     input  logic       is_i2c_master_done,
@@ -132,46 +131,38 @@ module game_controller_for_two (
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                 end
-                if (go_left) begin
-                    is_you_win_next = 1'b0;
-                    next = WAIT;
-                    ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
-                    ball_x_next = 620;
-                    ball_y_vel_next = slv_reg2_Yspeed;
-                    gravity_counter_next = slv_reg3_gravity[1:0];
-                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
+                if (is_slave_done) begin
+                    if(!is_you_win) begin
+                        is_you_win_next = 1'b0;
+                        next = WAIT;
+                        ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
+                        ball_x_next = 620;
+                        ball_y_vel_next = slv_reg2_Yspeed;
+                        gravity_counter_next = slv_reg3_gravity[1:0];
+                        ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
+                    end
                 end
             end
 
             WAIT: begin
                 contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
-                is_you_win_next = 1'b0;
-                if (!go_left) begin
+                if (!is_slave_done) begin
                     next = RUNNING_LEFT;
+                    if(is_you_win_reg) begin
+                        next = IDLE;
+                    end
                 end
             end
 
             WIN_FLAG: begin
                 contrl_led = 8'b0000_0100;
-                if (go_left) begin
+                if (is_slave_done) begin
                     next = WAIT;
-                end
-                if (you_win) begin
-                    next = WAIT_WIN_FLAG;
                     is_you_win_next = slv_reg5_win_flag[0];
                 end
-
             end
 
-            WAIT_WIN_FLAG: begin
-                contrl_led = 8'b0000_1000;
-                responsing_i2c = 1'b1;
-
-                if (!you_win) begin
-                    next = IDLE;
-                end
-            end
 
             STOP: begin
                 contrl_led = 8'b0001_0000;

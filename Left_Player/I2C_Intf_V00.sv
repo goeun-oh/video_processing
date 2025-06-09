@@ -23,8 +23,7 @@ module I2C_Intf (
     output logic [7:0] i_gravity,
     output logic [7:0] i_is_collusion,
     output logic [7:0] i_is_win_flag,
-    output logic go_left,
-    output logic you_win,
+    output logic is_slave_done,
     input logic responsing_i2c,
     output logic is_i2c_master_done
 

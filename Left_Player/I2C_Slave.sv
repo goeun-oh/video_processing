@@ -11,8 +11,7 @@ module I2C_Slave(
     output logic  [7:0] slv_reg3,
     output logic  [7:0] slv_reg4,
     output logic  [7:0] slv_reg5,
-    output logic go_left,
-    output logic you_win,
+    output logic is_slave_done,
     input logic responsing_i2c,
     output logic [7:0] slave_led
 );
@@ -39,7 +38,6 @@ module I2C_Slave(
     reg [2:0] slv_count_reg, slv_count_next;
     reg en;
     reg o_data;
-
 
 
     reg sclk_sync0, sclk_sync1;
@@ -127,8 +125,7 @@ module I2C_Slave(
         slv_reg3_next = slv_reg3_reg;
         slv_reg4_next = slv_reg4_reg;
         slv_reg5_next = slv_reg5_reg;
-        go_left =0;
-        you_win =0;
+        is_slave_done = 1'b0;
         case (state)
             IDLE: begin
                 slave_led = 8'b0000_0001;
@@ -159,48 +156,13 @@ module I2C_Slave(
                     o_data =1'b0;
                     if(sclk_falling) begin
                         if(!temp_addr_reg[0]) begin
-                            state_next= SLAVE_ADDR;
+                            state_next= DATA;
                         end
                     end
                 end else begin
                     state_next= IDLE;
                 end
             end
-
-            SLAVE_ADDR: begin
-                slave_led = 8'b0000_1000;
-                if(sclk_rising) begin
-                    temp_addr_next = {temp_addr_reg[6:0], SDA};
-                end
-                if(sclk_falling) begin
-                    if (bit_counter_reg == 8-1) begin
-                        bit_counter_next = 0;
-                        state_next = SLAVE_ACK;
-                    end else begin
-                        bit_counter_next = bit_counter_reg + 1;
-                    end
-                end                
-            end
-
-            SLAVE_ACK: begin
-                slave_led = 8'b0001_0000;
-                if (temp_addr_reg == 8'h00) begin
-                    en = 1'b1;
-                    o_data =1'b0;
-                    if(sclk_falling) begin
-                        state_next= DATA;
-                    end
-                end else if(temp_addr_reg ==8'h04) begin
-                    en = 1'b1;
-                    o_data = 1'b0;
-                    if(sclk_falling) begin
-                        state_next = DATA_LOSE;
-                    end
-                end else begin
-                    state_next= IDLE;
-                end
-            end
-
             DATA: begin
                 slave_led = 8'b0010_0000;
                 if(sclk_rising) begin
@@ -227,6 +189,9 @@ module I2C_Slave(
                             3'd4: begin
                                 slv_reg4_next = temp_rx_data_reg;
                             end
+                            3'd5: begin
+                                slv_reg5_next = temp_rx_data_reg;
+                            end
                         endcase
                     end else begin
                         bit_counter_next = bit_counter_reg + 1;
@@ -236,24 +201,7 @@ module I2C_Slave(
                     state_next = STOP;
                 end
             end
-            DATA_LOSE: begin
-                slave_led = 8'b0100_0000;
-                if(sclk_rising) begin
-                    temp_rx_data_next = {temp_rx_data_reg[6:0], SDA};
-                end
-                if (sclk_falling) begin
-                    if (bit_counter_reg == 8-1) begin
-                        bit_counter_next = 0;
-                        state_next = DATA_LOSE_ACK;
-                        slv_reg5_next = temp_rx_data_reg;
-                    end else begin
-                        bit_counter_next = bit_counter_reg + 1;
-                    end
-                end
-                if(SCL && sda_rising) begin
-                    state_next = STOP;
-                end
-            end
+
             DATA_ACK: begin
                 slave_led = 8'b1000_0000;
                 en=1'b1;
@@ -262,26 +210,17 @@ module I2C_Slave(
                     state_next= DATA;
                 end
             end
-            DATA_LOSE_ACK: begin
-                slave_led = 8'b0000_0011;
-                en=1'b1;
-                o_data =1'b0;
-                if(sclk_falling) begin
-                    state_next= DATA_LOSE;
-                end
-            end
+
             STOP: begin
                 slave_led = 8'b0000_1100;
                 if(SDA && SCL) begin
                     state_next = WAIT;
-                    if(temp_addr_reg == 8'h00) go_left = 1'b1;
-                    if(temp_addr_reg == 8'h04) you_win = 1'b1;
+                    is_slave_done = 1'b1;
                 end
             end
             WAIT: begin
                 slave_led = 8'b0000_1111;
-                if(temp_addr_reg == 8'h00) go_left = 1'b1;
-                if(temp_addr_reg == 8'h04) you_win = 1'b1;
+                is_slave_done = 1'b1;
                 if (responsing_i2c) begin
                     state_next = IDLE;
                 end

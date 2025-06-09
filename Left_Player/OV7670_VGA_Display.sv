@@ -158,7 +158,7 @@ module OV7670_VGA_Display (
     logic [7:0] slv_reg4_ballspeed;
     logic [7:0] slv_reg5_win_flag;
 
-    logic go_left;
+    logic is_slave_done;
     logic responsing_i2c;
     logic you_win;
     top_game_controller U_TOP_GAME_CONTROLLER(
@@ -168,7 +168,7 @@ module OV7670_VGA_Display (
         .ball_x_out(ball_x),
         .ball_y_out(ball_y),
         .game_start(w_game_start),
-        .go_left(go_left)
+        .is_slave_done(is_slave_done)
     );
     
     I2C_Intf U_I2C_INTF(
@@ -184,7 +184,7 @@ module OV7670_VGA_Display (
         .i_gravity(slv_reg3_gravity),
         .i_is_collusion(slv_reg4_ballspeed),
         .i_is_win_flag(slv_reg5_win_flag),
-        .go_left(go_left) 
+        .is_slave_done(is_slave_done) 
     );
 
     Video_Display U_VIDEO_DISPLAY(
