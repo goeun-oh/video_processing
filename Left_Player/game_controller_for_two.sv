@@ -132,7 +132,7 @@ module game_controller_for_two (
                     next = RUNNING_RIGHT;
                 end
                 if (is_slave_done) begin
-                    if(!is_you_win) begin
+                    if(!is_you_win_reg) begin
                         is_you_win_next = 1'b0;
                         next = WAIT;
                         ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
