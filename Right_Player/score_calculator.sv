@@ -7,7 +7,9 @@ module score_calculator (
     input logic        is_ball_moving_right,
     input  logic [9:0] x_pixel,
     input  logic       game_start,
-    output logic [7:0] score
+    output logic [7:0] score,
+    input logic is_you_win
+
 );
 
     typedef enum logic [1:0] { IDLE, START, STAY} state_e;
@@ -33,12 +35,12 @@ module score_calculator (
         score_next = score_reg;
         case(state)
             IDLE: begin
-               if(collision_detected && is_ball_moving_right) begin
+               if(is_ball_moving_right) begin
                     state_next = START;  
                end 
             end
             START: begin
-                if(x_pixel == 0) begin
+                if(is_you_win) begin
                     score_next = score_reg +1;
                     state_next = STAY;
                 end

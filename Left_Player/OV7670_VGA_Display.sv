@@ -189,6 +189,7 @@ module OV7670_VGA_Display (
     );
 
     Video_Display U_VIDEO_DISPLAY(
+        .*,
         .player_1or2(sw[14]),
         .x_pixel(x_pixel),
         .y_pixel(y_pixel),

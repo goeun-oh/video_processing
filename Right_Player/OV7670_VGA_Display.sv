@@ -140,6 +140,7 @@ module OV7670_VGA_Display (
     logic game_over;
     logic [7:0] score_test;
 
+    logic is_you_win;
 
     //ball 전송 관련 //
     logic [7:0] ball_vy;
@@ -154,8 +155,9 @@ module OV7670_VGA_Display (
     logic [7:0] slv_reg2_Yspeed;
     logic [7:0] slv_reg3_gravity;
     logic [7:0] slv_reg4_ballspeed;
+    logic [7:0] slv_reg5_win_flag;
 
-    logic go_right;
+    logic is_slave_done;
     logic responsing_i2c;
     logic is_idle;
     logic is_lose;
@@ -181,7 +183,8 @@ module OV7670_VGA_Display (
         .i_y_pos1(slv_reg1_y1),
         .i_y_vel(slv_reg2_Yspeed),
         .i_gravity(slv_reg3_gravity),
-        .i_is_collusion(slv_reg4_ballspeed)
+        .i_is_collusion(slv_reg4_ballspeed),
+        .i_is_win_flag(slv_reg5_win_flag)
     );
     
     
@@ -230,6 +233,7 @@ module OV7670_VGA_Display (
 
 
     score_calculator U_SCORE(
+        .*,
         .clk_25MHz(ov7670_xclk),
         .reset(reset),
         .collision_detected(collision_detected),

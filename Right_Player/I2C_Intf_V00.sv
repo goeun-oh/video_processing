@@ -28,7 +28,8 @@ module I2C_Intf (
     output logic [7:0] i_y_vel,
     output logic [7:0] i_gravity,
     output logic [7:0] i_is_collusion,
-    output logic go_right,
+    output logic [7:0] i_is_win_flag,
+    output logic is_slave_done,
     input logic responsing_i2c,
     input logic is_lose,
 
@@ -59,7 +60,8 @@ module I2C_Intf (
         .slv_reg1(i_y_pos1),
         .slv_reg2(i_y_vel),
         .slv_reg3(i_gravity),
-        .slv_reg4(i_is_collusion)
+        .slv_reg4(i_is_collusion),
+        .slv_reg5(i_is_win_flag)
     );
 
     FND_C U_FND_C(

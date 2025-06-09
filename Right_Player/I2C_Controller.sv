@@ -16,6 +16,7 @@ module I2C_Controller (
     input  logic       tx_done,
     input  logic       is_ball_moving_right,
     output logic [7:0] master_led,
+    output logic       is_i2c_master_done,
 
     //상대 플레이어로 LOSE 정보 전송//
     input logic is_lose
@@ -30,7 +31,8 @@ module I2C_Controller (
         SEND_DATA,
         SEND_LOSE_DATA,
         STOP,
-        DONE
+        DONE,
+        WAIT_DONE
     } state_t;
 
     state_t state, state_next;
@@ -101,6 +103,8 @@ module I2C_Controller (
         slv2_data0_next = slv2_data0;
         slv3_data0_next = slv3_data0;
         slv4_data0_next = slv4_data0;
+        is_i2c_master_done     = 0;
+
         case (state)
             IDLE: begin
                 master_led = 8'b0000_0001;  // LED 상태 초기화
@@ -203,7 +207,15 @@ module I2C_Controller (
 
             DONE: begin
                 master_led = 8'b0010_0000;
-                state_next = IDLE;
+                if(ready) begin
+                    state_next = WAIT_DONE;
+                end
+            end
+            WAIT_DONE: begin
+                is_i2c_master_done = 1;
+                if (!ball_send_trigger) begin
+                    state_next = IDLE;
+                end  
             end
         endcase
     end

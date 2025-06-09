@@ -15,7 +15,9 @@ module I2C_Controller (
     output logic [7:0] tx_data,
     input  logic       tx_done,
     input  logic       is_ball_moving_left,
-    output logic       is_i2c_master_done
+    output logic       is_i2c_master_done,
+
+    input logic is_lose
 );
     logic [7:0] intf_led;
 
@@ -37,6 +39,7 @@ module I2C_Controller (
     logic [7:0] slv1_data0, slv1_data0_next;  //vy
     logic [7:0] slv2_data0, slv2_data0_next;  //gravity
     logic [7:0] slv3_data0, slv3_data0_next;  //is collusion
+    logic [7:0] slv4_data0, slv4_data0_next;  //is collusion
 
 
     logic [7:0] i2c_addr, tx_data_reg, tx_data_next;
@@ -65,6 +68,7 @@ module I2C_Controller (
             slv1_data0 <= 0;
             slv2_data0 <= 0;
             slv3_data0 <= 0;
+            slv4_data0 <= 0;
 
         end else begin
             state <= state_next;
@@ -76,6 +80,7 @@ module I2C_Controller (
             slv1_data0 <= slv1_data0_next;
             slv2_data0 <= slv2_data0_next;
             slv3_data0 <= slv3_data0_next;
+            slv4_data0 <= slv4_data0_next;
 
         end
     end
@@ -95,6 +100,7 @@ module I2C_Controller (
         slv1_data0_next = slv1_data0;
         slv2_data0_next = slv2_data0;
         slv3_data0_next = slv3_data0;
+        slv4_data0_next = slv4_data0;
 
         case (state)
             IDLE: begin
@@ -172,7 +178,7 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = WAIT;
                     state_addr_next = state_addr_reg + 1;
-                    if (state_addr_reg == 3'd4) begin
+                    if (state_addr_reg == 3'd6) begin
                         state_cnt_next  = state_cnt_reg + 1;
                         state_addr_next = 0;
                     end
@@ -193,6 +199,9 @@ module I2C_Controller (
                     3'd4: begin
                         tx_data_next = slv3_data0;
                     end
+                    3'd5: begin
+                        tx_data_next = slv4_data0;
+                    end                   
                 endcase
                 if (is_ball_moving_left) begin
                     state_next = IDLE;

@@ -16,19 +16,23 @@ module game_controller (
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
+    output logic [1:0] gravity_counter,
+    output logic       is_collusion,
 
     input logic        [7:0] slv_reg0_y0,
     input logic        [7:0] slv_reg1_y1,
     input logic signed [7:0] slv_reg2_Yspeed,
     input logic        [7:0] slv_reg3_gravity,
     input logic        [7:0] slv_reg4_ballspeed,
+    input logic        [7:0] slv_reg5_win_flag,
 
-    input logic go_right,
+    input logic is_slave_done,
     output logic responsing_i2c,
+    output logic       is_you_win,
 
     output logic is_idle,
     output logic [7:0] contrl_led,
-
+    input  logic       is_i2c_master_done,
     //상대 보드에 LOSE 정보 전송//
     output logic is_lose
 );
@@ -41,7 +45,8 @@ module game_controller (
         RUNNING_LEFT,
         STOP,
         SEND_LOSE,
-        SEND_BALL
+        SEND_BALL,
+        WIN_FLAG
     } state_t;
 
     state_t state, next;
@@ -50,7 +55,7 @@ module game_controller (
     logic signed [9:0] ball_y_vel, ball_y_vel_next;
     logic ball_send_trigger_reg, ball_send_trigger_next;
     logic [31:0] ball_counter, ball_counter_next;
-    logic [1:0] gravity_counter, gravity_counter_next;
+    logic [1:0] gravity_counter_reg, gravity_counter_next;
     logic [1:0] x_counter, x_counter_next;
     logic [9:0] safe_speed_reg, safe_speed_next;
     // 속도 갱신용
@@ -61,9 +66,14 @@ module game_controller (
     logic game_over_next;
     logic is_lose_reg, is_lose_next;
     logic [7:0] score_test_next;
+    logic is_you_win_reg, is_you_win_next;
+
+    assign is_you_win = is_you_win_reg;
 
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
+    assign gravity_counter = gravity_counter_reg;
+
     assign is_lose = is_lose_reg;
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
@@ -72,7 +82,7 @@ module game_controller (
             ball_x_out <= 10;
             ball_y_out <= 80;
             ball_counter <= 0;
-            gravity_counter <= 0;
+            gravity_counter_reg <= 0;
             x_counter <= 0;
             ball_y_vel <= -3;
             ball_speed <= 20'd270000;
@@ -81,12 +91,14 @@ module game_controller (
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
             is_lose_reg <=0;
+            is_you_win_reg <= 0;
+           
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
             ball_y_out <= ball_y_next;
             ball_counter <= ball_counter_next;
-            gravity_counter <= gravity_counter_next;
+            gravity_counter_reg <= gravity_counter_next;
             x_counter <= x_counter_next;
             ball_y_vel <= ball_y_vel_next;
             ball_speed <= ball_speed_next;
@@ -95,6 +107,8 @@ module game_controller (
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
             is_lose_reg <= is_lose_next;
+            is_you_win_reg <= is_you_win_next;
+
         end
     end
 
@@ -103,7 +117,7 @@ module game_controller (
         ball_x_next = ball_x_out;
         ball_y_next = ball_y_out;
         ball_counter_next = ball_counter;
-        gravity_counter_next = gravity_counter;
+        gravity_counter_next = gravity_counter_reg;
         x_counter_next = x_counter;
         ball_y_vel_next = ball_y_vel;
         is_ball_moving_right = 1'b0;
@@ -115,6 +129,7 @@ module game_controller (
         safe_speed_next = safe_speed_reg;
         is_idle =1'b0;
         is_lose_next = is_lose_reg;
+        is_you_win_next = is_you_win_reg;
 
         y_max = upscale ? 479 : 239;
 
@@ -125,28 +140,50 @@ module game_controller (
                 score_test_next = 0;
                 safe_speed_next = 1;
                 is_idle = 1'b1;
-                if (go_right) begin
+                is_collusion = 1'b0;
+
+                if (is_slave_done) begin
                     next = WAIT;
                     ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
                     ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
+                    is_you_win_next = 0;
                 end
             end
 
             WAIT: begin
                 contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
-                if (!go_right) begin
-                    next = RUNNING_RIGHT;
+                if (!is_slave_done) begin
+                    if(is_you_win_reg) begin
+                        next = IDLE;
+                    end else begin
+                        next = RUNNING_RIGHT;
+                        is_you_win_next =1'b0;
+                    end
+                end
+            end
+
+            WIN_FLAG: begin
+                contrl_led = 8'b0000_0100;
+                is_idle = 1;
+                if(!is_i2c_master_done) begin
+                    if (is_slave_done) begin
+                        next = WAIT;
+                        is_you_win_next = slv_reg5_win_flag[0];
+                    end                    
+                end
+                if (game_start) begin
+                    next = IDLE;
                 end
             end
 
             STOP: begin
                 contrl_led = 8'b0000_0100;
                 game_over_next = 1;
-                if (go_right) begin
+                if (is_slave_done) begin
                     score_test_next = 0;
                     next = IDLE;
                 end
@@ -155,9 +192,10 @@ module game_controller (
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
                 is_lose_next =1'b1;
-                if (go_right) begin
+                if (is_slave_done) begin
                     score_test_next = 0;
                     next = IDLE;
+                    is_lose_next =0;
                 end
             end
 
@@ -165,6 +203,10 @@ module game_controller (
                 contrl_led = 8'b0001_0000;
                 ball_send_trigger_next = 1;
                 next = STOP;
+                if (is_i2c_master_done) begin
+                    next = WIN_FLAG;
+                    ball_send_trigger_next =0;
+                end
             end
 
             RUNNING_RIGHT: begin
@@ -176,6 +218,8 @@ module game_controller (
                     next = RUNNING_LEFT;
                     ball_counter_next = 0;
                     x_counter_next = 0;
+                    is_collusion = 1'b1;
+
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
                     ball_send_trigger_next = 1;
                     next = SEND_LOSE;
@@ -186,11 +230,11 @@ module game_controller (
                         ball_x_next = ball_x_out + 10;
                         ball_counter_next = 0;
 
-                        if (gravity_counter == 2'd3) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
-                            gravity_counter_next = gravity_counter + 1;
+                            gravity_counter_next = gravity_counter_reg + 1;
                         end
 
                         ball_y_next = ball_y_out + ball_y_vel;
@@ -229,11 +273,11 @@ module game_controller (
                         ball_x_next = ball_x_out - 10;
                         ball_counter_next = 0;
 
-                        if (gravity_counter == 2'd3) begin
+                        if (gravity_counter_reg == 2'd3) begin
                             ball_y_vel_next = ball_y_vel + 1;
                             gravity_counter_next = 0;
                         end else begin
-                            gravity_counter_next = gravity_counter + 1;
+                            gravity_counter_next = gravity_counter_reg + 1;
                         end
 
                         ball_y_next = ball_y_out + ball_y_vel;
