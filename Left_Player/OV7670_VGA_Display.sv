@@ -158,6 +158,7 @@ module OV7670_VGA_Display (
     logic [7:0] slv_reg4_ballspeed;
     logic [7:0] slv_reg5_win_flag;
     logic is_idle;
+    logic is_lose;
 
     logic is_slave_done;
     logic responsing_i2c;

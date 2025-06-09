@@ -124,6 +124,8 @@ module I2C_Controller (
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
                     slv3_data0_next = {7'b0, is_collusion};
+                    slv4_data0_next = {7'b0, is_lose};
+
                 end
             end
 

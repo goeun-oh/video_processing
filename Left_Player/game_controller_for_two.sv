@@ -32,7 +32,8 @@ module game_controller_for_two (
     output logic       responsing_i2c,
     input  logic       is_i2c_master_done,
     output logic [7:0] contrl_led,
-    output logic is_idle
+    output logic is_idle,
+    output logic is_lose
 
 );
 
@@ -44,10 +45,14 @@ module game_controller_for_two (
         RUNNING_RIGHT,
         RUNNING_LEFT,
         STOP,
-        SEND_BALL
+        SEND_BALL,
+        SEND_LOSE
     } state_t;
 
     state_t state, next;
+    logic is_lose_reg, is_lose_next;    
+    assign is_lose = is_lose_reg;
+
 
     logic [9:0] ball_x_next, ball_y_next;
     logic signed [9:0] ball_y_vel, ball_y_vel_next;
@@ -142,7 +147,7 @@ module game_controller_for_two (
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
                     ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
-                    is_you_win_next = 0;
+                    is_you_win_next = slv_reg5_win_flag[0];
                 end
             end
 
@@ -182,8 +187,21 @@ module game_controller_for_two (
                     next = IDLE;
                     game_over_next =0;
                 end
+                if (game_start) begin
+                    next = IDLE;
+                end            
             end
-
+            SEND_LOSE: begin
+                contrl_led = 8'b0000_1000;
+                is_lose_next =1'b1;
+                if (is_slave_done) begin
+                    next = IDLE;
+                    is_lose_next =0;
+                end
+                if (game_start) begin
+                    next = IDLE;
+                end    
+            end
             SEND_BALL: begin
                 contrl_led = 8'b0010_0000;
                 ball_send_trigger_next = 1;
@@ -206,7 +224,7 @@ module game_controller_for_two (
                     ball_counter_next = 0;
                     x_counter_next = 0;
                 end else if (ball_x_out <= 0) begin
-                    next = STOP;
+                    next = SEND_LOSE;
                     ball_send_trigger_next=  1;
                     game_over_next = 1;
 

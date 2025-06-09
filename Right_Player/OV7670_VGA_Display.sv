@@ -44,6 +44,7 @@ module OV7670_VGA_Display (
     logic [15:0] wData;
     logic [16:0] rAddr;
     logic [15:0] rData;
+    logic is_i2c_master_done;
 
     logic [9:0] x_pixel;
     logic [9:0] y_pixel;

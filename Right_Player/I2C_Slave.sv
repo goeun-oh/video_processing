@@ -12,10 +12,10 @@ module I2C_Slave(
     output logic  [7:0] slv_reg4,
     output logic  [7:0] slv_reg5,
     output logic is_slave_done,
-    input logic responsing_i2c,
-    output logic [7:0] slave_led
+    input logic responsing_i2c
 );
 
+    logic [7:0] slave_led;
     typedef enum { 
         IDLE,
         ADDR,

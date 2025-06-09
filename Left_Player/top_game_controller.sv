@@ -32,7 +32,8 @@ module top_game_controller (
     output logic [7:0] contrl_led,
     input  logic       is_i2c_master_done,
     output logic       is_you_win,
-    output logic       is_idle
+    output logic       is_idle,
+    output logic is_lose
 );
 
     logic [9:0] ball_x_out_for_one, ball_x_out_for_two;

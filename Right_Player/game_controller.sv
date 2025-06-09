@@ -149,7 +149,7 @@ module game_controller (
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
                     ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
-                    is_you_win_next = 0;
+                    is_you_win_next = slv_reg5_win_flag[0];
                 end
             end
 
@@ -174,9 +174,6 @@ module game_controller (
                         next = WAIT;
                         is_you_win_next = slv_reg5_win_flag[0];
                     end                    
-                end
-                if (game_start) begin
-                    next = IDLE;
                 end
             end
 
