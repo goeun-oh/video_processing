@@ -245,7 +245,6 @@ module I2C_Slave(
                     if (bit_counter_reg == 8-1) begin
                         bit_counter_next = 0;
                         state_next = DATA_LOSE_ACK;
-                        slv_count_next= slv_count_reg + 1;
                         slv_reg5_next = temp_rx_data_reg;
                     end else begin
                         bit_counter_next = bit_counter_reg + 1;
@@ -280,7 +279,7 @@ module I2C_Slave(
                 end
             end
             WAIT: begin
-                slave_led = 8'b0100_1111;
+                slave_led = 8'b0000_1111;
                 if(temp_addr_reg == 8'h00) go_left = 1'b1;
                 if(temp_addr_reg == 8'h04) you_win = 1'b1;
                 if (responsing_i2c) begin

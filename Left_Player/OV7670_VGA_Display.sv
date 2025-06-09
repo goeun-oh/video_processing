@@ -258,6 +258,7 @@ module OV7670_VGA_Display (
         .slv_reg1(slv_reg1_y1),
         .slv_reg2(slv_reg2_Yspeed),
         .slv_reg3(slv_reg3_gravity),
-        .slv_reg4(slv_reg4_ballspeed)
+        .slv_reg4(slv_reg4_ballspeed),
+        .slv_reg5(slv_reg5_win_flag)
     );
 endmodule

@@ -28,8 +28,8 @@ module game_controller_for_two (
     input logic        [7:0] slv_reg5_win_flag,
 
     input  logic       go_left,
-    input logic you_win,
-    output logic is_you_win,
+    input  logic       you_win,
+    output logic       is_you_win,
     output logic       responsing_i2c,
     input  logic       is_i2c_master_done,
     output logic [7:0] contrl_led
@@ -39,6 +39,7 @@ module game_controller_for_two (
     typedef enum {
         IDLE,
         WAIT,
+        WIN_FLAG,
         WAIT_WIN_FLAG,
         RUNNING_RIGHT,
         RUNNING_LEFT,
@@ -83,7 +84,7 @@ module game_controller_for_two (
             game_over <= 0;
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
-            is_you_win_reg <=0;
+            is_you_win_reg <= 0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -116,7 +117,7 @@ module game_controller_for_two (
         safe_speed_next = safe_speed_reg;
         y_max = upscale ? 479 : 239;
         responsing_i2c = 1'b0;
-        is_you_win_next =is_you_win_reg;
+        is_you_win_next = is_you_win_reg;
 
         case (state)
             IDLE: begin
@@ -151,19 +152,26 @@ module game_controller_for_two (
                 end
             end
 
-            WAIT_WIN_FLAG: begin
-                if(go_left) begin
+            WIN_FLAG: begin
+                contrl_led = 8'b0000_0100;
+                if (go_left) begin
                     next = WAIT;
                 end
                 if (you_win) begin
-                    next = IDLE;
+                    next = WAIT_WIN_FLAG;
                     is_you_win_next = slv_reg5_win_flag[0];
                 end
 
             end
 
+            WAIT_WIN_FLAG: begin
+                if (!you_win) begin
+                    next = IDLE;
+                end
+            end
+
             STOP: begin
-                contrl_led = 8'b0000_0100;
+                contrl_led = 8'b0000_1000;
                 game_over_next = 1;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
@@ -172,19 +180,19 @@ module game_controller_for_two (
             end
 
             SEND_BALL: begin
-                contrl_led = 8'b0000_1000;
+                contrl_led = 8'b0001_0000;
                 ball_send_trigger_next = 1;
                 if (game_start) begin
                     next = IDLE;
                     ball_send_trigger_next = 0;
                 end
                 if (is_i2c_master_done) begin
-                    next = WAIT_WIN_FLAG;
+                    next = WIN_FLAG;
                 end
             end
 
             RUNNING_LEFT: begin
-                contrl_led = 8'b0001_0000;
+                contrl_led = 8'b0010_0000;
                 game_over_next = 0;
                 is_ball_moving_left = 1'b1;
                 if (collision_detected) begin
@@ -223,7 +231,7 @@ module game_controller_for_two (
             RUNNING_RIGHT: begin  // 원래 left
                 is_ball_moving_right = 1'b1;
                 game_over_next = 0;
-                contrl_led = 8'b0010_0000;
+                contrl_led = 8'b0100_0000;
 
                 if (collision_detected) begin
                     safe_speed_next = (estimated_speed < 2) ? 1.3 : estimated_speed;
