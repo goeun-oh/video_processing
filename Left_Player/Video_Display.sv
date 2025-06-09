@@ -20,7 +20,8 @@ module Video_Display(
     output logic is_hit_area,
 
     input logic game_over,
-    input logic ball_send_trigger
+    input logic ball_send_trigger,
+    input logic is_idle
     );
 
     // 텍스트 표시 위치 및 크기
@@ -100,7 +101,7 @@ module Video_Display(
         end
         else if (in_ball_overlay_area && rom_pixel != 16'h0000) begin
             if(game_over) display_pixel = camera_pixel;
-            else if (ball_send_trigger) display_pixel = camera_pixel;
+            else if (ball_send_trigger || is_idle) display_pixel = camera_pixel;
             else display_pixel = rom_pixel;
         end
         else if (in_score_overlay_area && in_score_overlay_area != 16'h0000) begin

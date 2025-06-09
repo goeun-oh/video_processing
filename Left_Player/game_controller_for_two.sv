@@ -31,7 +31,8 @@ module game_controller_for_two (
     output logic       is_you_win,
     output logic       responsing_i2c,
     input  logic       is_i2c_master_done,
-    output logic [7:0] contrl_led
+    output logic [7:0] contrl_led,
+    output logic is_idle
 
 );
 
@@ -117,6 +118,7 @@ module game_controller_for_two (
         y_max = upscale ? 479 : 239;
         responsing_i2c = 1'b0;
         is_you_win_next = is_you_win_reg;
+        is_idle=0;
 
         case (state)
             IDLE: begin
@@ -128,19 +130,19 @@ module game_controller_for_two (
                 ball_speed_next = 20'd270000;
                 is_collusion = 1'b0;
                 ball_send_trigger_next = 1'b0;
+                is_idle=1;
                 if (game_start) begin
                     next = RUNNING_RIGHT;
+                    is_you_win_next = 0;
                 end
                 if (is_slave_done) begin
-                    if(!is_you_win_reg) begin
-                        is_you_win_next = 1'b0;
-                        next = WAIT;
-                        ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
-                        ball_x_next = 620;
-                        ball_y_vel_next = slv_reg2_Yspeed;
-                        gravity_counter_next = slv_reg3_gravity[1:0];
-                        ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
-                    end
+                    next = WAIT;
+                    ball_y_next = {slv_reg0_y0[7:6], slv_reg1_y1};
+                    ball_x_next = 620;
+                    ball_y_vel_next = slv_reg2_Yspeed;
+                    gravity_counter_next = slv_reg3_gravity[1:0];
+                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
+                    is_you_win_next = slv_reg5_win_flag[0];
                 end
             end
 
@@ -148,18 +150,26 @@ module game_controller_for_two (
                 contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
                 if (!is_slave_done) begin
-                    next = RUNNING_LEFT;
                     if(is_you_win_reg) begin
                         next = IDLE;
+                    end else begin
+                        next = RUNNING_LEFT;
+                        is_you_win_next =1'b0;
                     end
                 end
             end
 
             WIN_FLAG: begin
                 contrl_led = 8'b0000_0100;
-                if (is_slave_done) begin
-                    next = WAIT;
-                    is_you_win_next = slv_reg5_win_flag[0];
+                is_idle = 1;
+                if(!is_i2c_master_done) begin
+                    if (is_slave_done) begin
+                        next = WAIT;
+                        is_you_win_next = slv_reg5_win_flag[0];
+                    end                    
+                end
+                if (game_start) begin
+                    next = IDLE;
                 end
             end
 
@@ -182,6 +192,7 @@ module game_controller_for_two (
                 end
                 if (is_i2c_master_done) begin
                     next = WIN_FLAG;
+                    ball_send_trigger_next =0;
                 end
             end
 

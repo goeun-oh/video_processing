@@ -30,7 +30,7 @@ module game_controller (
     output logic [7:0] contrl_led,
 
     //상대 보드에 LOSE 정보 전송//
-    output logic send_lose_information
+    output logic is_lose
 );
 
 
@@ -59,11 +59,12 @@ module game_controller (
     logic [9:0] y_min = 0;
     logic [9:0] y_max;
     logic game_over_next;
-
+    logic is_lose_reg, is_lose_next;
     logic [7:0] score_test_next;
 
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
+    assign is_lose = is_lose_reg;
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
@@ -79,6 +80,7 @@ module game_controller (
             score_test <= 0;
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
+            is_lose_reg <=0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -92,6 +94,7 @@ module game_controller (
             score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
+            is_lose_reg <= is_lose_next;
         end
     end
 
@@ -111,7 +114,7 @@ module game_controller (
         responsing_i2c = 1'b0;
         safe_speed_next = safe_speed_reg;
         is_idle =1'b0;
-        send_lose_information = 1'b0;
+        is_lose_next = is_lose_reg;
 
         y_max = upscale ? 479 : 239;
 
@@ -143,7 +146,6 @@ module game_controller (
             STOP: begin
                 contrl_led = 8'b0000_0100;
                 game_over_next = 1;
-                ball_send_trigger_next = 1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
@@ -152,8 +154,7 @@ module game_controller (
             end
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
-                send_lose_information =1'b1;
-                ball_send_trigger_next = 1;
+                is_lose_next =1'b1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
@@ -162,7 +163,6 @@ module game_controller (
 
             SEND_BALL: begin
                 contrl_led = 8'b0001_0000;
-
                 ball_send_trigger_next = 1;
                 next = STOP;
             end
@@ -177,8 +177,10 @@ module game_controller (
                     ball_counter_next = 0;
                     x_counter_next = 0;
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
+                    ball_send_trigger_next = 1;
                     next = SEND_LOSE;
-                    send_lose_information =1'b1;
+                    game_over_next = 1;
+                    is_lose_next =1'b1;
                 end else begin
                     if (ball_counter >= ball_speed) begin
                         ball_x_next = ball_x_out + 10;

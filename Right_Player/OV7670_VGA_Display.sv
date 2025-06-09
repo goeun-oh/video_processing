@@ -158,7 +158,7 @@ module OV7670_VGA_Display (
     logic go_right;
     logic responsing_i2c;
     logic is_idle;
-    logic send_lose_information;
+    logic is_lose;
 
     game_controller U_GAME_CONTROLLER(
         .*,

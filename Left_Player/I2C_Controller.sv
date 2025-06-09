@@ -26,7 +26,8 @@ module I2C_Controller (
         SEND_ADDR,
         SEND_DATA,
         STOP,
-        DONE
+        DONE,
+        WAIT_DONE
     } state_t;
 
     state_t state, state_next;
@@ -213,11 +214,16 @@ module I2C_Controller (
 
             DONE: begin
                 intf_led = 8'b0001_0000;
+                if(ready) begin
+                    state_next = WAIT_DONE;
+                end
+
+            end
+            WAIT_DONE: begin
                 is_i2c_master_done = 1;
                 if (!ball_send_trigger) begin
                     state_next = IDLE;
-                end
-
+                end                
             end
         endcase
     end

@@ -5,7 +5,6 @@ module score_calculator_for_two (
     input  logic       reset,
     input  logic       collision_detected,
     input logic        is_ball_moving_right,
-    input  logic [9:0] x_pixel,
     input  logic       game_start,
     output logic [7:0] score,
     input logic is_you_win
@@ -19,7 +18,7 @@ module score_calculator_for_two (
     assign score = score_reg;
 
     always_ff @(posedge clk_25MHz or posedge reset ) begin
-        if(reset || game_start) begin
+        if(reset) begin
             state <= IDLE;
             score_reg <= 0;
         end else begin
@@ -34,12 +33,12 @@ module score_calculator_for_two (
         score_next = score_reg;
         case(state)
             IDLE: begin
-               if(collision_detected && is_ball_moving_right) begin
+               if(is_ball_moving_right) begin
                     state_next = START;  
                end 
             end
             START: begin
-                if(is_you_win == 1) begin
+                if(is_you_win ) begin
                     score_next = score_reg +1;
                     state_next = STAY;
                 end

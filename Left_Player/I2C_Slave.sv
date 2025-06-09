@@ -215,7 +215,6 @@ module I2C_Slave(
                 slave_led = 8'b0000_1100;
                 if(SDA && SCL) begin
                     state_next = WAIT;
-                    is_slave_done = 1'b1;
                 end
             end
             WAIT: begin

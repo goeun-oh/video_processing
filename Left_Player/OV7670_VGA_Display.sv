@@ -157,6 +157,7 @@ module OV7670_VGA_Display (
     logic [7:0] slv_reg3_gravity;
     logic [7:0] slv_reg4_ballspeed;
     logic [7:0] slv_reg5_win_flag;
+    logic is_idle;
 
     logic is_slave_done;
     logic responsing_i2c;
@@ -243,11 +244,10 @@ module OV7670_VGA_Display (
     );
     score_calculator_for_two U_SCORE_for_two(
         .*,
-        .clk_25MHz(ov7670_xclk),
+        .clk_25MHz(clk),
         .reset(reset),
         .collision_detected(collision_detected),
         .is_ball_moving_right(is_ball_moving_right),
-        .x_pixel(x_pixel),
         .game_start(w_game_start),
         .score(score_for_two) // 잠시대기
     );

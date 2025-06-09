@@ -15,11 +15,10 @@ module I2C_Controller (
     output logic [7:0] tx_data,
     input  logic       tx_done,
     input  logic       is_ball_moving_right,
-    output logic       is_transfer,
     output logic [7:0] master_led,
 
     //상대 플레이어로 LOSE 정보 전송//
-    input logic send_lose_information
+    input logic is_lose
 );
 
 
@@ -41,10 +40,10 @@ module I2C_Controller (
     logic [7:0] slv1_data0, slv1_data0_next;  //vy
     logic [7:0] slv2_data0, slv2_data0_next;  //gravity
     logic [7:0] slv3_data0, slv3_data0_next;  //is collusion
-    logic [7:0] slv4_data0, slv4_data0_next;  //send_lose_information
+    logic [7:0] slv4_data0, slv4_data0_next;  //is_lose
 
 
-    logic [7:0] i2c_addr, slv_addr0, slv_addr4, tx_data_reg, tx_data_next;
+    logic [7:0] i2c_addr,tx_data_reg, tx_data_next;
     //state 관련//
     logic [1:0] state_cnt_reg, state_cnt_next;
     //0: send addr, 1: send data, 2: stop
@@ -52,14 +51,13 @@ module I2C_Controller (
 
     //i2c 주소관련//
     assign i2c_addr = 8'haa;
-    assign slv_addr0 = 8'h00;
-    assign slv_addr4 = 8'h04;
+    // assign slv_addr0 = 8'h00;
+    // assign slv_addr4 = 8'h04;
 
     //i2c 전송 data 관련//
 
     assign tx_data  = tx_data_reg;
 
-    logic ball_send_to_slave_next;
 
     always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -94,7 +92,6 @@ module I2C_Controller (
         stop            = 0;
         i2c_en          = 0;
         tx_data_next    = tx_data_reg;
-        is_transfer     = 1;
         state_next      = state;
         state_cnt_next  = state_cnt_reg;
         state_addr_next = state_addr_reg;
@@ -110,11 +107,8 @@ module I2C_Controller (
                 state_cnt_next = 0;
                 state_addr_next = 0;
                 tx_data_next = 0;
-                is_transfer = 0;
-                ball_send_to_slave_next = 0;
                 master_led = 8'h01;  // LED 상태 초기화
                 if (ball_send_trigger) begin    
-                    ball_send_to_slave_next = 1;
                     start = 1;
                     i2c_en = 1;
                     state_next = START_WAIT;
@@ -126,7 +120,7 @@ module I2C_Controller (
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
                     slv3_data0_next = {7'b0, is_collusion};
-                    slv4_data0_next = {7'b0, send_lose_information};
+                    slv4_data0_next = {7'b0, is_lose};
                 end
             end
 
@@ -136,6 +130,9 @@ module I2C_Controller (
                 i2c_en = 1;
                 if (!ready) begin
                     state_next = WAIT;
+                end
+                if(is_ball_moving_right) begin
+                    state_next = IDLE;
                 end
             end
 
@@ -151,6 +148,9 @@ module I2C_Controller (
                         end
                     endcase
                 end
+                if(is_ball_moving_right) begin
+                    state_next = IDLE;
+                end
             end
 
             SEND_DATA: begin
@@ -159,7 +159,7 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = WAIT;
                     state_addr_next = state_addr_reg + 1;
-                    if (state_addr_reg == 3'd5) begin
+                    if (state_addr_reg == 3'd6) begin
                         state_cnt_next  = 1;
                         state_addr_next = 0;
                     end
@@ -184,6 +184,9 @@ module I2C_Controller (
                         tx_data_next = slv4_data0;
                     end
                 endcase
+                if(is_ball_moving_right) begin
+                    state_next = IDLE;
+                end
             end
 
             STOP: begin
@@ -193,11 +196,13 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = DONE;
                 end
+                if(is_ball_moving_right) begin
+                    state_next = IDLE;
+                end
             end
 
             DONE: begin
                 master_led = 8'b0010_0000;
-                is_transfer = 0;
                 state_next = IDLE;
             end
         endcase

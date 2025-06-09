@@ -30,7 +30,7 @@ module I2C_Intf (
     output logic [7:0] i_is_collusion,
     output logic go_right,
     input logic responsing_i2c,
-    input logic send_lose_information,
+    input logic is_lose,
 
     output logic [7:0] master_led,
     output logic [7:0] contrl_led
@@ -71,7 +71,7 @@ module I2C_Intf (
         .slv_reg2(ball_vy),
         .slv_reg3(gravity_counter),
         .slv_reg4(is_collusion),
-        .slv_reg5({7'b0,send_lose_information}),
+        .slv_reg5({7'b0,is_lose}),
         .fndFont (fndFont),
         .fndCom(fndCom)
     );

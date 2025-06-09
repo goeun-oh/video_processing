@@ -18,7 +18,7 @@ module top_game_controller (
     output logic       ball_send_trigger,
     output logic [7:0] ball_vy,
     output logic [1:0] gravity_counter,
-    output logic is_collusion,
+    output logic       is_collusion,
 
     input logic        [7:0] slv_reg0_y0,
     input logic        [7:0] slv_reg1_y1,
@@ -27,11 +27,12 @@ module top_game_controller (
     input logic        [7:0] slv_reg4_ballspeed,
     input logic        [7:0] slv_reg5_win_flag,
 
-    input logic is_slave_done,
-    output logic responsing_i2c,
+    input  logic       is_slave_done,
+    output logic       responsing_i2c,
     output logic [7:0] contrl_led,
-    input logic is_i2c_master_done,
-    output logic is_you_win
+    input  logic       is_i2c_master_done,
+    output logic       is_you_win,
+    output logic       is_idle
 );
 
     logic [9:0] ball_x_out_for_one, ball_x_out_for_two;
