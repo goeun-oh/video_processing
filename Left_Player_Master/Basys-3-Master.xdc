@@ -80,7 +80,7 @@ set_property -dict { PACKAGE_PIN T18  IOSTANDARD LVCMOS33 } [get_ports { game_st
 set_property -dict { PACKAGE_PIN J1  IOSTANDARD LVCMOS33 } [get_ports { i_scl}]; #IO_L3N_T0_DQS_AD5N_35 ,Sch=JA1
 set_property -dict { PACKAGE_PIN L2  IOSTANDARD LVCMOS33 } [get_ports { i_sda}]; #IO_L5N_T0_AD13N_35    ,Sch=JA2
 #set_property -dict { PACKAGE_PIN J2  IOSTANDARD LVCMOS33 } [get_ports { JA[2] }]; #IO_L2N_T0_AD12N_35    ,Sch=JA3
-#set_property -dict { PACKAGE_PIN G2  IOSTANDARD LVCMOS33 } [get_ports { JA[3] }]; #IO_L1N_T0_AD4N_35     ,Sch=JA4
+set_property -dict { PACKAGE_PIN G2  IOSTANDARD LVCMOS33 } [get_ports { buzzer_out }]; #IO_L1N_T0_AD4N_35     ,Sch=JA4
 #set_property -dict { PACKAGE_PIN H1  IOSTANDARD LVCMOS33 } [get_ports { JA[4] }]; #IO_L3P_T0_DQS_AD5P_35 ,Sch=JA7
 #set_property -dict { PACKAGE_PIN K2  IOSTANDARD LVCMOS33 } [get_ports { JA[5] }]; #IO_L5P_T0_AD13P_35    ,Sch=JA8
 #set_property -dict { PACKAGE_PIN H2  IOSTANDARD LVCMOS33 } [get_ports { JA[6] }]; #IO_L2P_T0_AD12P_35    ,Sch=JA9

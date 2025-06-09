@@ -34,7 +34,12 @@ module OV7670_VGA_Display (
     inout logic i_sda,
     output logic o_scl,
     inout logic o_sda,
-    output logic [9:0] estimated_speed
+    output logic [9:0] estimated_speed,
+
+        // Buzzer 관련
+    // input logic btnL,
+    // input logic btnR,
+    output logic buzzer_out
 );
 
     logic [7:0] slave_led;
@@ -152,6 +157,24 @@ module OV7670_VGA_Display (
     logic responsing_i2c;
     logic rand_en;
     logic [1:0] rand_ball;
+
+    //---------------------------------
+    logic buzzer_on;
+
+    buzzer_trigger U_BUZZER_TRIGGER (
+        .clk(clk),
+        .reset(reset),
+        .trigger(collision_detected),  // <- 충돌 발생 시 1클럭 하이
+        .buzzer_on(buzzer_on)
+    );
+
+    top_buzzer U_BUZZER (
+        .clk(clk),
+        .btnL(buzzer_on),   // ← 충돌 시 일정시간 하이
+        .btnR(1'b0),
+        .JA4(buzzer_out)
+    );
+    //---------------------------------
 
     LFSR_ball U_LFSR_BALL(
         .clk(ov7670_xclk),
