@@ -153,6 +153,7 @@ module game_controller (
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
                 send_lose_information =1'b1;
+                ball_send_trigger_next = 1;
                 if (go_right) begin
                     score_test_next = 0;
                     next = IDLE;
