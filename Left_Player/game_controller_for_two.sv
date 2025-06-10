@@ -171,12 +171,10 @@ module game_controller_for_two (
             WIN_FLAG: begin
                 contrl_led = 8'b0000_0100;
                 is_idle = 1;
-                if(!is_i2c_master_done) begin
-                    if (is_slave_done) begin
-                        next = WAIT;
-                        is_you_win_next = slv_reg5_win_flag[0];
-                    end                    
-                end
+                if (is_slave_done) begin
+                    next = WAIT;
+                    is_you_win_next = slv_reg5_win_flag[0];
+                end                    
                 if (game_start) begin
                     next = IDLE;
                 end
@@ -184,7 +182,7 @@ module game_controller_for_two (
 
 
             STOP: begin
-                contrl_led = 8'b0001_0000;
+                contrl_led = 8'b0000_1000;
                 game_over_next = 1;
                 if (is_slave_done) begin
                     next = IDLE;
@@ -195,12 +193,13 @@ module game_controller_for_two (
                 end            
             end
             SEND_LOSE: begin
-                contrl_led = 8'b0000_1000;
+                contrl_led = 8'b0001_0000;
                 is_lose_next =1'b1;
                 game_over_next= 1'b1;
-                if (is_slave_done) begin
-                    next = IDLE;
-                    is_lose_next =0;
+                ball_send_trigger_next = 1;
+                if(is_i2c_master_done) begin
+                    ball_send_trigger_next = 0;
+                    next= STOP;
                 end
                 if (game_start) begin
                     next = IDLE;

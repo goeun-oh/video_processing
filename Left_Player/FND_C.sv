@@ -3,7 +3,7 @@
 module FND_C(
     input clk, 
     input reset,
-    input [14:0] sw,
+    input [11:0] sw,
     input  [7:0] slv_reg0,
     input  [7:0] slv_reg1,
     input  [7:0] slv_reg2,
@@ -46,7 +46,7 @@ module FND_C(
 endmodule
 
 module mux_4x1_spi (
-  input [14:0] sw,
+  input [11:0] sw,
   input [7:0] slv_reg0,
   input [7:0] slv_reg1,
   input [7:0] slv_reg2,
@@ -63,19 +63,19 @@ module mux_4x1_spi (
 );
     always @(*) begin
         case (sw)
-            14'b000000000001: fnd_reg = slv_reg0;
-            14'b000000000010: fnd_reg = slv_reg1;
-            14'b000000000100: fnd_reg = slv_reg2;
-            14'b000000001000: fnd_reg = slv_reg3;
-            14'b000000010000: fnd_reg = slv_reg4;
-            14'b000000100000: fnd_reg = slv_reg5;
-            14'b000000100000: fnd_reg = slv_reg5;
-            14'b000001000000: fnd_reg = master_slv_reg0;
-            14'b000010000000: fnd_reg = master_slv_reg1;
-            14'b000100000000: fnd_reg = master_slv_reg2;
-            14'b001000000000: fnd_reg = master_slv_reg3;
-            14'b010000000000: fnd_reg = master_slv_reg4;
-            14'b100000000000: fnd_reg = master_slv_reg5;
+            12'b000000000001: fnd_reg = slv_reg0;
+            12'b000000000010: fnd_reg = slv_reg1;
+            12'b000000000100: fnd_reg = slv_reg2;
+            12'b000000001000: fnd_reg = slv_reg3;
+            12'b000000010000: fnd_reg = slv_reg4;
+            12'b000000100000: fnd_reg = slv_reg5;
+            12'b000000100000: fnd_reg = slv_reg5;
+            12'b000001000000: fnd_reg = master_slv_reg0;
+            12'b000010000000: fnd_reg = master_slv_reg1;
+            12'b000100000000: fnd_reg = master_slv_reg2;
+            12'b001000000000: fnd_reg = master_slv_reg3;
+            12'b010000000000: fnd_reg = master_slv_reg4;
+            12'b100000000000: fnd_reg = master_slv_reg5;
             //7'b1000000: fnd_reg = slv_reg6;
             default: fnd_reg = 8'b0;
         endcase

@@ -15,7 +15,7 @@ module I2C_Intf (
     output logic [7:0] slave_led,
     input  logic        is_ball_moving_left,
 
-    input logic game_over,
+    input logic is_lose,
 
     // slave//
     output logic [7:0] i_y_pos0,
@@ -26,7 +26,8 @@ module I2C_Intf (
     output logic [7:0] i_is_win_flag,
     output logic is_slave_done,
     input logic responsing_i2c,
-    output logic is_i2c_master_done
+    output logic is_i2c_master_done,
+    output logic [7:0] intf_led
 
 );
     logic       ready;
@@ -35,7 +36,6 @@ module I2C_Intf (
     logic       i2c_en;
     logic [7:0] tx_data;
     logic       tx_done;
-    logic is_lose;
 
 
     I2C_Controller U_I2C_CNTRL (.*);

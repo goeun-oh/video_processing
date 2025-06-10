@@ -177,29 +177,24 @@ module game_controller (
                 end
             end
 
-            STOP: begin
-                contrl_led = 8'b0000_0100;
-                game_over_next = 1;
-                if (is_slave_done) begin
-                    score_test_next = 0;
-                    next = IDLE;
-                end
 
-            end
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
                 is_lose_next =1'b1;
-                if (is_slave_done) begin
-                    score_test_next = 0;
-                    next = IDLE;
-                    is_lose_next =0;
+                ball_send_trigger_next = 1;
+                if(is_i2c_master_done) begin
+                    ball_send_trigger_next = 0;
+                    next= IDLE;
+                    is_lose_next = 1'b0;
+                    game_over_next = 1'b1;
                 end
             end
 
             SEND_BALL: begin
                 contrl_led = 8'b0001_0000;
                 ball_send_trigger_next = 1;
-                next = STOP;
+                //next = STOP;
+
                 if (is_i2c_master_done) begin
                     next = WIN_FLAG;
                     ball_send_trigger_next =0;

@@ -17,9 +17,9 @@ module I2C_Controller (
     input  logic       is_ball_moving_left,
     output logic       is_i2c_master_done,
 
-    input logic is_lose
+    input logic is_lose,
+    output logic [7:0] intf_led
 );
-    logic [7:0] intf_led;
 
     typedef enum {
         IDLE,
@@ -108,7 +108,7 @@ module I2C_Controller (
                 state_addr_next = 0;
                 tx_data_next = 0;
                 is_i2c_master_done = 0;
-                intf_led = 8'b0000_0000;
+                intf_led = 8'b0000_0001;
                 ball_send_to_slave_next = 0;
 
                 if (ball_send_trigger) begin
@@ -135,13 +135,11 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = WAIT;
                 end
-                if (is_ball_moving_left) begin
-                    state_next = IDLE;
-                end
+
             end
 
             WAIT: begin
-                intf_led = 8'b0000_0001;
+                intf_led = 8'b0000_0010;
                 if (ready) begin
                     case (state_cnt_reg)
                         // 2'd0: begin
@@ -155,9 +153,7 @@ module I2C_Controller (
                         end
                     endcase
                 end
-                if (is_ball_moving_left) begin
-                    state_next = IDLE;
-                end
+
 
             end
 
@@ -205,9 +201,7 @@ module I2C_Controller (
                         tx_data_next = slv4_data0;
                     end                   
                 endcase
-                if (is_ball_moving_left) begin
-                    state_next = IDLE;
-                end
+
 
             end
 
@@ -215,9 +209,7 @@ module I2C_Controller (
                 intf_led = 8'b0000_1000;
                 stop = 1;
                 i2c_en = 1;
-                if (is_ball_moving_left) begin
-                    state_next = IDLE;
-                end
+
                 if (!ready) begin
                     state_next = DONE;
                 end
@@ -231,6 +223,7 @@ module I2C_Controller (
 
             end
             WAIT_DONE: begin
+                intf_led = 8'b0001_0000;
                 is_i2c_master_done = 1;
                 if (!ball_send_trigger) begin
                     state_next = IDLE;
