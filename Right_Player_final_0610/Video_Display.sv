@@ -133,12 +133,12 @@ module Video_Display(
     //         display_pixel = camera_pixel;
     //     end
     // end
-    assign is_hit_area = in_ball_overlay_area;
 
     assign red_port   = display_pixel[15:12];
     assign green_port = display_pixel[10:7];
     assign blue_port  = display_pixel[4:1];
 
+    assign is_hit_area = in_ball_overlay_area;
 
         // ASCII 문자 8x8 폰트 (숫자 '0' ~ '9'만 정의)
     function automatic [7:0] font_rom(input logic [7:0] ch, input logic [2:0] row);
