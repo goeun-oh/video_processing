@@ -181,8 +181,8 @@ module game_controller (
             STOP: begin
                 contrl_led = 8'b0000_1000;
                 game_over_next = 1;
-                if (is_slave_done) begin
-                    next = WAIT_LOSE;
+                if (!is_i2c_master_done) begin
+                    next = IDLE;
                     game_over_next =0;
                 end
             end
@@ -236,7 +236,7 @@ module game_controller (
                     is_lose_next =1'b1;
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out + 10;
+                        ball_x_next = ball_x_out + 8;
                         ball_counter_next = 0;
 
                         if (gravity_counter_reg == 2'd3) begin
@@ -279,7 +279,7 @@ module game_controller (
                     ball_speed_next = 20'd270000;  // 속도 초기화
                 end else begin
                     if (ball_counter >= ball_speed) begin
-                        ball_x_next = ball_x_out - 10;
+                        ball_x_next = ball_x_out - 8;
                         ball_counter_next = 0;
 
                         if (gravity_counter_reg == 2'd3) begin

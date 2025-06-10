@@ -186,7 +186,7 @@ module game_controller_for_two (
             STOP: begin
                 contrl_led = 8'b0000_1000;
                 game_over_next = 1;
-                if (is_slave_done) begin
+                if (!is_i2c_master_done) begin
                     next = WAIT_LOSE;
                     game_over_next =0;
                 end
@@ -244,7 +244,7 @@ module game_controller_for_two (
 
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
-                        ball_x_next = ball_x_out - 10;
+                        ball_x_next = ball_x_out - 8;
                         ball_counter_next = 0;
 
                         if (gravity_counter_reg == 2'd3) begin
@@ -285,7 +285,7 @@ module game_controller_for_two (
                     x_counter_next = 0;
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
-                        ball_x_next = ball_x_out + 10;
+                        ball_x_next = ball_x_out + 8;
                         ball_counter_next = 0;
 
                         if (gravity_counter_reg == 2'd3) begin
