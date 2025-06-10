@@ -29,7 +29,9 @@ module game_controller_for_two (
     input  logic       is_i2c_master_done,
     output logic [7:0] contrl_led,
 
-    output logic is_game_ctrl_idle
+    output logic is_game_ctrl_idle,
+    output logic rand_en,
+    input logic [1:0] rand_ball
 
 );
 
@@ -118,6 +120,7 @@ module game_controller_for_two (
                 contrl_led = 8'b0000_0001;
                 game_over_next = 0;
                 safe_speed_next = 1;
+                rand_en = 0;
                 // ball_x_next = 0;
                 // ball_y_next = 220;
                 ball_speed_next = 20'd600000;
