@@ -96,6 +96,7 @@ module game_controller_for_two (
             is_game_ctrl_idle <= is_game_ctrl_idle_next;
         end
     end
+    parameter BALL_PINGPONG = 0, BALL_SOCCER = 1, BALL_BASKET = 2;
 
     always_comb begin
         next = state;
@@ -113,6 +114,7 @@ module game_controller_for_two (
         y_max = upscale ? 479 : 239;
         responsing_i2c = 1'b0;
         is_game_ctrl_idle_next = is_game_ctrl_idle;
+        rand_en = 0;
 
         case (state)
             IDLE: begin
@@ -126,6 +128,12 @@ module game_controller_for_two (
                 ball_speed_next = 20'd600000;
                 is_collusion = 1'b0;
                 ball_send_trigger_next = 1'b0;
+                case (rand_ball)
+                    BALL_PINGPONG: ball_speed_next = 20'd270000;
+                    BALL_SOCCER:   ball_speed_next = 20'd360000;
+                    BALL_BASKET:   ball_speed_next = 20'd520000;
+                    default:       ball_speed_next = 20'd270000;
+                endcase
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                     is_game_ctrl_idle_next = 0; 
@@ -184,6 +192,7 @@ module game_controller_for_two (
                     x_counter_next = 0;
                 end else if (ball_x_out <= 0) begin
                     next = STOP;
+                    rand_en = 1;
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 10;

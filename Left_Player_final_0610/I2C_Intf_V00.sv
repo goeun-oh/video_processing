@@ -1,19 +1,20 @@
 `timescale 1ns / 1ps
 module I2C_Intf (
-    input  logic        clk,
-    input  logic        reset,
-    input  logic        ball_send_trigger,
-    input  logic [ 9:0] ball_y,
-    input  logic [ 7:0] ball_vy,
-    input  logic [ 1:0] gravity_counter,
-    input  logic        is_collusion,
-    output logic        o_SCL,
-    inout  logic        o_SDA,
-    input  logic        i_SCL,
-    inout  logic        i_SDA,
-    output logic        is_transfer,
+    input  logic       clk,
+    input  logic       reset,
+    input  logic       ball_send_trigger,
+    input  logic [9:0] ball_y,
+    input  logic [7:0] ball_vy,
+    input  logic [1:0] gravity_counter,
+    input  logic       is_collusion,
+    input  logic [1:0] rand_ball,
+    output logic       o_SCL,
+    inout  logic       o_SDA,
+    input  logic       i_SCL,
+    inout  logic       i_SDA,
+    output logic       is_transfer,
     output logic [7:0] slave_led,
-    input  logic        is_ball_moving_left,
+    input  logic       is_ball_moving_left,
 
 
     // slave//
@@ -24,8 +25,7 @@ module I2C_Intf (
     output logic [7:0] i_is_collusion,
     output logic go_left,
     input logic responsing_i2c,
-    output
-     logic is_i2c_master_done
+    output logic is_i2c_master_done
 
 );
     logic       ready;

@@ -41,19 +41,22 @@ module top_game_controller (
     logic is_ball_moving_left_for_one, is_ball_moving_left_for_two;
     logic game_over_for_one, game_over_for_two;
     logic ball_send_trigger_two;
+    logic rand_en_for_one, rand_en_for_two;
 
     assign ball_x_out = sw ? ball_x_out_for_two : ball_x_out_for_one;
     assign ball_y_out = sw ? ball_y_out_for_two : ball_y_out_for_one;
     assign is_ball_moving_left = sw? is_ball_moving_left_for_two : is_ball_moving_left_for_one;
     assign game_over = sw ? game_over_for_two : game_over_for_one;
     assign ball_send_trigger = sw ? ball_send_trigger_two : 0;
+    assign rand_en = sw? rand_en_for_two: rand_en_for_one;
 
     game_controller_for_one U_GAME_CONTROLLER_FOR_ONE (
         .*,
         .ball_x_out(ball_x_out_for_one),
         .ball_y_out(ball_y_out_for_one),
         .is_ball_moving_left(is_ball_moving_left_for_one),
-        .game_over(game_over_for_one)
+        .game_over(game_over_for_one),
+        .rand_en(rand_en_for_one)
     );
     game_controller_for_two U_GAME_CONTROLLER_FOR_TWO (
         .*,
@@ -61,6 +64,7 @@ module top_game_controller (
         .ball_y_out(ball_y_out_for_two),
         .is_ball_moving_left(is_ball_moving_left_for_two),
         .game_over(game_over_for_two),
-        .ball_send_trigger(ball_send_trigger_two)    
+        .ball_send_trigger(ball_send_trigger_two),
+        .rand_en(rand_en_for_two)    
     );
 endmodule

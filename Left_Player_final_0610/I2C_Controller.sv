@@ -8,6 +8,7 @@ module I2C_Controller (
     input  logic [7:0] ball_vy,
     input  logic [1:0] gravity_counter,
     input  logic       is_collusion,
+    input logic [1:0] rand_ball,
     input  logic       ready,
     output logic       start,
     output logic       stop,
@@ -116,7 +117,7 @@ module I2C_Controller (
                     slv0_data1_next = ball_y[7:0];  //공 y 좌표 나머지
                     slv1_data0_next = ball_vy;  //공 속도
                     slv2_data0_next = {6'b0, gravity_counter};
-                    slv3_data0_next = {7'b0, is_collusion};
+                    slv3_data0_next = {5'b0,rand_ball, is_collusion};
                 end
             end
 

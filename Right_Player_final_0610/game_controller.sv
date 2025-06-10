@@ -57,9 +57,11 @@ module game_controller (
     logic game_over_next;
 
     logic [7:0] score_test_next;
+    logic rand_ball, rand_ball_next;
 
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
+    parameter BALL_PINGPONG = 0, BALL_SOCCER = 1, BALL_BASKET = 2;
 
     always_ff @(posedge clk_25MHZ or posedge reset) begin
         if (reset) begin
@@ -75,6 +77,7 @@ module game_controller (
             score_test <= 0;
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
+            rand_ball <=0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -88,6 +91,7 @@ module game_controller (
             score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
+            rand_ball <= rand_ball_next;
         end
     end
 
@@ -109,6 +113,7 @@ module game_controller (
         is_idle =1'b0;
 
         y_max = upscale ? 479 : 239;
+        rand_ball_next = rand_ball;
 
         case (state)
             IDLE: begin
@@ -123,13 +128,19 @@ module game_controller (
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd400000 :20'd600000;
+                    rand_ball_next = slv_reg4_ballspeed[2:1];
                 end
             end
 
             WAIT: begin
                 contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
+                case (rand_ball)
+                    BALL_PINGPONG: ball_speed_next = 20'd270000;
+                    BALL_SOCCER:   ball_speed_next = 20'd360000;
+                    BALL_BASKET:   ball_speed_next = 20'd520000;
+                    default:       ball_speed_next = 20'd270000;
+                endcase
                 if (!go_right) begin
                     next = RUNNING_RIGHT;
                 end
