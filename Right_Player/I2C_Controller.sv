@@ -135,9 +135,7 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = WAIT;
                 end
-                if(is_ball_moving_right) begin
-                    state_next = IDLE;
-                end
+
             end
 
             WAIT: begin
@@ -152,9 +150,7 @@ module I2C_Controller (
                         end
                     endcase
                 end
-                if(is_ball_moving_right) begin
-                    state_next = IDLE;
-                end
+
             end
 
             SEND_DATA: begin
@@ -188,9 +184,7 @@ module I2C_Controller (
                         tx_data_next = slv4_data0;
                     end
                 endcase
-                if(is_ball_moving_right) begin
-                    state_next = IDLE;
-                end
+
             end
 
             STOP: begin
@@ -200,9 +194,7 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = DONE;
                 end
-                if(is_ball_moving_right) begin
-                    state_next = IDLE;
-                end
+
             end
 
             DONE: begin
