@@ -90,6 +90,7 @@ module game_controller_for_two (
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
             is_you_win_reg <= 0;
+            is_lose_reg <=0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -103,6 +104,7 @@ module game_controller_for_two (
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
             is_you_win_reg <= is_you_win_next;
+            is_lose_reg <= is_lose_next;
         end
     end
 
@@ -124,6 +126,7 @@ module game_controller_for_two (
         responsing_i2c = 1'b0;
         is_you_win_next = is_you_win_reg;
         is_idle=0;
+        is_lose_next = is_lose_reg;
 
         case (state)
             IDLE: begin
@@ -194,6 +197,7 @@ module game_controller_for_two (
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
                 is_lose_next =1'b1;
+                game_over_next= 1'b1;
                 if (is_slave_done) begin
                     next = IDLE;
                     is_lose_next =0;
