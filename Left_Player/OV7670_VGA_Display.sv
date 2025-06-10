@@ -39,7 +39,7 @@ module OV7670_VGA_Display (
     logic [7:0] slave_led;
     logic [7:0] contrl_led;
     logic [7:0] intf_led;
-    assign led = {intf_led, contrl_led};
+    assign led = {slave_led, contrl_led};
     logic w_game_start;
     logic is_i2c_master_done;
     logic is_ball_moving_left;

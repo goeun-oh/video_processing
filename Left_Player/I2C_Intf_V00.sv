@@ -28,7 +28,6 @@ module I2C_Intf (
     input logic responsing_i2c,
     output logic is_i2c_master_done,
     output logic [7:0] intf_led
-
 );
     logic       ready;
     logic       start;

@@ -34,7 +34,6 @@ module game_controller_for_two (
     output logic [7:0] contrl_led,
     output logic is_idle,
     output logic is_lose
-
 );
 
     typedef enum {
@@ -46,7 +45,8 @@ module game_controller_for_two (
         RUNNING_LEFT,
         STOP,
         SEND_BALL,
-        SEND_LOSE
+        SEND_LOSE,
+        WAIT_LOSE
     } state_t;
 
     state_t state, next;
@@ -175,8 +175,8 @@ module game_controller_for_two (
                     if (is_slave_done) begin
                         next = WAIT;
                         is_you_win_next = slv_reg5_win_flag[0];
-                    end                    
-                end
+                    end             
+                end       
                 if (game_start) begin
                     next = IDLE;
                 end
@@ -187,13 +187,21 @@ module game_controller_for_two (
                 contrl_led = 8'b0000_1000;
                 game_over_next = 1;
                 if (is_slave_done) begin
-                    next = IDLE;
+                    next = WAIT_LOSE;
                     game_over_next =0;
                 end
                 if (game_start) begin
                     next = IDLE;
                 end            
             end
+
+            WAIT_LOSE: begin
+                responsing_i2c = 1'b1;
+                if(!is_slave_done) begin
+                    next= IDLE;
+                end
+            end
+
             SEND_LOSE: begin
                 contrl_led = 8'b0001_0000;
                 is_lose_next =1'b1;
@@ -207,6 +215,7 @@ module game_controller_for_two (
                     next = IDLE;
                 end    
             end
+
             SEND_BALL: begin
                 contrl_led = 8'b0010_0000;
                 ball_send_trigger_next = 1;
@@ -252,14 +261,13 @@ module game_controller_for_two (
                             ball_y_vel_next = -ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
-                            ball_y_vel_next = -ball_y_vel_next;
+                            ball_y_vel_next = ball_y_vel_next;
                         end
                     end else begin
                         ball_counter_next = ball_counter + 1;
                     end
                 end
             end
-
             RUNNING_RIGHT: begin  // 원래 left
                 is_ball_moving_right = 1'b1;
                 game_over_next = 0;
@@ -294,7 +302,7 @@ module game_controller_for_two (
                             ball_y_vel_next = -ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
-                            ball_y_vel_next = -ball_y_vel_next;
+                            ball_y_vel_next = ball_y_vel_next;
                         end
                     end else begin
                         ball_counter_next = ball_counter + 1;

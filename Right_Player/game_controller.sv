@@ -46,7 +46,8 @@ module game_controller (
         STOP,
         SEND_LOSE,
         SEND_BALL,
-        WIN_FLAG
+        WIN_FLAG,
+        WAIT_LOSE
     } state_t;
 
     state_t state, next;
@@ -157,6 +158,7 @@ module game_controller (
                 contrl_led = 8'b0000_0010;
                 responsing_i2c = 1'b1;
                 if (!is_slave_done) begin
+                    responsing_i2c = 1'b0;
                     if(is_you_win_reg) begin
                         next = IDLE;
                     end else begin
@@ -168,7 +170,6 @@ module game_controller (
 
             WIN_FLAG: begin
                 contrl_led = 8'b0000_0100;
-                is_idle = 1;
                 if(!is_i2c_master_done) begin
                     if (is_slave_done) begin
                         next = WAIT;
@@ -177,16 +178,33 @@ module game_controller (
                 end
             end
 
+            STOP: begin
+                contrl_led = 8'b0000_1000;
+                game_over_next = 1;
+                if (is_slave_done) begin
+                    next = WAIT_LOSE;
+                    game_over_next =0;
+                end
+            end
+
+            WAIT_LOSE: begin
+                responsing_i2c = 1'b1;
+                if(!is_slave_done) begin
+                    next= IDLE;
+                    responsing_i2c = 1'b0;
+                end
+            end
 
             SEND_LOSE: begin
                 contrl_led = 8'b0000_1000;
                 is_lose_next =1'b1;
+                game_over_next= 1'b1;
                 ball_send_trigger_next = 1;
                 if(is_i2c_master_done) begin
                     ball_send_trigger_next = 0;
-                    next= IDLE;
+                    next= STOP;
                     is_lose_next = 1'b0;
-                    game_over_next = 1'b1;
+                    game_over_next= 1'b0;
                 end
             end
 
@@ -194,7 +212,6 @@ module game_controller (
                 contrl_led = 8'b0001_0000;
                 ball_send_trigger_next = 1;
                 //next = STOP;
-
                 if (is_i2c_master_done) begin
                     next = WIN_FLAG;
                     ball_send_trigger_next =0;
@@ -233,7 +250,7 @@ module game_controller (
 
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
-                            ball_y_vel_next = -ball_y_vel_next;
+                            ball_y_vel_next = ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
                             ball_y_vel_next = -ball_y_vel_next;
@@ -276,7 +293,7 @@ module game_controller (
 
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
-                            ball_y_vel_next = -ball_y_vel_next;
+                            ball_y_vel_next = ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
                             ball_y_vel_next = -ball_y_vel_next;
