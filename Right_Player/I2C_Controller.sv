@@ -19,7 +19,8 @@ module I2C_Controller (
     output logic       is_i2c_master_done,
 
     //상대 플레이어로 LOSE 정보 전송//
-    input logic is_lose
+    input logic is_lose,
+    output logic ball_send_to_slave
 );
 
 
@@ -43,7 +44,9 @@ module I2C_Controller (
     logic [7:0] slv2_data0, slv2_data0_next;  //gravity
     logic [7:0] slv3_data0, slv3_data0_next;  //is collusion
     logic [7:0] slv4_data0, slv4_data0_next;  //is_lose
+    logic ball_send_to_slave_reg, ball_send_to_slave_next;
 
+    assign ball_send_to_slave = ball_send_to_slave_reg;
 
     logic [7:0] i2c_addr,tx_data_reg, tx_data_next;
     //state 관련//
@@ -73,6 +76,7 @@ module I2C_Controller (
             slv2_data0 <= 0;
             slv3_data0 <= 0;
             slv4_data0 <= 0;
+            ball_send_to_slave_reg <=0;
 
         end else begin
             state <= state_next;
@@ -85,6 +89,7 @@ module I2C_Controller (
             slv2_data0 <= slv2_data0_next;
             slv3_data0 <= slv3_data0_next;
             slv4_data0 <= slv4_data0_next;
+            ball_send_to_slave_reg <= ball_send_to_slave_next;
         end
     end
 
@@ -104,6 +109,7 @@ module I2C_Controller (
         slv3_data0_next = slv3_data0;
         slv4_data0_next = slv4_data0;
         is_i2c_master_done     = 0;
+        ball_send_to_slave_next = ball_send_to_slave_reg;
 
         case (state)
             IDLE: begin
@@ -112,7 +118,9 @@ module I2C_Controller (
                 state_addr_next = 0;
                 tx_data_next = 0;
                 master_led = 8'h01;  // LED 상태 초기화
+                ball_send_to_slave_next = 0;
                 if (ball_send_trigger) begin    
+                    ball_send_to_slave_next = 1;
                     start = 1;
                     i2c_en = 1;
                     state_next = START_WAIT;
@@ -205,9 +213,8 @@ module I2C_Controller (
             end
             WAIT_DONE: begin
                 is_i2c_master_done = 1;
-                if (!ball_send_trigger) begin
-                    state_next = IDLE;
-                end  
+                ball_send_to_slave_next =0;
+                state_next = IDLE;
             end
         endcase
     end

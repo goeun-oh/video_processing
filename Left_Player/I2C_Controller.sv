@@ -18,7 +18,8 @@ module I2C_Controller (
     output logic       is_i2c_master_done,
 
     input logic is_lose,
-    output logic [7:0] intf_led
+    output logic [7:0] intf_led,
+    output logic ball_send_to_slave
 );
 
     typedef enum {
@@ -54,8 +55,8 @@ module I2C_Controller (
     //i2c 전송 data 관련//
 
     assign tx_data  = tx_data_reg;
-
-    logic ball_send_to_slave_next;
+    logic ball_send_to_slave_reg, ball_send_to_slave_next;
+    assign ball_send_to_slave = ball_send_to_slave_reg;
 
     always_ff @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -69,6 +70,7 @@ module I2C_Controller (
             slv2_data0 <= 0;
             slv3_data0 <= 0;
             slv4_data0 <= 0;
+            ball_send_to_slave_reg <=0;
 
         end else begin
             state <= state_next;
@@ -81,6 +83,7 @@ module I2C_Controller (
             slv2_data0 <= slv2_data0_next;
             slv3_data0 <= slv3_data0_next;
             slv4_data0 <= slv4_data0_next;
+            ball_send_to_slave_reg <= ball_send_to_slave_next;
 
         end
     end
@@ -101,6 +104,7 @@ module I2C_Controller (
         slv2_data0_next = slv2_data0;
         slv3_data0_next = slv3_data0;
         slv4_data0_next = slv4_data0;
+        ball_send_to_slave_next = ball_send_to_slave_reg;
 
         case (state)
             IDLE: begin
@@ -132,6 +136,7 @@ module I2C_Controller (
             START_WAIT: begin
                 start  = 1;
                 i2c_en = 1;
+                intf_led = 8'b0000_0010;
                 if (!ready) begin
                     state_next = WAIT;
                 end
@@ -139,7 +144,7 @@ module I2C_Controller (
             end
 
             WAIT: begin
-                intf_led = 8'b0000_0010;
+                intf_led = 8'b0000_0100;
                 if (ready) begin
                     case (state_cnt_reg)
                         // 2'd0: begin
@@ -171,7 +176,7 @@ module I2C_Controller (
             // end
 
             SEND_DATA: begin
-                intf_led = 8'b0000_0100;
+                intf_led = 8'b0000_1000;
                 i2c_en   = 1;
                 if (!ready) begin
                     state_next = WAIT;
@@ -206,7 +211,7 @@ module I2C_Controller (
             end
 
             STOP: begin
-                intf_led = 8'b0000_1000;
+                intf_led = 8'b0001_0000;
                 stop = 1;
                 i2c_en = 1;
 
@@ -216,18 +221,17 @@ module I2C_Controller (
             end
 
             DONE: begin
-                intf_led = 8'b0001_0000;
+                intf_led = 8'b0010_0000;
                 if(ready) begin
                     state_next = WAIT_DONE;
                 end
 
             end
             WAIT_DONE: begin
-                intf_led = 8'b0001_0000;
+                intf_led = 8'b0100_0000;
                 is_i2c_master_done = 1;
-                if (!ball_send_trigger) begin
-                    state_next = IDLE;
-                end                
+                ball_send_to_slave_next =0;
+                state_next = IDLE;
             end
         endcase
     end

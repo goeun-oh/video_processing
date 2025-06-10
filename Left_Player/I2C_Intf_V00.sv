@@ -27,7 +27,8 @@ module I2C_Intf (
     output logic is_slave_done,
     input logic responsing_i2c,
     output logic is_i2c_master_done,
-    output logic [7:0] intf_led
+    output logic [7:0] intf_led,
+    output logic ball_send_to_slave
 );
     logic       ready;
     logic       start;

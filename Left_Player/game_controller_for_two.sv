@@ -33,7 +33,8 @@ module game_controller_for_two (
     input  logic       is_i2c_master_done,
     output logic [7:0] contrl_led,
     output logic is_idle,
-    output logic is_lose
+    output logic is_lose,
+    input logic ball_send_to_slave
 );
 
     typedef enum {
@@ -64,7 +65,7 @@ module game_controller_for_two (
     logic is_you_win_reg, is_you_win_next;
     // 속도 갱신용
     logic [19:0] ball_speed_reg, ball_speed_next;
-    logic [9:0] y_min = 0;
+    logic [9:0] y_min = 20;
     logic [9:0] y_max;
 
     logic game_over_next;
@@ -206,21 +207,23 @@ module game_controller_for_two (
                 contrl_led = 8'b0001_0000;
                 is_lose_next =1'b1;
                 game_over_next= 1'b1;
-                ball_send_trigger_next = 1;
-                if(is_i2c_master_done) begin
+                if (!ball_send_to_slave) begin
+                    ball_send_trigger_next = 1;
+                end else begin
                     ball_send_trigger_next = 0;
-                    next= STOP;
                 end
-                if (game_start) begin
-                    next = IDLE;
-                end    
+                if(is_i2c_master_done) begin
+                    next= STOP;
+                    is_lose_next = 1'b0;
+                    game_over_next= 1'b0;
+                end
             end
 
             SEND_BALL: begin
                 contrl_led = 8'b0010_0000;
-                ball_send_trigger_next = 1;
-                if (game_start) begin
-                    next = IDLE;
+                if (!ball_send_to_slave) begin
+                    ball_send_trigger_next = 1;
+                end else begin
                     ball_send_trigger_next = 0;
                 end
                 if (is_i2c_master_done) begin
@@ -239,9 +242,12 @@ module game_controller_for_two (
                     x_counter_next = 0;
                 end else if (ball_x_out <= 0) begin
                     next = SEND_LOSE;
-                    ball_send_trigger_next=  1;
+                    if(!ball_send_to_slave) begin
+                        ball_send_trigger_next=  1;
+                    end else begin
+                        ball_send_trigger_next = 0;
+                    end
                     game_over_next = 1;
-
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 8;
@@ -259,9 +265,13 @@ module game_controller_for_two (
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
                             ball_y_vel_next = -ball_y_vel_next;
+                            gravity_counter_next = 0;
+
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
-                            ball_y_vel_next = ball_y_vel_next;
+                            ball_y_vel_next = -ball_y_vel_next;
+                            gravity_counter_next = 0;
+
                         end
                     end else begin
                         ball_counter_next = ball_counter + 1;
@@ -296,13 +306,15 @@ module game_controller_for_two (
                         end
 
                         ball_y_next = ball_y_out + ball_y_vel;
-
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
                             ball_y_vel_next = -ball_y_vel_next;
+                            gravity_counter_next = 0;
+
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
-                            ball_y_vel_next = ball_y_vel_next;
+                            ball_y_vel_next = -ball_y_vel_next;
+                            gravity_counter_next = 0;
                         end
                     end else begin
                         ball_counter_next = ball_counter + 1;

@@ -33,7 +33,8 @@ module top_game_controller (
     input  logic       is_i2c_master_done,
     output logic       is_you_win,
     output logic       is_idle,
-    output logic is_lose
+    output logic is_lose,
+    input logic ball_send_to_slave
 );
 
     logic [9:0] ball_x_out_for_one, ball_x_out_for_two;

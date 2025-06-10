@@ -34,7 +34,8 @@ module game_controller (
     output logic [7:0] contrl_led,
     input  logic       is_i2c_master_done,
     //상대 보드에 LOSE 정보 전송//
-    output logic is_lose
+    output logic is_lose,
+    input logic ball_send_to_slave
 );
 
 
@@ -62,7 +63,7 @@ module game_controller (
     // 속도 갱신용
     logic [19:0] ball_speed, ball_speed_next;
     logic [19:0] sending_ball_speed;
-    logic [9:0] y_min = 0;
+    logic [9:0] y_min = 20;
     logic [9:0] y_max;
     logic game_over_next;
     logic is_lose_reg, is_lose_next;
@@ -149,8 +150,8 @@ module game_controller (
                     ball_x_next = 20;
                     ball_y_vel_next = slv_reg2_Yspeed;
                     gravity_counter_next = slv_reg3_gravity[1:0];
-                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd135000;
-                    is_you_win_next = 0;
+                    ball_speed_next = slv_reg4_ballspeed[0]? 20'd270000 :20'd200000;
+                    is_you_win_next = slv_reg5_win_flag[0];
                 end
             end
 
@@ -199,9 +200,12 @@ module game_controller (
                 contrl_led = 8'b0000_1000;
                 is_lose_next =1'b1;
                 game_over_next= 1'b1;
-                ball_send_trigger_next = 1;
-                if(is_i2c_master_done) begin
+                if(!ball_send_to_slave) begin
+                    ball_send_trigger_next = 1;
+                end else begin
                     ball_send_trigger_next = 0;
+                end
+                if(is_i2c_master_done) begin
                     next= STOP;
                     is_lose_next = 1'b0;
                     game_over_next= 1'b0;
@@ -210,7 +214,11 @@ module game_controller (
 
             SEND_BALL: begin
                 contrl_led = 8'b0001_0000;
-                ball_send_trigger_next = 1;
+                if(!ball_send_to_slave) begin
+                    ball_send_trigger_next = 1;
+                end else begin
+                    ball_send_trigger_next = 0;
+                end
                 //next = STOP;
                 if (is_i2c_master_done) begin
                     next = WIN_FLAG;
@@ -228,9 +236,12 @@ module game_controller (
                     ball_counter_next = 0;
                     x_counter_next = 0;
                     is_collusion = 1'b1;
-
                 end else if (ball_x_out >= (upscale ? 640 - 20 : 320 - 20)) begin
-                    ball_send_trigger_next = 1;
+                    if(!ball_send_to_slave) begin
+                        ball_send_trigger_next = 1;
+                    end else begin
+                        ball_send_trigger_next = 0;
+                    end                    
                     next = SEND_LOSE;
                     game_over_next = 1;
                     is_lose_next =1'b1;
@@ -250,7 +261,7 @@ module game_controller (
 
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
-                            ball_y_vel_next = ball_y_vel_next;
+                            ball_y_vel_next = -ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
                             ball_y_vel_next = -ball_y_vel_next;
@@ -265,18 +276,13 @@ module game_controller (
                 contrl_led = 8'b0100_0000;
 
                 game_over_next = 0;
-
                 if (collision_detected) begin
                     safe_speed_next = (estimated_speed < 2) ? 1.3 : estimated_speed;
                     ball_speed_next = 20'd270000 / safe_speed_next;
+                    is_collusion = 1'b1;
                 end
-
                 if (ball_x_out <= 0) begin
-                    score_test_next = score_test + 1;
                     next = SEND_BALL;
-                    ball_counter_next = 0;
-                    x_counter_next = 0;
-                    ball_speed_next = 20'd270000;  // 속도 초기화
                 end else begin
                     if (ball_counter >= ball_speed) begin
                         ball_x_next = ball_x_out - 8;
@@ -293,7 +299,7 @@ module game_controller (
 
                         if (ball_y_next >= y_max) begin
                             ball_y_next = y_max;
-                            ball_y_vel_next = ball_y_vel_next;
+                            ball_y_vel_next = -ball_y_vel_next;
                         end else if (ball_y_next <= y_min) begin
                             ball_y_next = y_min;
                             ball_y_vel_next = -ball_y_vel_next;
