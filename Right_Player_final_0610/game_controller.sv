@@ -12,6 +12,7 @@ module game_controller (
     input  logic       game_start,
     output logic       game_over,
     output logic [7:0] score_test,
+    output logic [1:0] rand_ball,
 
     //상대 보드에 공 정보 전송 wire
     output logic       ball_send_trigger,
@@ -57,8 +58,8 @@ module game_controller (
     logic game_over_next;
 
     logic [7:0] score_test_next;
-    logic rand_ball, rand_ball_next;
-
+    logic rand_ball_reg, rand_ball_next;
+    assign rand_ball =rand_ball_reg;
     assign ball_send_trigger = ball_send_trigger_reg;
     assign ball_vy = ball_y_vel;
     parameter BALL_PINGPONG = 0, BALL_SOCCER = 1, BALL_BASKET = 2;
@@ -77,7 +78,7 @@ module game_controller (
             score_test <= 0;
             ball_send_trigger_reg <= 0;
             safe_speed_reg <= 1;
-            rand_ball <=0;
+            rand_ball_reg <=0;
         end else begin
             state <= next;
             ball_x_out <= ball_x_next;
@@ -91,7 +92,7 @@ module game_controller (
             score_test <= score_test_next;
             ball_send_trigger_reg <= ball_send_trigger_next;
             safe_speed_reg <= safe_speed_next;
-            rand_ball <= rand_ball_next;
+            rand_ball_reg <= rand_ball_next;
         end
     end
 
@@ -113,7 +114,7 @@ module game_controller (
         is_idle =1'b0;
 
         y_max = upscale ? 479 : 239;
-        rand_ball_next = rand_ball;
+        rand_ball_next = rand_ball_reg;
 
         case (state)
             IDLE: begin
@@ -130,17 +131,17 @@ module game_controller (
                     gravity_counter_next = slv_reg3_gravity[1:0];
                     rand_ball_next = slv_reg4_ballspeed[2:1];
                 end
-            end
-
-            WAIT: begin
-                contrl_led = 8'b0000_0010;
-                responsing_i2c = 1'b1;
-                case (rand_ball)
+                case (rand_ball_next)
                     BALL_PINGPONG: ball_speed_next = 20'd270000;
                     BALL_SOCCER:   ball_speed_next = 20'd360000;
                     BALL_BASKET:   ball_speed_next = 20'd520000;
                     default:       ball_speed_next = 20'd270000;
                 endcase
+            end
+
+            WAIT: begin
+                contrl_led = 8'b0000_0010;
+                responsing_i2c = 1'b1;
                 if (!go_right) begin
                     next = RUNNING_RIGHT;
                 end

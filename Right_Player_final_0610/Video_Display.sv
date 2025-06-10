@@ -19,7 +19,10 @@ module Video_Display(
     output logic is_hit_area,
 
     input logic game_over,
-    input logic is_idle
+    input logic is_idle,
+
+    input logic [1:0] rand_ball,
+    input logic color_Diff
     );
 
     // 텍스트 표시 위치 및 크기
@@ -104,6 +107,21 @@ module Video_Display(
             display_pixel = camera_pixel;
         end
     end
+    always_comb begin
+        if (rand_ball == 0) begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 20) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 20);
+        end
+        else if (rand_ball == 1) begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 40) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 40);
+        end
+        else begin
+            in_ball_overlay_area = (x_pixel >= ball_x && x_pixel < ball_x + 64) &&
+                             (y_pixel >= ball_y && y_pixel < ball_y + 64);
+        end
+
+    end
 
 
     // always_comb begin
@@ -115,8 +133,7 @@ module Video_Display(
     //         display_pixel = camera_pixel;
     //     end
     // end
-    assign is_hit_area = (x_pixel >= ball_x) && (x_pixel < ball_x + 20) &&
-                        (y_pixel >= ball_y) && (y_pixel < ball_y + 20);
+    assign is_hit_area = in_ball_overlay_area;
 
     assign red_port   = display_pixel[15:12];
     assign green_port = display_pixel[10:7];

@@ -159,6 +159,14 @@ module OV7670_VGA_Display (
     logic buzzer_on;
     logic [1:0] rand_ball;
     logic rand_en;
+    logic color_Diff;
+    logic [1:0] dominant_color;
+    
+    chromakey U_chromakey(
+        .*,
+        .clk_25MHz(clk_25MHZ),
+        .pixel_in({red_port, green_port, blue_port})
+    );
 
     buzzer_trigger U_BUZZER_TRIGGER (
         .clk(ov7670_xclk),
@@ -178,8 +186,7 @@ module OV7670_VGA_Display (
         .clk(ov7670_xclk),
         .reset(reset),
         .rand_en(rand_en),
-        .rand_ball(rand_ball),
-        .player_1or2(sw[14])  
+        .rand_ball(rand_ball)
     );
 
    ball_rom U_BALL_ROM(
@@ -260,7 +267,11 @@ module OV7670_VGA_Display (
         .i_btn(game_start),
         .o_btn(w_game_start)
     );
-
+    logic [15:0] background_pixel;
+    background_rom U_bg_rom(
+        .*,
+        .pixel_data(background_pixel)
+    );
 
     score_calculator U_SCORE(
         .clk_25MHz(ov7670_xclk),

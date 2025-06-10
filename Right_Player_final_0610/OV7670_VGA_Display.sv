@@ -126,6 +126,7 @@ module OV7670_VGA_Display (
     );
 
    ball_rom U_BALL_ROM(
+        .*,
         .x_offset(x_offset),
         .y_offset(y_offset),
         .pixel_data(rom_pixel)
@@ -148,6 +149,8 @@ module OV7670_VGA_Display (
 
     logic ball_send_trigger;
     logic is_transfer;
+    logic [1:0] rand_ball;
+    logic color_Diff;
 
     logic [7:0] slv_reg0_y0;
     logic [7:0] slv_reg1_y1;

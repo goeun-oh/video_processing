@@ -11,7 +11,7 @@ module ball_rom(
     logic [15:0] rom_basketball [0:4096];  // 32x32 = 1024 픽셀 필요
 
     initial begin
-        $readmemh("PingPongBall.mem", rom_pingpong); 
+        $readmemh("ball.mem", rom_pingpong); 
         $readmemh("soccerBall.mem", rom_soccer); 
         $readmemh("BasketBall.mem", rom_basketball); 
     end
