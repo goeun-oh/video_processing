@@ -6,7 +6,6 @@ module Video_Display(
     input logic [9:0] y_pixel,
     input logic [15:0] camera_pixel,
     input logic [15:0] rom_pixel,
-    input logic [15:0] background_pixel,
     input logic [7:0] score,
 
     output logic [3:0] red_port,
@@ -24,8 +23,7 @@ module Video_Display(
     input logic ball_send_trigger,
     input logic is_game_ctrl_idle,
 
-    input logic [1:0] rand_ball,
-    input logic color_Diff
+    input logic [1:0] rand_ball
     );
 
     // 텍스트 표시 위치 및 크기
@@ -110,10 +108,7 @@ module Video_Display(
         end
         else if (in_score_overlay_area && in_score_overlay_area != 16'h0000) begin
             display_pixel = score_text;
-        end else if (color_Diff) begin
-            display_pixel = background_pixel;
-        end
-        else begin
+        end else begin
             display_pixel = camera_pixel;
         end
     end

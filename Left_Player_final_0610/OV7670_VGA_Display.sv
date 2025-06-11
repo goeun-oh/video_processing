@@ -108,6 +108,7 @@ module OV7670_VGA_Display (
     );
 
     QVGA_MemController U_QVGA_MC(
+        .*,
         // VGA Controller side
         .clk(w_rclk),
         .x_pixel(x_pixel),
@@ -159,14 +160,7 @@ module OV7670_VGA_Display (
     logic buzzer_on;
     logic [1:0] rand_ball;
     logic rand_en;
-    logic color_Diff;
-    logic [1:0] dominant_color;
-    
-    chromakey U_chromakey(
-        .*,
-        .clk_25MHz(clk_25MHZ),
-        .pixel_in({red_port, green_port, blue_port})
-    );
+
 
     buzzer_trigger U_BUZZER_TRIGGER (
         .clk(ov7670_xclk),
@@ -266,11 +260,6 @@ module OV7670_VGA_Display (
         .reset(reset),
         .i_btn(game_start),
         .o_btn(w_game_start)
-    );
-    logic [15:0] background_pixel;
-    background_rom U_bg_rom(
-        .*,
-        .pixel_data(background_pixel)
     );
 
     score_calculator U_SCORE(
