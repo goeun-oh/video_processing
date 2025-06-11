@@ -31,12 +31,18 @@ module QVGA_MemController (
 
     logic [16:0] image_addr, image_data;
 
+    logic [16:0] scaled_addr;
+    logic [9:0] x_scaled, y_scaled;
+
+    assign x_scaled = x_pixel >> 1;
+    assign y_scaled = y_pixel >> 1;
+    assign scaled_addr = y_scaled * 160 + x_scaled;
+
     rom U_rom(
         .rand_ball(rand_ball),
-        .addr(rAddr),
+        .addr(scaled_addr),
         .data(image_data)
     );
-
 
     logic display_en;
     logic [3:0] red   = rData[15:12];
@@ -56,35 +62,28 @@ module QVGA_MemController (
     end
 endmodule
 
-
 module rom (
-    input  logic [16:0] addr,
+    input  logic [16:0] scaled_addr,
     output logic [15:0] data,
     input logic [1:0] rand_ball
 );
-    logic [16:0] scaled_addr;
+
     logic [15:0] bg_rom_pingpong[0:160*120-1];
     logic [15:0] bg_rom_soccer[0:160*120-1];
     logic [15:0] bg_rom_basketball[0:160*120-1];
-    
-    assign scaled_addr = ((addr / 320) >> 1) * 160 + ((addr % 320) >> 1);
+
     initial begin
         $readmemh("bg_pingpong.mem", bg_rom_pingpong); 
         $readmemh("bg_soccer.mem", bg_rom_soccer); 
         $readmemh("bg_basketball.mem", bg_rom_basketball);     
     end
+
     always_comb begin
         case(rand_ball)
-            2'd0: begin
-                data = bg_rom_pingpong[scaled_addr];
-            end
-            2'd1: begin
-                data = bg_rom_soccer[scaled_addr];
-            end
-            2'd2: begin
-                data = bg_rom_basketball[scaled_addr];
-            end
-            default: data = bg_rom_basketball[scaled_addr];
+            2'd0: data = bg_rom_pingpong[scaled_addr];
+            2'd1: data = bg_rom_soccer[scaled_addr];
+            2'd2: data = bg_rom_basketball[scaled_addr];
+            default: data = bg_rom_pingpong[scaled_addr];
         endcase
     end
 endmodule
