@@ -62,20 +62,29 @@ module rom (
     output logic [15:0] data,
     input logic [1:0] rand_ball
 );
-
-    logic [15:0] bg_rom[0:320*240-1];
-
+    logic [16:0] scaled_addr;
+    logic [15:0] bg_rom_pingpong[0:160*120-1];
+    logic [15:0] bg_rom_soccer[0:160*120-1];
+    logic [15:0] bg_rom_basketball[0:160*120-1];
+    
+    assign scaled_addr = ((addr / 320) >> 1) * 160 + ((addr % 320) >> 1);
     initial begin
-        case (rand_ball)
-            2'd0: $readmemh("bg_pingpong.mem", bg_rom);
-            2'd1: $readmemh("bg_soccer.mem", bg_rom);
-            2'd2: $readmemh("bg_basketball.mem", bg_rom);
-            default: $readmemh("bg_pingpong.mem", bg_rom);
-        endcase
+        $readmemh("bg_pingpong.mem", bg_rom_pingpong); 
+        $readmemh("bg_soccer.mem", bg_rom_soccer); 
+        $readmemh("bg_basketball.mem", bg_rom_basketball);     
     end
-
-  
     always_comb begin
-        data = bg_rom[addr];
+        case(rand_ball)
+            2'd0: begin
+                data = bg_rom_pingpong[scaled_addr];
+            end
+            2'd1: begin
+                data = bg_rom_soccer[scaled_addr];
+            end
+            2'd2: begin
+                data = bg_rom_basketball[scaled_addr];
+            end
+            default: data = bg_rom_basketball[scaled_addr];
+        endcase
     end
 endmodule
