@@ -40,7 +40,7 @@ module QVGA_MemController (
 
     rom U_rom(
         .rand_ball(rand_ball),
-        .addr(scaled_addr),
+        .scaled_addr(scaled_addr),
         .data(image_data)
     );
 
