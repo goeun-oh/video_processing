@@ -172,7 +172,7 @@ module I2C_Controller (
                 if (!ready) begin
                     state_next = WAIT;
                     state_addr_next = state_addr_reg + 1;
-                    if (state_addr_reg == 3'd4) begin
+                    if (state_addr_reg == 3'd5) begin
                         state_cnt_next  = state_cnt_reg + 1;
                         state_addr_next = 0;
                     end

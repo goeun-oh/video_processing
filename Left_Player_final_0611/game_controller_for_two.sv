@@ -128,15 +128,11 @@ module game_controller_for_two (
                 ball_speed_next = 20'd600000;
                 is_collusion = 1'b0;
                 ball_send_trigger_next = 1'b0;
-                case (rand_ball)
-                    BALL_PINGPONG: ball_speed_next = 20'd270000;
-                    BALL_SOCCER:   ball_speed_next = 20'd360000;
-                    BALL_BASKET:   ball_speed_next = 20'd520000;
-                    default:       ball_speed_next = 20'd270000;
-                endcase
+
                 if (game_start) begin
                     next = RUNNING_RIGHT;
                     is_game_ctrl_idle_next = 0; 
+                    rand_en = 1;
                 end
                 if (go_left) begin
                     next = WAIT;
@@ -192,7 +188,6 @@ module game_controller_for_two (
                     x_counter_next = 0;
                 end else if (ball_x_out <= 0) begin
                     next = STOP;
-                    rand_en = 1;
                 end else begin
                     if (ball_counter >= ball_speed_reg) begin
                         ball_x_next = ball_x_out - 10;
@@ -226,6 +221,12 @@ module game_controller_for_two (
                 contrl_led = 8'b0010_0000;
                 is_game_ctrl_idle_next = 0; 
 
+                case (rand_ball)
+                    BALL_PINGPONG: ball_speed_next = 20'd270000;
+                    BALL_SOCCER:   ball_speed_next = 20'd360000;
+                    BALL_BASKET:   ball_speed_next = 20'd520000;
+                    default:       ball_speed_next = 20'd270000;
+                endcase
                 if (collision_detected) begin
                     safe_speed_next = (estimated_speed < 2) ? 1.3 : estimated_speed;
                     ball_speed_next = 20'd600000 / safe_speed_next;
