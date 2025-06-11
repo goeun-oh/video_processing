@@ -64,7 +64,7 @@ I2C Slave Register 는 다음과 같이 구성됨
 | `slv_reg1`    | 공의 y 좌표 저장   | 8bit  |  |
 | `slv_reg2`    | 공의 y 방향 속도   | 8bit | 부호 포함        |
 | `slv_reg3`    | gravity   | 2bit |         |
-| `slv_reg4`    | safe speed   | 8bit | 공의 speed 를 유지하기 위해 safe speed를 가져오고, ball speed를 이로 나눈 값으로 적용하기 위해 필요함        |
+| `slv_reg4`    | ball 종류(2 bit) ,is_collison(1 bit)   | 3bit | 공의 speed 를 유지하기 위해 충돌 여부 플래그와 공 종류를 가져옴       |
 
 ## 시뮬 & 테스트
 - **조건:**  
